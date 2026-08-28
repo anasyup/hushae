@@ -1,11 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Chart from 'chart.js/auto';
+import { RefreshCcw } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
-import { ctlInline, EditorialError, TableSkeleton } from './orders/orderUi';
-import { MonoLine, RankedBars } from './analytics/charts';
+
+/* ============================================================================
+ * ANALYTICS — the business-intelligence page, rebuilt on the admin's od-
+ * design system (light editorial + dark parity), richer than Shopify's
+ * default analytics without adding gimmicks:
+ *
+ *   KPI strip with period deltas
+ *   Revenue line (previous period dashed) + sessions bars
+ *   Conversion funnel · customer split · devices
+ *   Top products · categories · payment mix
+ *   Traffic: referrers · landing pages · order cities
+ *
+ * All figures come from the existing /analytics/overview aggregate —
+ * this page only presents, never mutates.
+ * ========================================================================== */
 
 const RANGES = [
   { v: 'today', label: 'Today' },
@@ -16,6 +30,19 @@ const RANGES = [
   { v: 'custom', label: 'Custom range' },
 ];
 
+const PALETTES = {
+  light: { main: '#111', g2: '#8a8a8a', grid: '#f2f2f2', tick: '#9ca3af', mutedLine: '#c8c8c8', green: '#0e9f6e', red: '#dc2626', tooltip: '#111' },
+  dark: { main: '#f4f4f5', g2: '#71717a', grid: '#26262c', tick: '#71717a', mutedLine: '#52525b', green: '#34d399', red: '#f87171', tooltip: '#27272a' },
+};
+const P = () => (document.documentElement.classList.contains('dark-admin') ? PALETTES.dark : PALETTES.light);
+
+const compact = (v) => {
+  const n = Number(v) || 0;
+  if (n >= 1e6) return `₨${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
+  return `₨${Math.round(n)}`;
+};
+
 export default function Analytics() {
   const { auth, logout } = useApp();
   const [range, setRange] = useState('30d');
@@ -24,6 +51,7 @@ export default function Analytics() {
   const [a, setA] = useState(null);
   const [err, setErr] = useState('');
   const [tick, setTick] = useState(0);
+  const chartsRef = useRef([]);
 
   useEffect(() => {
     setA(null); setErr('');
@@ -33,190 +61,233 @@ export default function Analytics() {
       .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Failed to load analytics — please try again.'); });
   }, [auth, range, tick]); // eslint-disable-line
 
-  const controls = (
-    <div className="flex flex-wrap items-center gap-2">
-      <select value={range} onChange={(e) => setRange(e.target.value)} className={`${ctlInline} w-auto`} aria-label="Date range">
-        {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
-      </select>
-      {range === 'custom' && (
-        <>
-          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className={`${ctlInline} [color-scheme:dark]`} aria-label="From" />
-          <span className="text-[11px] uppercase tracking-[0.14em] text-white/30">to</span>
-          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className={`${ctlInline} [color-scheme:dark]`} aria-label="To" />
-        </>
-      )}
-    </div>
-  );
+  /* charts: rebuild on data + theme toggle */
+  useEffect(() => {
+    if (!a) return undefined;
+    const make = () => {
+      chartsRef.current.forEach((c) => c.destroy());
+      chartsRef.current = [];
+      const pal = P();
+      const add = (el, cfg) => { if (el) chartsRef.current.push(new Chart(el, cfg)); };
+      const axis = (fmt) => ({
+        x: { grid: { display: false }, ticks: { color: pal.tick, font: { size: 10 } } },
+        y: { grid: { color: pal.grid }, ticks: { color: pal.tick, font: { size: 10 }, callback: fmt } },
+      });
 
-  if (!a) {
-    return (
-      <AdminLayout title="Analytics">
-        <PageHeader title="Analytics" description="Store performance and business intelligence." actions={controls} />
-        {err
-          ? <EditorialError title="Unable to load analytics" description={err} onRetry={() => setTick((t) => t + 1)} />
-          : <TableSkeleton rows={8} />}
-      </AdminLayout>
-    );
-  }
+      add(document.getElementById('anRev'), {
+        type: 'line',
+        data: {
+          labels: a.series.map((s) => s.date),
+          datasets: [
+            { label: 'Revenue', data: a.series.map((s) => s.revenue), borderColor: pal.main, backgroundColor: pal.main, tension: 0.35, pointRadius: 0, borderWidth: 2 },
+            ...(a.prev ? [{ label: 'Previous period', data: a.series.map((s) => s.prevRevenue ?? null), borderColor: pal.mutedLine, borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0 }] : []),
+          ],
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.dataset.label}: ${pkr(c.parsed.y)}` } } }, scales: axis((v) => compact(v)) },
+      });
 
-  const delta = (v, p) => {
-    if (!a.prev) return null;
-    if (p === 0) return v > 0 ? { txt: 'new', up: true } : { txt: '0%', up: null };
+      add(document.getElementById('anSess'), {
+        type: 'bar',
+        data: { labels: a.traffic.sessionsSeries.map((s) => s.date), datasets: [{ label: 'Sessions', data: a.traffic.sessionsSeries.map((s) => s.sessions), backgroundColor: pal.g2, borderRadius: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: axis() },
+      });
+
+      add(document.getElementById('anCust'), {
+        type: 'doughnut',
+        data: { labels: ['New', 'Returning'], datasets: [{ data: [a.customerSplit.fresh, a.customerSplit.returning], backgroundColor: [pal.main, pal.g2], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } } } },
+      });
+
+      add(document.getElementById('anDev'), {
+        type: 'doughnut',
+        data: { labels: a.traffic.byDevice.map((d) => d.device || 'Unknown'), datasets: [{ data: a.traffic.byDevice.map((d) => d.sessions), backgroundColor: [pal.main, pal.g2, pal.mutedLine, pal.grid], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } } } },
+      });
+
+      add(document.getElementById('anPay'), {
+        type: 'doughnut',
+        data: { labels: a.byPayment.map((p) => p.method), datasets: [{ data: a.byPayment.map((p) => p.revenue), backgroundColor: [pal.main, pal.g2, pal.mutedLine, pal.grid, pal.tick], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: (c) => ` ${c.label}: ${pkr(c.parsed)}` } } } },
+      });
+    };
+    make();
+    const mo = new MutationObserver(make);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => { mo.disconnect(); chartsRef.current.forEach((c) => c.destroy()); chartsRef.current = []; };
+  }, [a]);
+
+  const k = a?.kpis;
+  const deltaPct = (v, p) => {
+    if (!a?.prev || p == null) return null;
+    if (p === 0) return v > 0 ? { txt: 'new', up: true } : null;
     const pc = Math.round(((v - p) / p) * 100);
     return { txt: `${pc >= 0 ? '+' : ''}${pc}%`, up: pc >= 0 };
   };
-  const Delta = ({ d }) => {
-    if (!d) return null;
-    if (d.up === null) return <span className="ml-2 text-[11px] uppercase tracking-[0.12em] text-white/30">{d.txt}</span>;
-    return (
-      <span className={`ml-2 text-[11px] tabular-nums ${d.up ? 'text-white/55' : 'text-white/30'}`}>
-        {d.up ? '↑' : '↓'} {d.txt}
-      </span>
-    );
+  const Delta = ({ d }) => d && (
+    <span className="od-delta" style={{ color: d.up ? '#10b981' : '#ef4444' }}>{d.up ? '↑' : '↓'} {d.txt}</span>
+  );
+
+  const bar = (rows, key, fmt) => {
+    const max = Math.max(...rows.map((r) => r[key]), 1);
+    return rows.map((r) => (
+      <div key={r.name || r.cat || r.method || r.city || r.ref || r.path} className="od-bar-row">
+        <div className="od-bar-meta">
+          <span className="od-bar-label">{r.name || r.cat || r.method || r.city || r.ref || r.path}</span>
+          <span className="od-bar-val">{fmt ? fmt(r[key]) : r[key]}</span>
+        </div>
+        <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, Math.round((r[key] / max) * 100))}%` }} /></div>
+      </div>
+    ));
   };
 
-  const kpis = [
-    { label: 'Revenue', value: pkr(a.kpis.revenue), d: delta(a.kpis.revenue, a.prev?.revenue) },
-    { label: 'Orders', value: a.kpis.orders, d: delta(a.kpis.orders, a.prev?.orders) },
-    { label: 'Aov', value: pkr(a.kpis.aov) },
-    { label: 'Items sold', value: a.kpis.itemsSold },
-    { label: 'Sessions', value: a.kpis.sessions },
-    { label: 'Conversion', value: `${a.kpis.conversion}%` },
-  ];
-
-  const catName = (s) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const inputCls = { height: 34, border: '1px solid var(--admin-border)', borderRadius: 8, background: 'var(--admin-surface)', color: 'var(--admin-text)', padding: '0 10px', fontSize: 12 };
 
   return (
     <AdminLayout title="Analytics">
-      <PageHeader title="Analytics" description="Store performance and business intelligence." actions={controls} />
-      {a.prev && range !== 'custom' && (
-        <p className="mb-8 text-[11px] uppercase tracking-[0.14em] text-white/30">
-          Compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}
-        </p>
+      {/* head */}
+      <div className="od-head">
+        <div>
+          <p className="adm-eyebrow" style={{ padding: 0 }}>Growth</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700 }}>Analytics</h2>
+          <p className="mt-1 text-[12px]" style={{ color: 'var(--adm-label)' }}>
+            Revenue, conversion and traffic — {RANGES.find((r) => r.v === range)?.label.toLowerCase()}.
+            {a?.prev && range !== 'custom' && range !== 'all' && ' Compared with the previous period.'}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <select value={range} onChange={(e) => setRange(e.target.value)} style={inputCls} aria-label="Date range">
+            {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
+          </select>
+          {range === 'custom' && (
+            <>
+              <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} style={inputCls} aria-label="From" />
+              <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} style={inputCls} aria-label="To" />
+            </>
+          )}
+          <button type="button" className="adm-chip" onClick={() => setTick((t) => t + 1)}><RefreshCcw size={13} /> Refresh</button>
+        </div>
+      </div>
+
+      {err && (
+        <div className="od-empty">
+          <p className="od-empty-t">Unable to load analytics</p>
+          <p className="od-empty-b">{err}</p>
+          <button type="button" className="od-fbtn" onClick={() => setTick((t) => t + 1)} style={{ marginTop: 12 }}>Retry</button>
+        </div>
       )}
 
-      <section className="mb-10">
-        <p className="adm-index">01 — Performance</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 xl:grid-cols-6">
-          {kpis.map((x) => (
-            <div key={x.label} className="px-4 py-6 sm:px-5">
-              <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[22px] leading-none text-white xl:text-[26px]">
-                {x.value}
-                <Delta d={x.d} />
-              </p>
-            </div>
+      {!a && !err && (
+        <div className="od-stats" aria-label="Loading analytics">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="od-stat"><div className="od-skel" style={{ height: 14, width: '60%' }} /><div className="od-skel" style={{ height: 26, marginTop: 10 }} /></div>
           ))}
         </div>
-      </section>
+      )}
 
-      <section className="mb-10">
-        <p className="adm-index">01b — Online store conversion</p>
-        <div className="border-y border-white/10">
-          {[
-            ['Sessions', a.kpis.sessions, '100'],
-            ['Added to cart', a.kpis.carts, a.kpis.sessions ? Math.max(1, Math.round((a.kpis.carts / a.kpis.sessions) * 100)) : 0],
-            ['Reached checkout', a.kpis.checkouts, a.kpis.sessions ? Math.max(1, Math.round((a.kpis.checkouts / a.kpis.sessions) * 100)) : 0],
-            ['Purchased', a.kpis.orders, a.kpis.sessions ? Math.max(1, Math.round((a.kpis.orders / a.kpis.sessions) * 100)) : 0],
-          ].map(([label, val, pct], i, arr) => (
-            <div key={label} className={i < arr.length - 1 ? 'border-b border-white/5' : ''}>
-              <div className="flex items-center justify-between px-4 py-3 sm:px-5">
-                <p className="text-[12px] text-white/70">{label}</p>
-                <p className="text-[12px] tabular-nums text-white/70">
-                  <span className="text-white">{Number(val).toLocaleString()}</span> · {pct}%
-                </p>
+      {a && k && (
+        <>
+          {/* KPI strip */}
+          <div className="od-stats">
+            {[
+              ['Revenue', pkr(k.revenue), deltaPct(k.revenue, a.prev?.revenue)],
+              ['Orders', k.orders.toLocaleString(), deltaPct(k.orders, a.prev?.orders)],
+              ['Avg order value', pkr(k.aov), null],
+              ['Items sold', k.itemsSold.toLocaleString(), null],
+              ['Sessions', k.sessions.toLocaleString(), null],
+              ['Conversion', `${k.conversion}%`, null],
+            ].map(([label, value, d]) => (
+              <div key={label} className="od-stat">
+                <div className="od-stat-head">{label} <Delta d={d} /></div>
+                <div className="od-stat-val">{value}</div>
               </div>
-              <div className="h-1 w-full bg-white/5">
-                <div className="h-full bg-white/60" style={{ width: `${pct}%` }} />
-              </div>
+            ))}
+          </div>
+
+          {/* revenue + sessions */}
+          <div className="od-charts">
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Revenue over time</p></div>
+              <div style={{ height: 240 }}><canvas id="anRev" /></div>
             </div>
-          ))}
-        </div>
-        <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
-          Shopify-style funnel — sessions to purchase, for the selected range.
-        </p>
-      </section>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Sessions over time</p></div>
+              <div style={{ height: 240 }}><canvas id="anSess" /></div>
+            </div>
+          </div>
 
-      <section className="mb-10">
-        <p className="adm-index">02 — Sales</p>
-        <div className="mb-8">
-          <p className="adm-label mb-4">Revenue over time</p>
-          <MonoLine data={a.series} k="revenue" fmt={(v) => pkr(v)} />
-        </div>
-        <div className="mb-8">
-          <p className="adm-label mb-4">Orders over time</p>
-          <MonoLine data={a.series} k="orders" height={160} />
-        </div>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">By payment</p>
-            <RankedBars rows={a.byPayment.map((p) => ({ label: p.method, value: p.revenue }))} fmt={(v) => pkr(v)} />
+          {/* funnel + splits */}
+          <div className="od-charts-3">
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Online store conversion</p></div>
+              {[
+                ['Sessions', k.sessions, 100],
+                ['Added to cart', k.carts, k.sessions ? Math.round((k.carts / k.sessions) * 100) : 0],
+                ['Reached checkout', k.checkouts, k.sessions ? Math.round((k.checkouts / k.sessions) * 100) : 0],
+                ['Purchased', k.orders, k.sessions ? Math.round((k.orders / k.sessions) * 100) : 0],
+              ].map(([label, val, pct], i, arr) => (
+                <div key={label} style={{ padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--admin-border-subtle)' : 0 }}>
+                  <div className="od-bar-meta">
+                    <span className="od-bar-label">{label}</span>
+                    <span className="od-bar-val">{Number(val).toLocaleString()} · {pct}%</span>
+                  </div>
+                  <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, pct)}%` }} /></div>
+                </div>
+              ))}
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">New vs returning</p></div>
+              <div style={{ height: 190 }}><canvas id="anCust" /></div>
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Devices</p></div>
+              <div style={{ height: 190 }}><canvas id="anDev" /></div>
+            </div>
           </div>
-          <div>
-            <p className="adm-label mb-3">By status</p>
-            <RankedBars rows={a.byStatus.map((s) => ({ label: s.status, value: s.count }))} />
-          </div>
-        </div>
-      </section>
 
-      <section className="mb-10">
-        <p className="adm-index">03 — Customers</p>
-        <div className="adm-divide-x mb-8 grid grid-cols-2 border-y border-white/10">
-          <div className="px-5 py-6">
-            <p className="adm-label">First-time buyers</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-white">{a.customerSplit.fresh}</p>
+          {/* sales intelligence */}
+          <div className="od-charts">
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Top products</p></div>
+              {a.topProducts.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No sales in this range yet.</p>}
+              {a.topProducts.slice(0, 8).map((p, i) => (
+                <div key={p.id || p.name} className="od-bar-row">
+                  <div className="od-bar-meta">
+                    <span className="od-bar-label">{i + 1}. {p.name}</span>
+                    <span className="od-bar-val">{p.orders} orders · {pkr(p.revenue)}</span>
+                  </div>
+                  <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, Math.round((p.revenue / Math.max(a.topProducts[0].revenue, 1)) * 100))}%` }} /></div>
+                </div>
+              ))}
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Revenue by category</p></div>
+              {a.byCategory.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No category sales yet.</p>}
+              {bar(a.byCategory.slice(0, 6), 'revenue', compact)}
+              <div className="od-card-h" style={{ margin: '16px 0 8px' }}><p className="od-card-t">Payment mix</p></div>
+              <div style={{ height: 170 }}><canvas id="anPay" /></div>
+            </div>
           </div>
-          <div className="px-5 py-6">
-            <p className="adm-label">Returning buyers</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-white">{a.customerSplit.returning}</p>
-          </div>
-        </div>
-        <p className="adm-label mb-3">Orders by city</p>
-        <RankedBars rows={a.orderCities.map((c) => ({ label: c.city, value: c.orders }))} />
-      </section>
 
-      <section className="mb-10">
-        <p className="adm-index">04 — Products</p>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">By product</p>
-            <RankedBars rows={a.topProducts.map((p) => ({ label: p.name, value: p.revenue, sub: `· ${p.qty}` }))} fmt={(v) => pkr(v)} />
+          {/* traffic */}
+          <div className="od-charts-3">
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Top referrers</p></div>
+              {a.traffic.refs.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No referral traffic yet.</p>}
+              {bar(a.traffic.refs.slice(0, 6), 'views')}
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Landing pages</p></div>
+              {a.traffic.landing.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No traffic yet.</p>}
+              {bar(a.traffic.landing.slice(0, 6), 'views')}
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Order cities</p></div>
+              {a.orderCities.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No orders yet.</p>}
+              {bar(a.orderCities.slice(0, 6), 'orders')}
+            </div>
           </div>
-          <div>
-            <p className="adm-label mb-3">By category</p>
-            <RankedBars rows={a.byCategory.map((c) => ({ label: catName(c.cat), value: c.revenue }))} fmt={(v) => pkr(v)} />
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <p className="adm-index">05 — Traffic</p>
-        <div className="mb-8">
-          <p className="adm-label mb-4">Sessions over time</p>
-          <MonoLine data={a.traffic.sessionsSeries} k="sessions" height={160} />
-        </div>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">By device</p>
-            <RankedBars rows={a.traffic.byDevice.map((d) => ({ label: d.device, value: d.sessions }))} />
-          </div>
-          <div>
-            <p className="adm-label mb-3">By city</p>
-            <RankedBars rows={a.traffic.visitCities.map((c) => ({ label: c.city, value: c.sessions }))} empty="City data visits aane par dikhegi" />
-          </div>
-          <div>
-            <p className="adm-label mb-3">Top pages</p>
-            <RankedBars rows={a.traffic.landing.map((l) => ({ label: l.path, value: l.views }))} />
-          </div>
-          <div>
-            <p className="adm-label mb-3">Referrers</p>
-            <RankedBars
-              rows={a.traffic.refs.map((r) => ({ label: r.ref.replace(/^https?:\/\//, '').slice(0, 38), value: r.views }))}
-              empty="All traffic is direct so far — once links are shared, sources will appear here"
-            />
-          </div>
-        </div>
-      </section>
+        </>
+      )}
     </AdminLayout>
   );
 }
