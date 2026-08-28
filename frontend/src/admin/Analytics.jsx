@@ -31,6 +31,23 @@ const th = { textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'u
 const td = { fontSize: 12, padding: '9px 10px', borderBottom: '1px solid var(--admin-border-subtle)', color: 'var(--admin-text)' };
 const num = { ...td, fontVariantNumeric: 'tabular-nums' };
 
+/* Count-up number animation (reduced-motion safe). */
+function CountUp({ value, fmt }) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setV(value); return undefined; }
+    let raf; const t0 = performance.now(); const dur = 700;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      setV(value * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return <>{fmt(v)}</>;
+}
+
 /* Trapezoid funnel like the reference dashboards. */
 function Funnel({ k }) {
   const steps = [
@@ -143,7 +160,15 @@ export default function Analytics() {
           data: {
             labels: ser.map((d) => d.date.slice(5)),
             datasets: [
-              { label: 'Revenue', data: ser.map((d) => d.revenue), borderColor: pal.amber, backgroundColor: dark ? 'rgba(251,191,36,0.12)' : 'rgba(217,119,0,0.10)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+              { label: 'Revenue', data: ser.map((d) => d.revenue), borderColor: pal.amber, fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2,
+                backgroundColor: (c) => {
+                  const { ctx, chartArea } = c.chart;
+                  if (!chartArea) return 'rgba(217,119,0,0.10)';
+                  const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                  g.addColorStop(0, dark ? 'rgba(251,191,36,0.28)' : 'rgba(217,119,0,0.18)');
+                  g.addColorStop(1, 'rgba(217,119,0,0)');
+                  return g;
+                } },
               { label: '7-day average', data: avg, borderColor: pal.g2, borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0 },
             ],
           },
@@ -173,10 +198,19 @@ export default function Analytics() {
             The questions the dashboard doesn't answer — conversion, ROI, loyalty, quality.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <select value={range} onChange={(e) => setRange(e.target.value)} className="adm-chip" style={{ height: 34 }} aria-label="Range">
-            {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
-          </select>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="od-seg" role="group" aria-label="Date range">
+            {RANGES.map((r) => (
+              <button key={r.v} type="button" className={range === r.v ? 'on' : ''} onClick={() => setRange(r.v)}>{r.label.replace('Last ', '')}</button>
+            ))}
+            <button type="button" className={range === 'custom' ? 'on' : ''} onClick={() => setRange('custom')}>Custom</button>
+          </div>
+          {range === 'custom' && (
+            <>
+              <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="adm-chip" style={{ height: 32 }} aria-label="From" />
+              <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="adm-chip" style={{ height: 32 }} aria-label="To" />
+            </>
+          )}
           <button type="button" className="adm-chip" onClick={load}><RefreshCcw size={13} /> Refresh</button>
         </div>
       </div>
@@ -199,34 +233,33 @@ export default function Analytics() {
 
       {bench && bench.kpis && (
         <>
-          {/* KPI cards with vs-previous + mini bars */}
+          {/* KPI cards — accent tints, count-up, staggered reveal */}
           <div className="od-stats">
             {[
-              ['Revenue', `Rs ${Math.round(bench.kpis.revenue).toLocaleString()}`, bench.series.map((d) => d.revenue)],
-              ['Orders', bench.kpis.orders.toLocaleString(), bench.series.map((d) => d.orders)],
-              ['Sessions', bench.kpis.sessions.toLocaleString(), bench.series.map((d) => d.sessions)],
-              ['Conversion', `${bench.kpis.conversion}%`, null],
-              ['Avg order', `Rs ${Math.round(bench.kpis.aov).toLocaleString()}`, null],
-              ['Cart → checkout', bench.kpis.carts ? `${Math.round((bench.kpis.checkouts / bench.kpis.carts) * 100)}%` : '—', null],
-            ].map(([label, value, bars]) => {
+              { label: 'Revenue', raw: bench.kpis.revenue, fmt: (v) => `Rs ${Math.round(v).toLocaleString()}`, bars: bench.series.map((d) => d.revenue), key: 'revenue', acc: 'acc-blue' },
+              { label: 'Orders', raw: bench.kpis.orders, fmt: (v) => Math.round(v).toLocaleString(), bars: bench.series.map((d) => d.orders), key: 'orders', acc: 'acc-green' },
+              { label: 'Sessions', raw: bench.kpis.sessions, fmt: (v) => Math.round(v).toLocaleString(), bars: bench.series.map((d) => d.sessions), key: 'sessions', acc: 'acc-teal' },
+              { label: 'Conversion', raw: bench.kpis.conversion, fmt: (v) => `${v.toFixed(1)}%`, bars: null, key: null, acc: 'acc-amber' },
+              { label: 'Avg order', raw: bench.kpis.aov, fmt: (v) => `Rs ${Math.round(v).toLocaleString()}`, bars: null, key: null, acc: 'acc-pink' },
+              { label: 'Cart → checkout', raw: bench.kpis.carts ? (bench.kpis.checkouts / bench.kpis.carts) * 100 : 0, fmt: (v) => `${Math.round(v)}%`, bars: null, key: null, acc: 'acc-gray' },
+            ].map((m2, idx) => {
               const ser = bench.series;
               const last = ser[ser.length - 1]; const prevD = ser[ser.length - 2];
-              const key = label === 'Revenue' ? 'revenue' : label === 'Orders' ? 'orders' : 'sessions';
-              const dlt = bars && prevD && prevD[key] ? Math.round(((last[key] - prevD[key]) / prevD[key]) * 100) : null;
+              const dlt = m2.key && prevD && prevD[m2.key] ? Math.round(((last[m2.key] - prevD[m2.key]) / prevD[m2.key]) * 100) : null;
               return (
-                <div key={label} className="od-stat">
-                  <div className="od-stat-head">{label}</div>
-                  <div className="od-stat-val">{value}</div>
+                <div key={m2.label} className={`od-stat od-rise ${m2.acc}`} style={{ animationDelay: `${idx * 60}ms` }}>
+                  <div className="od-stat-head">{m2.label}</div>
+                  <div className="od-stat-val"><CountUp value={m2.raw} fmt={m2.fmt} /></div>
                   <div className="od-stat-foot">
                     <span className="od-delta" style={{ color: dlt == null ? 'var(--adm-label)' : dlt >= 0 ? '#10b981' : '#ef4444' }}>
-                      {dlt == null ? 'vs prev' : `${dlt >= 0 ? '↑' : '↓'} ${Math.abs(dlt)}% vs prev day`}
+                      {dlt == null ? 'this period' : `${dlt >= 0 ? '↑' : '↓'} ${Math.abs(dlt)}% vs prev day`}
                     </span>
-                    {bars && (
-                      <svg width="70" height="24" aria-hidden="true">
-                        {bars.slice(-14).map((v, i, arr) => {
+                    {m2.bars && (
+                      <svg width="70" height="24" aria-hidden="true" style={{ color: 'inherit' }}>
+                        {m2.bars.slice(-14).map((v, i, arr) => {
                           const max = Math.max(...arr, 1);
                           const h = Math.max(2, (v / max) * 22);
-                          return <rect key={i} x={i * 5} y={24 - h} width="3.5" height={h} rx="1" fill="currentColor" opacity="0.55" />;
+                          return <rect key={i} x={i * 5} y={24 - h} width="3.5" height={h} rx="1" fill="currentColor" opacity="0.6" />;
                         })}
                       </svg>
                     )}
