@@ -27,7 +27,7 @@ Har admin UI change us checklist ke against judge hoga.
 (R0–R8) "organized nahi lag rahe" thay — random order, same-weight stacked tables, misaligned
 numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par hain.
 
-**STATUS: DONE (4 rounds, sab live verified).**
+**STATUS: DONE (5 rounds, sab live verified).**
 1. `2640143` — report sections ek hi card + 12-column row system par (boss: "organized nahi
    lag rahay, paragraph jaisay").
 2. `ee052e3` — un sections me charts add hue (boss: "charts jaisa candlestick jaisa doo").
@@ -41,6 +41,21 @@ internet se templates dekho"). Research: Shopify Finance (payouts, payout reconc
 report, reserves), ecommerce P&L practice (A2X/Finaloop/SAL), reconciliation guides.
 Consistent finding: **the deposit is not the revenue** — page ko dono ke beech ki har
 deduction dikhani chahiye.
+
+**5. `af5a2a8` — FINANCE ko **ATELIER design** pe rebuild kiya (boss: "full page graphs chart mat
+banao, jaise Overview page pe hain waise karo"). Pichla version Finance ka apna teesra design
+language tha (fn-* namespace + SVG waterfall) — admin me pehle se do thay.
+
+**RULE: admin me naya design language mat banao.** Finance ab `Overview.module.css` **direct
+import** karta hai (copy nahi), isliye dono pages pixel-identical hain aur drift nahi kar sakte.
+Naya page banate waqt yehi karo — `import styles from './Overview.module.css'`, phir `.ovw` >
+`.wrap` > `.topbar` / `.stats` / `.grid3` / `.grid4` / `.tbl`.
+
+Charts **Overview jitne hi restrained**: ek profit-trend line, ek cost doughnut, 6 sparklines.
+Baqi sab tables — kyunke paise ke liye exact figure shape se zyada zaroori hai.
+
+**Chart restraint rule:** "full page charts" = galat. Overview pattern follow karo: KPI cards +
+1-2 charts + tables.
 
 **FINANCE — single source of truth rule (sabse ahem):**
 `backend/src/utils/orderEconomics.js` order-level profit ka **single source of truth** hai.
