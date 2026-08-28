@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Chart from 'chart.js/auto';
 import {
   AlertTriangle, Eye, EyeOff, FolderOpen, Pencil, Plus, Save, Search, X,
 } from 'lucide-react';
@@ -84,6 +85,51 @@ export default function Categories() {
     { label: 'Men', value: summary.men, key: 'men', note: { text: 'Live', tone: 'pa-note-blue' } },
     { label: 'Disabled', value: summary.disabled, key: 'disabled', note: { text: 'Hidden', tone: 'pa-note-gray' } },
   ];
+
+  /* Catalog distribution — products per gender + top categories by count.
+     Pure derivation from the counts read above; no extra requests. */
+  const dist = useMemo(() => {
+    const byGender = { women: 0, men: 0 };
+    const catGender = {};
+    (cats || []).forEach((c) => { catGender[c.slug] = c.gender; });
+    Object.entries(counts).forEach(([slug, n]) => {
+      if (catGender[slug] === 'men') byGender.men += n;
+      else if (catGender[slug] === 'women') byGender.women += n;
+    });
+    const top = (cats || [])
+      .filter((c) => c.isActive)
+      .map((c) => ({ name: c.name, slug: c.slug, n: counts[c.slug] || 0 }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 5);
+    const max = Math.max(1, ...top.map((t) => t.n));
+    return { byGender, top, max, total: byGender.women + byGender.men };
+  }, [cats, counts]);
+
+  /* Donut — ATELIER palette (#111 / #c9c9c9), cutout 70% like the reference. */
+  const donutRef = useRef(null);
+  useEffect(() => {
+    if (!donutRef.current || dist.total === 0) return undefined;
+    const chart = new Chart(donutRef.current, {
+      type: 'doughnut',
+      data: {
+        labels: ['Women', 'Men'],
+        datasets: [{ data: [dist.byGender.women, dist.byGender.men], backgroundColor: ['#111111', '#c9c9c9'], borderWidth: 0 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '70%',
+        plugins: { legend: { display: false } },
+        animation: { duration: 900, easing: 'easeOutQuart' },
+      },
+    });
+    return () => chart.destroy();
+  }, [dist.byGender.women, dist.byGender.men, dist.total]);
+
+  /* Animate the top-category bars after mount (width 0 → pct). */
+  const [barsOn, setBarsOn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setBarsOn(true), 120);
+    return () => clearTimeout(t);
+  }, []);
 
   const save = async () => {
     if (!editing?.name?.trim()) return;
@@ -186,9 +232,10 @@ export default function Categories() {
             </div>
           )}
 
-          {/* ── Table (≥900px) + mobile cards ─────────────────────────── */}
+          {/* ── Table + distribution panel ─────────────────────────────── */}
           {!err && filtered.length > 0 && (
-            <>
+            <div className="pa-split">
+              <div className="pa-col">
               <div className="pa-card pa-tbl-card">
                 <div className="pa-tbl-scroll">
                   <table className="pa-tbl">
@@ -282,7 +329,39 @@ export default function Categories() {
                   </div>
                 ))}
               </div>
-            </>
+              </div>
+
+              {/* ── Distribution panel (Overview family, real data) ──── */}
+              <aside className="pa-card pa-panel">
+                <p className="pa-panel-title">Catalog distribution</p>
+                {dist.total > 0 ? (
+                  <>
+                    <div className="pa-donut-box"><canvas ref={donutRef} aria-label="Products by gender" role="img" /></div>
+                    <div className="pa-legend">
+                      <span><i style={{ background: '#111' }} aria-hidden />Women · {dist.byGender.women}</span>
+                      <span><i style={{ background: '#c9c9c9' }} aria-hidden />Men · {dist.byGender.men}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="pa-field-hint">No products yet — the split appears once the catalog has stock.</p>
+                )}
+
+                <p className="pa-panel-title" style={{ marginTop: 20 }}>Top categories</p>
+                {dist.top.some((t) => t.n > 0) ? dist.top.map((t) => (
+                  <div key={t.slug} className="pa-cat-row">
+                    <div className="pa-cat-row-head">
+                      <span className="pa-cat-name">{t.name}</span>
+                      <span className="pa-cat-count">{t.n} product{t.n === 1 ? '' : 's'}</span>
+                    </div>
+                    <div className="pa-cat-track">
+                      <div className="pa-cat-bar" style={{ width: barsOn ? `${Math.max(3, (t.n / dist.max) * 100)}%` : '0%' }} />
+                    </div>
+                  </div>
+                )) : (
+                  <p className="pa-field-hint">No products assigned to categories yet.</p>
+                )}
+              </aside>
+            </div>
           )}
 
         </div>
