@@ -262,6 +262,27 @@
 }
 .cx-band-hint { opacity: 0.8; }
 
+/* ── waterfall ─────────────────────────────────────────────────────────── */
+/* Ink for every bar; only the final result takes a verdict colour. Cost
+ * steps are distinguished by position and label, not by hue. */
+.cx-wf { cursor: pointer; transition: opacity 0.18s ease; }
+.cx-wf-bar { fill: var(--cx-ink); transition: fill-opacity 0.18s ease; }
+.cx-wf.anchor .cx-wf-bar { fill-opacity: 0.92; }
+.cx-wf.step .cx-wf-bar { fill-opacity: 0.34; }
+.cx-wf.total.pos .cx-wf-bar { fill: var(--cx-up); fill-opacity: 0.95; }
+.cx-wf.total.neg .cx-wf-bar { fill: var(--cx-down); fill-opacity: 0.95; }
+.cx-wf:hover .cx-wf-bar { fill-opacity: 1; }
+.cx-wf-link { stroke: var(--cx-ink); stroke-width: 1; opacity: 0.22; stroke-dasharray: 3 3; }
+.cx-wf-val {
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--cx-ink);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.cx-wf.step .cx-wf-val { fill: var(--cx-ink-soft); }
+.cx-wf.total .cx-wf-val { font-size: 11px; }
+
 /* ── footer legend + hover readout ─────────────────────────────────────── */
 .cx-foot {
   display: flex;
@@ -286,6 +307,8 @@
 .cx-sw.down { background: var(--cx-down); }
 .cx-sw.dot { border-radius: 99px; background: var(--cx-ink); opacity: 0.3; border: 1.5px solid var(--cx-ink); }
 .cx-sw.zone { border-radius: 3px; background: var(--cx-down); opacity: 0.22; width: 14px; }
+.cx-sw.wf-anchor { background: var(--cx-ink); opacity: 0.92; }
+.cx-sw.wf-step { background: var(--cx-ink); opacity: 0.34; }
 
 /* always-present so the card never jumps when you hover */
 .cx-readout {

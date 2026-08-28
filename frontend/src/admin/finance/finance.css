@@ -1,0 +1,202 @@
+/* ============================================================================
+ * FINANCE — page styling (fn-* namespace)
+ *
+ * Built on the same tokens as the rest of the admin (--od-*, --adm-*), so the
+ * page follows the light/dark theme instead of hard-coding white text on a
+ * white background the way the old atelier version did.
+ *
+ * Colour rule carried over from the analytics charts: ink for data, green/red
+ * only for a verdict. A cost is shown with a minus sign and muted weight, not
+ * with red — red is reserved for "this is a loss".
+ * ========================================================================== */
+
+/* ── header actions ────────────────────────────────────────────────────── */
+.fn-act { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fn-spin { animation: fn-spin 0.9s linear infinite; }
+@keyframes fn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .fn-spin { animation: none; } }
+
+/* ── headline KPI cards ────────────────────────────────────────────────── */
+.fn-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+  gap: 10px;
+}
+.fn-kpi {
+  border: 1px solid var(--od-border-light);
+  border-radius: 14px;
+  padding: 13px 14px 12px;
+  background: var(--admin-surface-2);
+  min-width: 0;
+  transition: border-color 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fn-kpi:hover { border-color: var(--od-border); transform: translateY(-2px); }
+.fn-kpi-l {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fn-kpi-v {
+  margin-top: 7px;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--od-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fn-kpi-v.pos { color: var(--cx-up, #0e9f6e); }
+.fn-kpi-v.neg { color: var(--cx-down, #ef4444); }
+.fn-kpi-f { margin-top: 7px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.fn-kpi-s { font-size: 10.5px; color: var(--adm-label); line-height: 1.4; }
+.fn-dim { color: var(--adm-label); font-weight: 500; font-size: 0.72em; }
+
+/* period delta pill */
+.fn-chip {
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid var(--od-gray-bd);
+  background: var(--od-gray-bg);
+  color: var(--od-gray-tx);
+  white-space: nowrap;
+}
+.fn-chip.good { background: var(--od-green-bg); border-color: var(--od-green-bd); color: var(--od-green-tx); }
+.fn-chip.bad { background: var(--od-red-bg); border-color: var(--od-red-bd); color: var(--od-red-tx); }
+.fn-chip.flat { opacity: 0.75; }
+
+/* ── P&L statement ─────────────────────────────────────────────────────── */
+.fn-pl { display: grid; gap: 18px; }
+.fn-pl-g { min-width: 0; }
+.fn-pl-t {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+  margin-bottom: 6px;
+}
+.fn-pl-r {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.16s ease;
+}
+.fn-pl-r:hover { background: var(--od-hover); }
+.fn-pl-l {
+  font-size: 12.5px;
+  color: var(--od-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fn-pl-v {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--od-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fn-pl-v.neg { color: var(--adm-label); font-weight: 500; }
+.fn-pl-s {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 9px 8px;
+  border-top: 1px solid var(--od-border);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--od-text);
+  font-variant-numeric: tabular-nums;
+}
+.fn-pl-s span:last-child { display: inline-flex; align-items: baseline; gap: 8px; }
+.fn-pl-s em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--od-gray-bg);
+  border: 1px solid var(--od-gray-bd);
+  color: var(--od-gray-tx);
+}
+.fn-pl-s.em {
+  font-size: 15px;
+  border-top: 2px solid var(--od-text);
+  padding-top: 11px;
+}
+
+/* ── memos ─────────────────────────────────────────────────────────────── */
+.fn-memo { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.fn-memo li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px;
+  border-radius: 9px;
+  font-size: 12px;
+  color: var(--adm-label);
+  transition: background 0.16s ease;
+}
+.fn-memo li:hover { background: var(--od-hover); }
+.fn-memo b {
+  color: var(--od-text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── payment fees table ────────────────────────────────────────────────── */
+.fn-fees { margin-top: 16px; }
+
+/* ── daily cash list ───────────────────────────────────────────────────── */
+.fn-daily { min-width: 0; }
+
+/* ── failed orders ─────────────────────────────────────────────────────── */
+.fn-failed {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+.fn-failed-i {
+  border: 1px solid var(--od-border-light);
+  border-radius: 14px;
+  padding: 13px 14px 12px;
+  background: var(--admin-surface-2);
+  min-width: 0;
+}
+
+/* ── existing tables, brought onto the same canvas ─────────────────────── */
+.fn-tables { display: grid; gap: 14px; margin-top: 14px; }
+.fn-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 900px) { .fn-grid-2 { grid-template-columns: 1fr; } }
+
+.fn-note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--admin-surface-2);
+  border: 1px solid var(--od-border-light);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--adm-label);
+}
+.fn-note a { color: var(--od-text); text-decoration: underline; text-underline-offset: 3px; }

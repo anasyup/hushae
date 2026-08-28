@@ -3,7 +3,7 @@ const Order = require('../models/Order');
 const Settings = require('../models/Settings');
 const { protect, adminOnly } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
-const { costConfig, orderEconomics, summarise } = require('../utils/orderEconomics');
+const { costConfig, orderEconomics, summarise, isCancelled, isReturned } = require('../utils/orderEconomics');
 
 const router = express.Router();
 router.use(protect, adminOnly);
@@ -261,6 +261,196 @@ router.get('/break-even', asyncHandler(async (req, res) => {
     ordersNeededPerDay: perDay,
     currentPerDay,
     onTrack: perDay !== null ? currentPerDay >= perDay : null,
+  });
+}));
+
+/* ---------------------------------------------------------------------------
+ * GET /api/finance/pnl
+ * The whole profit & loss for a period, built on the SAME summarise() that
+ * order-profitability / profit-by-product / profit-by-customer / break-even
+ * already use, so this page can never disagree with its own tables.
+ *
+ * That matters because the Finance page previously recomputed P&L in the
+ * browser with different rules: it charged no gateway fees at all, used flat
+ * settings rates instead of the courier/packaging cost stored on each order,
+ * and computed the sunk cost of failed orders but never subtracted it. On a
+ * 10-order sample that overstated net profit by PKR 1,120 (27.2% margin shown
+ * against a true 24.6%). One source of truth removes the whole class of bug.
+ *
+ * Returns the previous period alongside so every figure can show a delta.
+ * ------------------------------------------------------------------------- */
+router.get('/pnl', asyncHandler(async (req, res) => {
+  const cfg = await loadCfg();
+  const settings = (await Settings.findOne({ key: 'store' }).lean()) || {};
+  const oc = settings.operatingCosts || {};
+  const { from, to, match } = window_(req.query);
+
+  const SEL = 'items subtotal total discount promotionDiscount creditUsed pointsRedeemed '
+    + 'shippingCharge tax status stage stageTimestamps paymentMethod customerInfo.city '
+    + 'courierCost packagingCost paymentGatewayFee createdAt';
+
+  /* previous period, same length, ending the day before this one starts */
+  const span = to.getTime() - from.getTime();
+  const prevMatch = { createdAt: { $gte: new Date(from.getTime() - span - 1), $lte: new Date(from.getTime() - 1) } };
+
+  const [orders, prevOrders] = await Promise.all([
+    Order.find(match).select(SEL).lean(),
+    Order.find(prevMatch).select(SEL).lean(),
+  ]);
+
+  /** Income + cost breakdown for one set of orders. */
+  const build = (list, days) => {
+    const s = summarise(list, cfg);
+
+    /* Income lines come from live orders only — a cancelled or refunded order
+     * keeps no revenue, which is what summarise() already assumes. */
+    const live = list.filter((o) => !isCancelled(o) && !isReturned(o));
+    const inc = { merchandise: 0, shipping: 0, tax: 0, discounts: 0, rewards: 0, net: 0 };
+    /* Live-order costs, kept apart from the sunk cost of failed orders.
+     * summarise() deliberately merges the two into one net figure; a waterfall
+     * has to show them as two separate steps, or "Contribution" quietly
+     * absorbs losses that belong on their own line. */
+    let liveCogs = 0, livePackaging = 0, liveCourier = 0, liveFees = 0;
+    for (const o of live) {
+      inc.merchandise += Number(o.subtotal) || 0;
+      inc.shipping += Number(o.shippingCharge) || 0;
+      inc.tax += Number(o.tax) || 0;
+      inc.discounts += (Number(o.discount) || 0) + (Number(o.promotionDiscount) || 0);
+      inc.rewards += Number(o.creditUsed) || 0;
+      inc.net += Number(o.total) || 0;
+      const e = orderEconomics(o, cfg);
+      liveCogs += e.cogs; livePackaging += e.packaging; liveCourier += e.courier; liveFees += e.paymentFee;
+    }
+
+    /* Do the stated lines actually reconcile to what was charged? If not, say
+     * so rather than quietly presenting a P&L that does not add up. */
+    const stated = inc.merchandise + inc.shipping + inc.tax - inc.discounts - inc.rewards;
+    const drift = Math.round((stated - inc.net) * 100) / 100;
+
+    /* Refunds are real money that went back out; cancellations were never
+     * collected. Both are shown as memos, not as negative revenue. */
+    const refunded = list.filter(isReturned);
+    const cancelled = list.filter(isCancelled);
+    const memos = {
+      refundedValue: refunded.reduce((n, o) => n + (Number(o.total) || 0), 0),
+      refundedCount: refunded.length,
+      cancelledValue: cancelled.reduce((n, o) => n + (Number(o.total) || 0), 0),
+      cancelledCount: cancelled.length,
+    };
+
+    /* Operating costs are monthly in settings, so prorate to the window. */
+    const months = Math.max(1, days) / 30;
+    const opex = {
+      marketing: Math.round((Number(oc.monthlyMarketing) || 0) * months),
+      seo: Math.round((Number(oc.monthlySeo) || 0) * months),
+      other: Math.round((Number(oc.monthlyOther) || 0) * months),
+    };
+    const opexTotal = opex.marketing + opex.seo + opex.other;
+
+    /* Contribution = what live trading earns before overheads and before the
+     * money already lost on failed orders. */
+    const contribution = s.revenue - liveCogs - livePackaging - liveCourier - liveFees;
+    /* s.netProfit already nets the sunk cost out, so only opex is left. */
+    const netProfit = s.netProfit - opexTotal;
+
+    /* Payment mix with the fee each method actually cost. */
+    const mixMap = new Map();
+    for (const o of live) {
+      const e = orderEconomics(o, cfg);
+      const k = o.paymentMethod || 'Unknown';
+      const cur = mixMap.get(k) || { method: k, orders: 0, revenue: 0, fees: 0, profit: 0 };
+      cur.orders += 1; cur.revenue += e.revenue; cur.fees += e.paymentFee; cur.profit += e.netProfit;
+      mixMap.set(k, cur);
+    }
+
+    const sunkCost = (s.cancelledBeforeShipCost || 0) + (s.returnedAfterShipCost || 0);
+
+    /* Daily series for the cash-flow chart. */
+    const dayMap = new Map();
+    for (const o of list) {
+      const e = orderEconomics(o, cfg);
+      const key = new Date(o.createdAt).toISOString().slice(0, 10);
+      const cur = dayMap.get(key) || { date: key, revenue: 0, cogs: 0, costs: 0, profit: 0, orders: 0 };
+      cur.revenue += e.revenue;
+      cur.cogs += e.cogs;
+      cur.costs += e.packaging + e.courier + e.paymentFee;
+      cur.profit += e.netProfit;
+      cur.orders += 1;
+      dayMap.set(key, cur);
+    }
+    const daily = [...dayMap.values()].sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      days,
+      income: { ...inc, merchandise: Math.round(inc.merchandise), shipping: Math.round(inc.shipping), tax: Math.round(inc.tax), discounts: Math.round(inc.discounts), rewards: Math.round(inc.rewards), net: Math.round(inc.net) },
+      reconcileDrift: drift,
+      /* Live-trading costs. `all*` include the sunk cost of failed orders, so
+       * the two views reconcile: live + sunk = total. */
+      costs: {
+        cogs: Math.round(liveCogs),
+        packaging: Math.round(livePackaging),
+        courier: Math.round(liveCourier),
+        paymentFees: Math.round(liveFees),
+        total: Math.round(liveCogs + livePackaging + liveCourier + liveFees),
+        allPackaging: Math.round(s.packaging),
+        allCourier: Math.round(s.courier),
+      },
+      opex,
+      opexTotal,
+      grossProfit: Math.round(s.grossProfit),
+      grossMargin: s.revenue > 0 ? Math.round((s.grossProfit / s.revenue) * 1000) / 10 : 0,
+      contribution: Math.round(contribution),
+      contributionMargin: s.revenue > 0 ? Math.round((contribution / s.revenue) * 1000) / 10 : 0,
+      sunkCost: Math.round(sunkCost),
+      /* contribution - sunk must equal summarise()'s own net, or the ladder
+       * is lying. Exposed so the UI (and the test) can prove it. */
+      ladderCheck: Math.round(contribution - sunkCost - s.netProfit),
+      netProfit: Math.round(netProfit),
+      netMargin: s.revenue > 0 ? Math.round((netProfit / s.revenue) * 1000) / 10 : 0,
+      revenue: Math.round(s.revenue),
+      orders: s.orders,
+      aov: s.orders ? Math.round(s.revenue / s.orders) : 0,
+      health: { profitable: s.profitable || 0, thin: s.thin || 0, loss: s.loss || 0 },
+      failed: {
+        cancelledBeforeShip: s.cancelledBeforeShip || 0,
+        cancelledBeforeShipCost: Math.round(s.cancelledBeforeShipCost || 0),
+        returnedAfterShip: s.returnedAfterShip || 0,
+        returnedAfterShipCost: Math.round(s.returnedAfterShipCost || 0),
+        sunkCost: Math.round((s.cancelledBeforeShipCost || 0) + (s.returnedAfterShipCost || 0)),
+      },
+      memos,
+      paymentMix: [...mixMap.values()].sort((a, b) => b.revenue - a.revenue)
+        .map((m) => ({ ...m, revenue: Math.round(m.revenue), fees: Math.round(m.fees), profit: Math.round(m.profit) })),
+      daily,
+    };
+  };
+
+  const days = Math.max(1, Math.round(span / 86400000) + 1);
+  const current = build(orders, days);
+  const previous = build(prevOrders, days);
+
+  /* Waterfall: gross sales down to net profit, each step labelled and signed. */
+  const c = current;
+  const waterfall = [
+    { key: 'net', label: 'Net sales', value: c.income.net, kind: 'start' },
+    { key: 'cogs', label: 'Cost of goods', value: -c.costs.cogs, kind: 'cost' },
+    { key: 'packaging', label: 'Packaging', value: -c.costs.packaging, kind: 'cost' },
+    { key: 'courier', label: 'Courier', value: -c.costs.courier, kind: 'cost' },
+    { key: 'fees', label: 'Payment fees', value: -c.costs.paymentFees, kind: 'cost' },
+    { key: 'contribution', label: 'Contribution', value: c.contribution, kind: 'subtotal' },
+    { key: 'sunk', label: 'Failed orders', value: -c.sunkCost, kind: 'cost' },
+    { key: 'marketing', label: 'Marketing', value: -c.opex.marketing, kind: 'cost' },
+    { key: 'seo', label: 'SEO', value: -c.opex.seo, kind: 'cost' },
+    { key: 'other', label: 'Other costs', value: -c.opex.other, kind: 'cost' },
+    { key: 'netProfit', label: 'Net profit', value: c.netProfit, kind: 'total' },
+  ].filter((w) => w.kind === 'start' || w.kind === 'subtotal' || w.kind === 'total' || w.value !== 0);
+
+  res.json({
+    range: { from, to, days, prevFrom: prevMatch.createdAt.$gte, prevTo: prevMatch.createdAt.$lte },
+    current,
+    previous,
+    waterfall,
+    thresholds: { margin: cfg.marginThreshold },
   });
 }));
 

@@ -391,6 +391,117 @@ export function SplitBar({ data, label = 'Total' }) {
 }
 
 /* ======================================================================= */
+/* WATERFALL — net sales down to net profit                                 */
+/*                                                                          */
+/* One question: "where did the money actually go?" This is the core         */
+/* ecommerce finance view: the deposit is not the revenue, and every step    */
+/* between them is a real deduction.                                         */
+/*                                                                          */
+/* Colour stays disciplined — ink for every bar, with only the final result  */
+/* taking green/red, because only that one is a verdict. Cost steps read as  */
+/* hanging bars with their value printed, so no colour is needed to follow   */
+/* the flow.                                                                 */
+/* ======================================================================= */
+export function WaterfallChart({ steps, height = 300 }) {
+  const [tip, setTip] = useTip();
+  const rows = (steps || []).filter((s) => s && s.label);
+
+  const W = 760; const H = height;
+  const pad = { t: 26, r: 16, b: 44, l: 8 };
+  const iw = W - pad.l - pad.r;
+  const ih = H - pad.t - pad.b;
+
+  if (rows.length === 0) {
+    return <p className="cx-none">No P&amp;L data in this range yet.</p>;
+  }
+
+  /* Walk the steps once to get each bar's absolute top and bottom, and the
+   * domain the axis needs. Subtotals and the total reset to zero, which is
+   * what makes the chart read as a ladder rather than a drift. */
+  let run = 0;
+  let lo = 0;
+  let hi = 0;
+  const bars = rows.map((s) => {
+    const v = Number(s.value) || 0;
+    let top; let bot;
+    if (s.kind === 'cost') { top = run; bot = run + v; run += v; }
+    else if (s.kind === 'start') { top = 0; bot = v; run = v; }
+    else { top = 0; bot = v; run = v; }              /* subtotal | total */
+    lo = Math.min(lo, top, bot);
+    hi = Math.max(hi, top, bot);
+    return { ...s, v, top, bot, running: run };
+  });
+
+  const yMin = Math.min(0, lo) * 1.06;
+  const yMax = hi * 1.1 || 1;
+  const y = scale(yMin, yMax, pad.t + ih, pad.t);
+  const slot = iw / bars.length;
+  const bw = Math.max(10, Math.min(52, slot * 0.6));
+  const active = tip == null ? null : bars[tip];
+  const last = bars[bars.length - 1];
+  const totalPositive = (last?.v ?? 0) >= 0;
+
+  return (
+    <div className="cx-wrap">
+      <svg className="cx" viewBox={`0 0 ${W} ${H}`} role="img"
+        aria-label={`Waterfall from ${rows[0].label} to ${rows[rows.length - 1].label}. ${rows.map((r) => `${r.label} ${money(r.value)}`).join(', ')}.`}>
+        {/* zero line — the only reference the chart needs */}
+        <line className="cx-axis" x1={pad.l} x2={pad.l + iw} y1={y(0)} y2={y(0)} />
+
+        {bars.map((b, i) => {
+          const cx = pad.l + slot * i + slot / 2;
+          const yTop = y(Math.max(b.top, b.bot));
+          const h = Math.max(2, Math.abs(y(b.top) - y(b.bot)));
+          const isEnd = b.kind === 'start' || b.kind === 'subtotal' || b.kind === 'total';
+          const cls = b.kind === 'total' ? (totalPositive ? 'cx-wf total pos' : 'cx-wf total neg') : `cx-wf ${isEnd ? 'anchor' : 'step'}`;
+          const prev = i > 0 ? bars[i - 1] : null;
+          return (
+            <g key={b.key || b.label} className={cls}
+              onMouseEnter={() => setTip(i)} onMouseLeave={() => setTip(null)}
+              style={{ opacity: tip == null || tip === i ? 1 : 0.42 }}>
+              <title>{`${b.label}: ${money(b.v)}${b.kind === 'cost' ? ` (running ${money(b.running)})` : ''}`}</title>
+              <rect x={cx - slot / 2} y={pad.t} width={slot} height={ih} fill="transparent" />
+              {/* connector from the previous bar's running level */}
+              {prev && b.kind === 'cost' && (
+                <line className="cx-wf-link" x1={pad.l + slot * (i - 1) + slot / 2 + bw / 2} x2={cx - bw / 2} y1={y(prev.running)} y2={y(prev.running)} />
+              )}
+              {prev && isEnd && (
+                <line className="cx-wf-link" x1={pad.l + slot * (i - 1) + slot / 2 + bw / 2} x2={cx - bw / 2} y1={y(prev.running)} y2={y(prev.running)} />
+              )}
+              <rect className="cx-wf-bar" x={cx - bw / 2} y={yTop} width={bw} height={h} rx={3} />
+              {/* value on the mark */}
+              <text className="cx-wf-val" x={cx} y={yTop - 6} textAnchor="middle">
+                {b.kind === 'cost' ? `−${compact(Math.abs(b.v), true).replace('Rs ', '')}` : compact(b.v, true).replace('Rs ', '')}
+              </text>
+              <text className="cx-xlab" x={cx} y={H - 24} textAnchor="middle">{b.label}</text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <div className="cx-foot">
+        <span className="cx-lg"><i className="cx-sw wf-anchor" /> sales &amp; subtotals</span>
+        <span className="cx-lg"><i className="cx-sw wf-step" /> deductions</span>
+        <span className="cx-lg"><i className={`cx-sw ${totalPositive ? 'up' : 'down'}`} /> net result</span>
+        <span className="cx-lg quiet">hover a bar for its running total</span>
+      </div>
+
+      <div className={`cx-readout${active ? ' on' : ''}`} role="status" aria-live="polite">
+        {active ? (
+          <>
+            <span className="cx-ro-t">{active.label}</span>
+            <span className={`cx-ro ${active.v < 0 ? 'down' : ''}`}>{money(active.v)}</span>
+            {active.kind === 'cost' && <span className="cx-ro">running total <b>{money(active.running)}</b></span>}
+          </>
+        ) : (
+          <span className="cx-ro hint">Hover a bar to see what it deducts and the running total</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================================= */
 /* BAND METER — one metric against its healthy industry band                */
 /*                                                                          */
 /* Replaces the v1 gauge. A needle on an arc reads as a speedometer          */
