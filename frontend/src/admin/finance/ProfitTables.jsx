@@ -12,7 +12,7 @@ const useRange = (days, from, to) => useMemo(() => {
 }, [days, from, to]);
 
 /** Margin-based product view — deliberately distinct from unit-based best sellers. */
-export function ProfitByProduct({ days, from, to }) {
+export function ProfitByProduct({ days, from, to, bare = false }) {
   const { auth } = useApp();
   const [rows, setRows] = useState(null);
   const [sort, setSort] = useState('profit-desc');
@@ -26,7 +26,7 @@ export function ProfitByProduct({ days, from, to }) {
 
   return (
     <section>
-      <p className="adm-index">06 — Profit by product</p>
+      {!bare && <p className="adm-index">06 — Profit by product</p>}
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <p className="max-w-sm text-[12px] text-[var(--adm-label)]">Sort by margin to find high-volume, low-margin lines that need a price review.</p>
         <select value={sort} onChange={(e) => setSort(e.target.value)} className={ctlInline} aria-label="Sort products">
@@ -74,7 +74,7 @@ export function ProfitByProduct({ days, from, to }) {
 }
 
 /** Top Customers, but by what you keep — not by what they spend. */
-export function ProfitByCustomer({ days, from, to }) {
+export function ProfitByCustomer({ days, from, to, bare = false }) {
   const { auth } = useApp();
   const [rows, setRows] = useState(null);
   const [sort, setSort] = useState('profit-desc');
@@ -88,7 +88,7 @@ export function ProfitByCustomer({ days, from, to }) {
 
   return (
     <section>
-      <p className="adm-index">06 — Profit by customer</p>
+      {!bare && <p className="adm-index">06 — Profit by customer</p>}
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <p className="max-w-sm text-[12px] text-[var(--adm-label)]">Flagged customers spend well but leave little behind — usually cancellations or returns.</p>
         <select value={sort} onChange={(e) => setSort(e.target.value)} className={ctlInline} aria-label="Sort customers">
@@ -142,7 +142,7 @@ export function ProfitByCustomer({ days, from, to }) {
 }
 
 /** Revenue riding on undelivered COD parcels — the exposure a 100% COD store carries. */
-export function CodExposure() {
+export function CodExposure({ bare = false } = {}) {
   const { auth } = useApp();
   const [d, setD] = useState(null);
 
@@ -155,7 +155,7 @@ export function CodExposure() {
 
   return (
     <section>
-      <p className="adm-index">07 — Cod exposure</p>
+      {!bare && <p className="adm-index">07 — Cod exposure</p>}
       <p className="text-[12px] text-[var(--adm-label)]">Money you have not been paid yet, because the parcel has not been delivered.</p>
 
       <p className="adm-metric mt-5 text-[28px] leading-none text-[var(--od-text)]">{pkr(d.exposure)}</p>
@@ -205,7 +205,7 @@ export function CodExposure() {
 }
 
 /** Fixed costs ÷ contribution per order = the daily order count that pays the bills. */
-export function BreakEven({ days, from, to }) {
+export function BreakEven({ days, from, to, bare = false }) {
   const { auth } = useApp();
   const [d, setD] = useState(null);
   const range = useRange(days, from, to);
@@ -222,7 +222,7 @@ export function BreakEven({ days, from, to }) {
 
   return (
     <section>
-      <p className="adm-index">07 — Break-even</p>
+      {!bare && <p className="adm-index">07 — Break-even</p>}
       <p className="text-[12px] text-[var(--adm-label)]">How many orders a day cover your fixed monthly costs.</p>
 
       {unset ? (

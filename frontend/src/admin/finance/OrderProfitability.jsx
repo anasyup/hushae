@@ -28,7 +28,7 @@ const csvCell = (c) => {
  * Order-level profitability. Sorting by margin ascending is the whole point of
  * the screen: it puts the orders that are quietly losing money at the top.
  */
-export default function OrderProfitability({ days, from, to }) {
+export default function OrderProfitability({ days, from, to, bare = false }) {
   const { auth } = useApp();
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -96,8 +96,8 @@ export default function OrderProfitability({ days, from, to }) {
   const pages = data ? Math.max(1, Math.ceil(data.total / data.limit)) : 1;
 
   return (
-    <section className="mb-10">
-      <p className="adm-index">05 — Order profitability</p>
+    <section className={bare ? undefined : "mb-10"}>
+      {!bare && <p className="adm-index">05 — Order profitability</p>}
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <p className="max-w-xl text-[12px] text-[var(--adm-label)]">
           What you actually keep on every single order, after cost of goods, packaging, courier and gateway fees.
