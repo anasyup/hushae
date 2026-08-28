@@ -27,10 +27,28 @@ Har admin UI change us checklist ke against judge hoga.
 (R0–R8) "organized nahi lag rahe" thay — random order, same-weight stacked tables, misaligned
 numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par hain.
 
-**STATUS: DONE.** Boss ne green light diya ("inhay be sahi karoo") aur ye kaam live hai.
-Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao — wahi acceptance
-criteria hai. Naya row/table-based admin section banate waqt
-`src/admin/analytics/sections.jsx` + `columns.js` reuse karo, dobara mat banao.
+**STATUS: DONE (2 rounds).**
+1. `2640143` — report sections ek hi card + 12-column row system par (boss: "organized nahi
+   lag rahay, paragraph jaisay").
+2. `ee052e3` — un sections me **asal charts** add hue (boss: "maza nahi aya, charts jaisa
+   candlestick jaisa doo, samajhne me easy").
+
+**REUSE KARO, DOBARA MAT BANAO:**
+- `src/admin/analytics/sections.jsx` — Section / HeadRow / Row / Metric / Chip / EmptyState
+- `src/admin/analytics/columns.js` — saare column spans (lead 4 + metrics 8 = 12 grid)
+- `src/admin/analytics/svgcharts.jsx` — CandleChart / BubbleScatter / DonutChart / ParetoChart
+  / GaugeChart + pure helpers `toCandles`, `pareto`, `scale`
+- `src/admin/analytics/charts.css` — `cx-*` namespace, `--cx-*` palette tokens (dark-mode included)
+- Tests: `frontend/scripts/test-analytics-charts.mjs` (60 assertions),
+  `frontend/scripts/test-analytics-sections.mjs` (33). Dono `react-dom/server` se REAL
+  components render karte hain — `node scripts/test-<name>.mjs`.
+
+**Chart.js note:** bundle me hai, par candlestick/financial series ke liye extra plugin
+chahiye aur styling brief tak nahi pohanchti — isliye charts hand-rolled SVG hain (koi nayi
+dependency nahi). Naya chart chahiye to `svgcharts.jsx` me add karo, `--cx-*` tokens use karo,
+aur `prefers-reduced-motion` gate lagao.
+
+Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao.
 
 ---
 
