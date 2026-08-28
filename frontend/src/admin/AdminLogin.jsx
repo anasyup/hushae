@@ -82,22 +82,19 @@ export default function AdminLogin() {
         <p className="al-mark">HUSHAE</p>
         <div>
           <h1>The quiet room behind the store.</h1>
-          <p className="lead">Orders, inventory, people — one considered surface for the team that runs HUSHAE.</p>
+          <p className="lead">Orders, inventory, and the people who keep HUSHAE running — one considered surface.</p>
         </div>
-        <p className="al-brand-foot">
-          <span>Second Skin, First Choice.</span>
-          <span>Staff</span>
-        </p>
+        <p className="al-brand-foot">Second Skin, First Choice.</p>
       </aside>
 
       <main className="al-panel">
         <div className="al-card">
-          <p className="al-kicker">{step2 ? 'Two-factor' : 'HUSHAE Admin'}</p>
-          <h2 className="al-title">{step2 ? 'Enter your code' : 'Sign in'}</h2>
+          <p className="al-kicker">{step2 ? 'Verification' : 'Admin console'}</p>
+          <h2 className="al-title">{step2 ? 'Check your email' : 'Sign in'}</h2>
           <p className="al-sub">
             {step2
-              ? <>Sent to <b>{pendingEmail}</b>. Expires in 5 minutes.</>
-              : 'Use the staff email for this store.'}
+              ? <>A 6-digit code was sent to <b>{pendingEmail}</b>. It expires in 5 minutes.</>
+              : 'Authorised staff only. Use the email you were given for this store.'}
           </p>
 
           {!step2 ? (
@@ -111,7 +108,6 @@ export default function AdminLogin() {
                   type="email"
                   required
                   autoComplete="username"
-                  placeholder="you@hushae.com"
                   value={f.email}
                   onChange={(e) => setF({ ...f, email: e.target.value })}
                 />
@@ -136,7 +132,7 @@ export default function AdminLogin() {
                     onClick={() => setShowPw((v) => !v)}
                     aria-label={showPw ? 'Hide password' : 'Show password'}
                   >
-                    {showPw ? <EyeOff size={16} strokeWidth={1.8} /> : <Eye size={16} strokeWidth={1.8} />}
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
@@ -164,15 +160,15 @@ export default function AdminLogin() {
                 />
               </div>
               {err && <p role="alert" className="al-err">{err}</p>}
-              <button type="submit" disabled={codeBusy || code.length !== 6} className={`al-btn${codeBusy ? ' is-busy' : ''}`} aria-busy={codeBusy}>
-                Continue
+              <button type="submit" disabled={codeBusy} className={`al-btn${codeBusy ? ' is-busy' : ''}`} aria-busy={codeBusy}>
+                Verify &amp; sign in
               </button>
               <button
                 type="button"
                 className="al-ghost"
                 onClick={() => { setStep2(false); setCode(''); setErr(''); }}
               >
-                Use a different account
+                Back to sign in
               </button>
             </form>
           )}
