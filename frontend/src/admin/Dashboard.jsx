@@ -1,6 +1,7 @@
 import { Component, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+import { motion } from 'framer-motion';
 import {
   AlertTriangle, BadgePercent, BarChart3, Bell, Calendar,
   CircleDollarSign, CreditCard, FolderPlus, Mail, Maximize2, Package, PackagePlus,
@@ -58,7 +59,7 @@ function Delta({ change }) {
   if (typeof change !== 'number' || !Number.isFinite(change) || change === 0) return null;
   const up = change > 0;
   return (
-    <span className={up ? 'ov-up' : 'ov-down'}>
+    <span className={`ov-chip ${up ? 'up' : 'down'}`}>
       {up ? '↑' : '↓'} {Math.abs(change).toFixed(1)}%
     </span>
   );
@@ -148,9 +149,12 @@ export default function Dashboard() {
     if (!d || !rootRef.current) return undefined;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     const ctx = gsap.context(() => {
-      gsap.from('.ov-stat', { y: 12, opacity: 0, stagger: 0.05, duration: 0.45, ease: 'power3.out' });
-      gsap.from('.ov-grid3 .ov-card, .ov-grid4 .ov-card, .ov-grid4b .ov-card, .ov-mt', {
-        y: 16, opacity: 0, stagger: 0.055, duration: 0.5, delay: 0.18, ease: 'power3.out',
+      gsap.fromTo('.ov-bar', { width: '0%' }, {
+        width: (_, el) => el.getAttribute('data-w') || '0%',
+        duration: 1.05,
+        stagger: 0.07,
+        ease: 'power3.out',
+        delay: 0.35,
       });
     }, rootRef);
     return () => ctx.revert();
@@ -282,22 +286,26 @@ export default function Dashboard() {
       </div>
 
       <div className="ov-stats">
-        {kpis.map((x) => (
-          <Link key={x.label} to={x.to} className="ov-stat">
-            <div className="ov-stat-l"><x.icon size={14} strokeWidth={1.6} /> {x.label}</div>
-            <div className="ov-stat-v">{x.val}</div>
-            <div className="ov-stat-f">
-              <div><Delta change={x.change} /><p className="ov-vs">{vs}</p></div>
-              <Spark data={x.spark} />
-            </div>
-          </Link>
+        {kpis.map((x, i) => (
+          <motion.div key={x.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
+            <Link to={x.to} className="ov-stat">
+              <div className="ov-stat-l"><x.icon size={14} strokeWidth={1.6} /> {x.label}</div>
+              <div className="ov-stat-v">{x.val}</div>
+              <div className="ov-stat-f">
+                <div><Delta change={x.change} /><p className="ov-vs">{vs}</p></div>
+                <Spark data={x.spark} />
+              </div>
+            </Link>
+          </motion.div>
         ))}
       </div>
 
       <div className="ov-grid3">
         <section className="ov-card">
-          <h2 className="ov-card-t">Sales Overview</h2>
-          <p className="ov-legend"><span><b /> This period</span></p>
+          <div className="ov-card-h">
+            <h2 className="ov-card-t">Sales Overview</h2>
+          </div>
+          <p className="ov-legend"><span><i /> This period</span></p>
           <ChartBoundary>
             <div style={{ height: 200 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -347,12 +355,12 @@ export default function Dashboard() {
         </section>
 
         <section className="ov-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <h2 className="ov-card-t" style={{ margin: 0 }}>Live Visitors</h2>
-            <span style={{ fontSize: 10, color: '#0e9f6e', fontWeight: 600 }}><i className="ov-live-dot" /> Live</span>
+          <div className="ov-card-h">
+            <h2 className="ov-card-t">Live Visitors</h2>
+            <span style={{ fontSize: 11, color: '#0e9f6e', fontWeight: 600 }}><i className="ov-live-dot" /> Live</span>
           </div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 6 }}>{live?.visitorsNow ?? 0}</div>
-          <div style={{ fontSize: 11, color: '#6B7280' }}>Visitors right now</div>
+          <div className="ov-live-n">{live?.visitorsNow ?? 0}</div>
+          <div style={{ fontSize: 12, color: '#6B7280' }}>Visitors right now</div>
           <div className="ov-bars">
             {(hourly.length ? hourly : Array.from({ length: 24 }, (_, i) => ({ hour: i, orders: 0 }))).map((h) => (
               <i key={h.hour} style={{ height: `${8 + ((h.orders || 0) / liveMax) * 26}px` }} />
@@ -375,7 +383,11 @@ export default function Dashboard() {
               { n: lowStock.length, label: 'Low Stock Alerts', to: '/admin/products?stock=low' },
               { n: k.customers?.value || 0, label: 'New Customers', to: '/admin/customers' },
             ].map((g) => (
-              <Link key={g.label} to={g.to} className="ov-g"><Calendar size={14} /><b>{Number(g.n).toLocaleString()}</b><span>{g.label}</span></Link>
+              <Link key={g.label} to={g.to} className="ov-g">
+                <span className="ico"><Calendar size={14} /></span>
+                <b>{Number(g.n).toLocaleString()}</b>
+                <span>{g.label}</span>
+              </Link>
             ))}
           </div>
         </section>
@@ -390,7 +402,12 @@ export default function Dashboard() {
               <tbody>
                 {prodRows.map((p) => (
                   <tr key={p.name}>
-                    <td>{p.name}</td>
+                    <td>
+                      <span className="ov-prod">
+                        <span className="ov-av">{String(p.name || 'P').slice(0, 1)}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                      </span>
+                    </td>
                     <td className="r">{p.qty || 0}</td>
                     <td className="r"><b>{pkr(p.revenue || 0)}</b></td>
                   </tr>
@@ -409,7 +426,12 @@ export default function Dashboard() {
               <tbody>
                 {orderRows.map((o) => (
                   <tr key={o._id}>
-                    <td><Link to={`/admin/orders/${o._id}`} style={{ fontWeight: 700, color: '#111' }}>{o.orderNumber}</Link></td>
+                    <td>
+                      <span className="ov-prod">
+                        <span className="ov-av">{String(o.customerInfo?.name || 'C').split(' ').map((s) => s[0]).slice(0, 2).join('')}</span>
+                        <Link to={`/admin/orders/${o._id}`} style={{ fontWeight: 700, color: '#111' }}>{o.orderNumber}</Link>
+                      </span>
+                    </td>
                     <td>{o.customerInfo?.name}</td>
                     <td className="r"><b>{pkr(o.total)}</b></td>
                     <td className="r"><span className={o.status === 'Delivered' ? 'ov-paid' : 'ov-pend'}>{o.status === 'Delivered' ? 'Paid' : (o.status || 'Open')}</span></td>
@@ -485,7 +507,7 @@ export default function Dashboard() {
           {catBars.length === 0 ? <p style={{ fontSize: 11, color: '#9CA3AF' }}>Category sales appear with orders.</p> : catBars.map(([name, rev]) => (
             <div key={name} className="ov-cat">
               <em>{name}</em>
-              <div className="ov-track"><div className="ov-bar" style={{ width: `${(rev / catMax) * 100}%` }} /></div>
+              <div className="ov-track"><div className="ov-bar" data-w={`${(rev / catMax) * 100}%`} /></div>
               <b>{pkr(rev)}</b>
             </div>
           ))}
