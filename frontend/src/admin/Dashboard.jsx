@@ -1,9 +1,10 @@
-import { Component, useEffect, useMemo, useState } from 'react';
+import { Component, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import gsap from 'gsap';
 import {
-  AlertTriangle, ArrowUpRight, BadgePercent, BarChart3, Bell, Calendar,
+  AlertTriangle, BadgePercent, BarChart3, Bell, Calendar,
   CircleDollarSign, CreditCard, FolderPlus, Mail, Maximize2, Package, PackagePlus,
-  Plus, RefreshCw, Search, ShoppingBag, ShoppingCart, Sparkles, TrendingUp, Users, Wallet,
+  Plus, RefreshCw, Search, ShoppingBag, Sparkles, TrendingUp, Users, Wallet,
 } from 'lucide-react';
 import {
   Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart,
@@ -82,8 +83,7 @@ export default function Dashboard() {
   const [smart, setSmart] = useState([]);
   const [abandoned, setAbandoned] = useState(null);
   const [q, setQ] = useState('');
-  const [reorder, setReorder] = useState(null);
-  const [fs, setFs] = useState(false);
+  const rootRef = useRef(null);
 
   const [range, setRange] = useState(() => {
     try {
@@ -142,12 +142,23 @@ export default function Dashboard() {
   const toggleFs = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
     else document.exitFullscreen?.();
-    setFs(!!document.fullscreenElement);
   };
+
+  useLayoutEffect(() => {
+    if (!d || !rootRef.current) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const ctx = gsap.context(() => {
+      gsap.from('.ov-stat', { y: 12, opacity: 0, stagger: 0.05, duration: 0.45, ease: 'power3.out' });
+      gsap.from('.ov-grid3 .ov-card, .ov-grid4 .ov-card, .ov-grid4b .ov-card, .ov-mt', {
+        y: 16, opacity: 0, stagger: 0.055, duration: 0.5, delay: 0.18, ease: 'power3.out',
+      });
+    }, rootRef);
+    return () => ctx.revert();
+  }, [d]);
 
   const shell = (children) => (
     <AdminLayout title="Overview" hideContentTitle>
-      <div className="ov-outer"><div className="ov-wrap">{children}</div></div>
+      <div className="ov-outer"><div className="ov-wrap" ref={rootRef}>{children}</div></div>
     </AdminLayout>
   );
 
@@ -201,7 +212,7 @@ export default function Dashboard() {
     );
   }
   if (!d) {
-    return shell(<div className="ov-stats">{[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="ov-stat" style={{ height: 104, background: '#fff' }} />)}</div>);
+    return shell(<div className="ov-stats">{[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="ov-sk" />)}</div>);
   }
 
   const hourly = d.hourly || [];
@@ -286,6 +297,7 @@ export default function Dashboard() {
       <div className="ov-grid3">
         <section className="ov-card">
           <h2 className="ov-card-t">Sales Overview</h2>
+          <p className="ov-legend"><span><b /> This period</span></p>
           <ChartBoundary>
             <div style={{ height: 200 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -347,9 +359,7 @@ export default function Dashboard() {
             ))}
           </div>
           {pages.map(([path, n]) => (
-            <div key={path} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6B7280', padding: '2px 0' }}>
-              <span style={{ fontFamily: 'ui-monospace, monospace' }}>{path}</span><span>{n}</span>
-            </div>
+            <div key={path} className="ov-page"><span>{path}</span><span>{n}</span></div>
           ))}
           <Link to="/admin/live" className="ov-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 10 }}>View real time</Link>
         </section>
@@ -370,9 +380,9 @@ export default function Dashboard() {
           </div>
         </section>
         <section className="ov-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="ov-card-h">
             <h2 className="ov-card-t">Top Selling Products</h2>
-            <Link to="/admin/products" style={{ fontSize: 10.5, color: '#6B7280' }}>View all</Link>
+            <Link to="/admin/products" className="ov-more">View all</Link>
           </div>
           {prodRows.length === 0 ? <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center' }}>Product sales appear once orders land.</p> : (
             <table className="ov-tbl">
@@ -390,9 +400,9 @@ export default function Dashboard() {
           )}
         </section>
         <section className="ov-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="ov-card-h">
             <h2 className="ov-card-t">Recent Orders</h2>
-            <Link to="/admin/orders" style={{ fontSize: 10.5, color: '#6B7280' }}>View all</Link>
+            <Link to="/admin/orders" className="ov-more">View all</Link>
           </div>
           {orderRows.length === 0 ? <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center' }}>No orders in this period.</p> : (
             <table className="ov-tbl">
@@ -482,7 +492,7 @@ export default function Dashboard() {
         </section>
       </div>
 
-      <section className="ov-card" style={{ marginTop: 10 }}>
+      <section className="ov-card ov-mt">
         <h2 className="ov-card-t">Quick Actions</h2>
         <div className="ov-quick">
           {QUICK.map((a) => (
