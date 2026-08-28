@@ -980,3 +980,17 @@
 .ib-empty { padding: 64px 16px; text-align: center; }
 .ib-empty-t { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--admin-text); }
 .ib-empty-b { margin-top: 4px; font-size: 12.5px; color: var(--adm-label); }
+
+/* ── Luxury display face for admin headings (self-hosted, OFL) ──────────── */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces-Latin.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+.od-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}

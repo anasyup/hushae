@@ -190,10 +190,11 @@ export default function Analytics() {
 
   return (
     <AdminLayout title="Analytics">
+      <div className="od-page">
       <div className="od-head">
         <div>
           <p className="adm-eyebrow" style={{ padding: 0 }}>Intelligence</p>
-          <h2 style={{ fontSize: 20, fontWeight: 700 }}>Reports & Intelligence</h2>
+          <h2 className="od-display" style={{ fontSize: 26 }}>Reports & Intelligence</h2>
           <p className="mt-1 text-[12px]" style={{ color: 'var(--adm-label)' }}>
             The questions the dashboard doesn't answer — conversion, ROI, loyalty, quality.
           </p>
@@ -276,11 +277,11 @@ export default function Analytics() {
                 <p className="od-card-t">Performance over time</p>
                 <span className="od-bar-val">sessions & orders (left) · revenue bars (right)</span>
               </div>
-              <div style={{ height: 260 }}><canvas id="anCombo" /></div>
+              <div style={{ height: 300 }}><canvas id="anCombo" /></div>
             </div>
             <div className="od-card">
               <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Revenue & 7-day average</p></div>
-              <div style={{ height: 260 }}><canvas id="anRevArea" /></div>
+              <div style={{ height: 300 }}><canvas id="anRevArea" /></div>
             </div>
           </div>
 
@@ -556,6 +557,7 @@ export default function Analytics() {
           </section>
         </>
       )}
+      </div>
     </AdminLayout>
   );
 }
