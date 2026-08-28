@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
 import './orders-desk.css';
-import Chart from 'chart.js/auto';
 import {
   CalendarDays, CheckCircle2, Clock, Package, XCircle, Banknote, Download,
 } from 'lucide-react';
@@ -29,21 +28,6 @@ import {
  * Order desk — Phase 03-R editorial recomposition.
  * Functionality unchanged: filters, bulk, print, stage, notifications.
  * ========================================================================== */
-
-/* Chart palette — light + dark-admin, same approach as the Overview page. */
-const PALETTES = {
-  light: { main: '#111', g2: '#555', g3: '#8a8a8a', g4: '#d6d6d6', mutedLine: '#c8c8c8', grid: '#f2f2f2', tick: '#9ca3af', tooltip: '#111' },
-  dark: { main: '#f4f4f5', g2: '#a1a1aa', g3: '#71717a', g4: '#3f3f46', mutedLine: '#52525b', grid: '#26262c', tick: '#71717a', tooltip: '#27272a' },
-};
-const P = () => (document.documentElement.classList.contains('dark-admin') ? PALETTES.dark : PALETTES.light);
-const compactRs = (v) => {
-  const n = Number(v) || 0;
-  if (n >= 1e6) return `₨${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
-  return `₨${Math.round(n)}`;
-};
-const dayLabel = (offset) => new Date(Date.now() - offset * 86400000)
-  .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
 export default function OrdersDesk() {
   const { auth, toast } = useApp();
@@ -174,59 +158,6 @@ export default function OrdersDesk() {
     setTrackBusy(false);
   };
 
-  /* ---------------- charts (real data, theme-aware, like Overview) ------- */
-  const revRef = useRef(null);
-  const donutRef = useRef(null);
-  useEffect(() => {
-    if (!counts?.trend) return undefined;
-    let rev = null; let donut = null;
-    const make = () => {
-      const pal = P();
-      rev?.destroy(); donut?.destroy();
-      const labels = [6, 5, 4, 3, 2, 1, 0].map(dayLabel);
-      const revEl = document.getElementById('odRevChart');
-      const donutEl = document.getElementById('odDonut');
-      if (revEl) {
-        rev = new Chart(revEl, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              { label: 'Revenue', data: [...counts.trend.revenue].reverse(), borderColor: pal.main, backgroundColor: pal.main, tension: 0.35, pointRadius: 0, borderWidth: 2 },
-              { label: 'Previous 7 days', data: [...(counts.prevSeries?.revenue || counts.trend.revenue)].reverse(), borderColor: pal.mutedLine, backgroundColor: pal.mutedLine, borderWidth: 1.5, borderDash: [4, 4], tension: 0.35, pointRadius: 0 },
-            ],
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.dataset.label}: ${compactRs(c.parsed.y)}` } } },
-            scales: {
-              x: { grid: { display: false }, ticks: { color: pal.tick, font: { size: 10 } } },
-              y: { grid: { color: pal.grid }, ticks: { color: pal.tick, font: { size: 10 }, callback: (v) => compactRs(v) } },
-            },
-          },
-        });
-      }
-      if (donutEl) {
-        const groups = GROUPS.filter((g) => g.key !== 'all');
-        donut = new Chart(donutEl, {
-          type: 'doughnut',
-          data: {
-            labels: groups.map((g) => g.label),
-            datasets: [{ data: groups.map((g) => counts.byGroup?.[g.key] || 0), backgroundColor: [pal.main, pal.g2, pal.g3, pal.g4, pal.mutedLine, pal.grid], borderWidth: 0 }],
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false, cutout: '68%',
-            plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } } },
-          },
-        });
-      }
-    };
-    make();
-    const mo = new MutationObserver(make);
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => { mo.disconnect(); rev?.destroy(); donut?.destroy(); };
-  }, [counts]);
-
   const pct = (cur, prev) => {
     if (!prev) return null;
     const v = ((cur - prev) / prev) * 100;
@@ -302,23 +233,6 @@ export default function OrdersDesk() {
           })}
         </div>
 
-        {/* ── charts row (Overview-style) ── */}
-        <div className="od-charts">
-          <div className="od-card">
-            <div className="od-card-h" style={{ marginBottom: 8 }}>
-              <p className="od-card-t">Revenue — last 7 days</p>
-              <span className="od-sub">dashed = previous 7 days</span>
-            </div>
-            <div style={{ height: 210 }}><canvas id="odRevChart" aria-label="Revenue chart" /></div>
-          </div>
-          <div className="od-card">
-            <div className="od-card-h" style={{ marginBottom: 8 }}>
-              <p className="od-card-t">Orders by stage</p>
-            </div>
-            <div style={{ height: 210 }}><canvas id="odDonut" aria-label="Orders by stage" /></div>
-          </div>
-        </div>
-
         {/* ── main card ── */}
         <div className="od-card">
           <div className="od-card-h">
@@ -359,6 +273,16 @@ export default function OrdersDesk() {
               currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
             />
           </div>
+
+          {counts?.byPaymentState?.Pending > 0 && (
+            <div className="od-callout">
+              <span className="od-callout-dot" aria-hidden="true" />
+              <span>
+                <b>{counts.byPaymentState.Pending}</b> order{counts.byPaymentState.Pending === 1 ? '' : 's'} awaiting payment verification — COD calls pending.
+              </span>
+              <Link to="/admin/verification-queue" className="od-callout-btn">Open queue</Link>
+            </div>
+          )}
 
           <BulkBar
             selected={selected} total={data.total}
