@@ -32,6 +32,8 @@ export default function CommandPalette({ onClose }) {
   const { auth } = useApp();
   const [q, setQ] = useState('');
   const [customerHits, setCustomerHits] = useState([]);
+  const [orderHits, setOrderHits] = useState([]);
+  const [productHits, setProductHits] = useState([]);
   const [idx, setIdx] = useState(0);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -45,8 +47,26 @@ export default function CommandPalette({ onClose }) {
 
   useEffect(() => {
     const term = q.trim();
-    if (!term) { setCustomerHits([]); return undefined; }
+    if (!term) { setCustomerHits([]); setOrderHits([]); setProductHits([]); return undefined; }
     const timer = setTimeout(() => {
+      api(`/orders/manage?q=${encodeURIComponent(term)}&limit=6`, { token: auth?.token, noCache: true })
+        .then((data) => setOrderHits((data.orders || []).map((o) => ({
+          id: `order-${o._id}`,
+          label: `${o.orderNumber} — ${o.customerInfo?.name || ''}`.trim(),
+          category: 'Orders', icon: ShoppingBag,
+          to: `/admin/orders/${o._id}`,
+          hint: `${o.stage || o.status || ''} · ${o.customerInfo?.city || ''}`.trim(),
+        }))))
+        .catch(() => setOrderHits([]));
+      api(`/products/admin/list?q=${encodeURIComponent(term)}&limit=6`, { token: auth?.token, noCache: true })
+        .then((data) => setProductHits((data.products || []).map((p) => ({
+          id: `product-${p._id}`,
+          label: p.name || 'Product',
+          category: 'Products', icon: Package,
+          to: `/admin/products/${p._id}`,
+          hint: `${p.sku || ''} · stock ${p.stock ?? '—'}`.trim(),
+        }))))
+        .catch(() => setProductHits([]));
       api(`/customers/search?q=${encodeURIComponent(term)}&limit=6`, { token: auth?.token, noCache: true })
         .then((data) => setCustomerHits((data.customers || []).map((customer) => ({
           id: `customer-${customer.id}`,
@@ -69,7 +89,7 @@ export default function CommandPalette({ onClose }) {
       item.category.toLowerCase().includes(term) ||
       (item.keywords || []).join(' ').toLowerCase().includes(term)
     ));
-    return [...customerHits, ...staticItems];
+    return [...orderHits, ...productHits, ...customerHits, ...staticItems];
   }, [q, customerHits]);
 
   useEffect(() => { setIdx(0); }, [results.length]);

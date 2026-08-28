@@ -35,7 +35,6 @@ import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import CommandPalette from './CommandPalette';
 import SettingsRail from './settings/SettingsRail';
-import ProfitCalculator from './ProfitCalculator';
 import NotificationBell from './dashboard/NotificationBell';
 
 /* ============================================================================
@@ -96,6 +95,7 @@ const NAV_SECTIONS = [
     icon: Home,
     items: [
       { to: '/admin', label: 'Dashboard', icon: LayoutTemplate, end: true },
+      { to: '/admin/setup', label: 'Setup Guide', icon: Settings },
     ],
   },
   {
@@ -875,7 +875,6 @@ export default function AdminLayout({ children, title }) {
       </div>
 
       {/* Floating Elements */}
-      <ProfitCalculator />
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
     </div>
   );

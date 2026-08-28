@@ -112,6 +112,7 @@ const Transactions = lazy(() => import('./admin/Transactions'));
 const CODHub = lazy(() => import('./admin/CODHub'));
 const SystemStatus = lazy(() => import('./admin/SystemStatus'));
 const SettingsMetafields = lazy(() => import('./admin/SettingsMetafields'));
+const SetupChecklist = lazy(() => import('./admin/SetupChecklist'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -401,6 +402,7 @@ export default function App() {
           <Route path="/admin/inbox/:tab" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Overview /></Suspense>} />
           <Route path="/admin/dashboard" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
+          <Route path="/admin/setup" element={<Suspense fallback={<EditorFallback />}><SetupChecklist /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
           <Route path="/admin/verification-queue" element={<Suspense fallback={<EditorFallback />}><VerificationQueue /></Suspense>} />
