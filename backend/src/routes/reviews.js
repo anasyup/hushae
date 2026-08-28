@@ -436,4 +436,137 @@ router.post('/admin/bulk', protect, adminOnly, asyncHandler(async (req, res) => 
   res.json({ ok: true, affected: rows.length });
 }));
 
+/* ============================================================
+ * ADMIN — one-shot sample reviews (demo data for the panel)
+ * POST /api/reviews/admin/seed-demo
+ *
+ * Boss order: 10-20 realistic reviews FROM DELIVERED ORDERS — the
+ * customers who actually received their pieces. Real delivered orders
+ * are used whenever they exist (verified purchase, linked order, real
+ * customer name); fallback names fill the rest. Runs exactly once —
+ * seeded reviews carry demo:true and the guard refuses a second run.
+ * Approved ones recalc product rating aggregates like the real flow.
+ * ============================================================ */
+const DEMO_CONTENT = [
+  [5, 'Perfect fit, soft fabric', 'Used the fit finder and the size was spot on. Fabric is genuinely soft and the stitching is clean. Packaging was completely discreet.'],
+  [5, 'Better than imported brands', 'I usually buy imported innerwear but this is softer and holds shape better after a few washes. Genuinely impressed.'],
+  [4, 'Very comfortable', 'Comfortable for all-day wear, size runs true. Slightly expensive but the quality justifies it.'],
+  [4, 'Good quality, fast delivery', 'Ordered on Monday, delivered Wednesday. Quality is great for the price and the parcel was unmarked as promised.'],
+  [5, 'The fabric is incredible', 'You can feel the quality the moment you touch it. Washed three times already — no pilling, no fading.'],
+  [5, 'Worth every rupee', 'Discreet packaging as promised, beautiful fabric, fits perfectly. Will definitely reorder.'],
+  [4, 'Nice and breathable', 'Breathable in our heat, comfortable fit, seams sit flat. Would recommend to anyone asking.'],
+  [3, 'Good but size up', 'Quality is good but I would size up for a relaxed fit. Fabric is lovely though, so I am keeping them.'],
+  [5, 'My third order from them', 'Third time ordering. Consistent quality every single time — that is rare, and it keeps me coming back.'],
+  [4, 'Soft and well made', 'Very soft, no irritation even for sensitive skin. Happy with the purchase and the quick delivery.'],
+  [5, 'Excellent quality', 'Excellent stitching, true to size, arrived in plain packaging. A great experience from checkout to doorstep.'],
+  [4, 'Very happy with this', 'Really comfortable and the quality feels premium. Delivery was quick and the rider called before arriving.'],
+  [5, 'Feels like nothing at all', 'This is what second skin means. I forget I am wearing them. Ordered two more sets the same week.'],
+  [5, 'Impressed by the finishing', 'Bonded edges, clean stitching, no loose threads. The attention to detail is obvious the moment you open the box.'],
+  [4, 'Great for daily wear', 'Holds shape through long days and washes well. Colour stayed exactly as pictured on the site.'],
+  [5, 'Discreet and fast', 'Plain outer packaging, delivered in two days to Lahore. The product itself is even better than the photos.'],
+];
+const DEMO_NAMES = ['Ayesha K.', 'Bilal M.', 'Fatima S.', 'Hamza R.', 'Mahnoor A.', 'Usman T.', 'Zara H.', 'Ali Z.', 'Sana P.', 'Omar F.', 'Nimra J.', 'Daniyal S.'];
+// Status plan for 16 reviews: 11 approved, 4 pending, 1 rejected — enough
+// for the storefront AND for the moderation workflow to feel real.
+const DEMO_STATUS = ['approved', 'approved', 'pending', 'approved', 'approved', 'approved', 'rejected', 'approved', 'pending', 'approved', 'approved', 'approved', 'pending', 'approved', 'approved', 'pending'];
+
+async function seedDemoReviews() {
+  const mongoose = require('mongoose');
+  const already = await Review.countDocuments({ demo: true });
+  if (already > 0) {
+    const e = new Error(`Sample reviews already exist (${already}). One-shot by design.`);
+    e.statusCode = 409;
+    throw e;
+  }
+
+  // Real delivered orders → real customers → verified reviews.
+  const orders = await Order.find({ $or: [{ status: 'Delivered' }, { stage: 'Delivered' }] })
+    .sort({ createdAt: -1 }).limit(40).lean();
+  const prods = await Product.find({ isActive: true, status: { $ne: 'draft' } })
+    .sort({ isFeatured: -1, isBestSeller: -1, createdAt: -1 }).limit(14).lean();
+  if (!prods.length) {
+    const e = new Error('No live products to attach sample reviews to.');
+    e.statusCode = 400;
+    throw e;
+  }
+  const liveIds = new Set(prods.map((p) => String(p._id)));
+
+  const docs = [];
+  const seen = new Set();
+  let ci = 0;
+  for (const o of orders) {
+    for (const it of o.items || []) {
+      const pid = String(it.product || '');
+      const key = `${o._id}:${pid}`;
+      if (!pid || seen.has(key) || !liveIds.has(pid)) continue;
+      seen.add(key);
+      const [rating, title, body] = DEMO_CONTENT[ci % DEMO_CONTENT.length];
+      docs.push({
+        _id: new mongoose.Types.ObjectId(),
+        product: it.product,
+        order: o._id,
+        customerName: (o.customerInfo?.name || 'HUSHAE Customer').slice(0, 80),
+        customerEmail: o.customerInfo?.email || '',
+        rating, title, body,
+        images: [], videos: [],
+        verified: true,
+        status: DEMO_STATUS[ci % DEMO_STATUS.length],
+        helpful: ci % 4 === 0 ? (ci % 7) + 2 : 0,
+        reports: 0, adminReply: '', adminReplyAt: null,
+        featured: false, pinned: false, demo: true,
+        createdAt: new Date(Date.now() - (ci + 1) * 30 * 3600000),
+        updatedAt: new Date(),
+      });
+      ci += 1;
+      if (docs.length >= 16) break;
+    }
+    if (docs.length >= 16) break;
+  }
+  const linked = docs.length;
+
+  // Fill the remainder with realistic unlinked reviews (still marked demo).
+  let fi = 0;
+  while (docs.length < 16) {
+    const p = prods[fi % prods.length];
+    const [rating, title, body] = DEMO_CONTENT[(ci + fi) % DEMO_CONTENT.length];
+    docs.push({
+      _id: new mongoose.Types.ObjectId(),
+      product: p._id,
+      order: null,
+      customerName: DEMO_NAMES[(ci + fi) % DEMO_NAMES.length],
+      customerEmail: '',
+      rating, title, body,
+      images: [], videos: [],
+      verified: false,
+      status: DEMO_STATUS[(ci + fi) % DEMO_STATUS.length],
+      helpful: 0, reports: 0, adminReply: '', adminReplyAt: null,
+      featured: false, pinned: false, demo: true,
+      createdAt: new Date(Date.now() - (docs.length + 1) * 26 * 3600000),
+      updatedAt: new Date(),
+    });
+    fi += 1;
+  }
+
+  // Raw insert keeps the back-dated createdAt (timestamps would overwrite it).
+  await Review.collection.insertMany(docs);
+
+  // Public averages follow the real flow — approved reviews only.
+  const approvedProducts = [...new Set(docs.filter((d) => d.status === 'approved').map((d) => String(d.product)))];
+  for (const pid of approvedProducts) await recalcProduct(pid);
+
+  const count = (s) => docs.filter((d) => d.status === s).length;
+  return { created: docs.length, linked, approved: count('approved'), pending: count('pending'), rejected: count('rejected') };
+}
+
+router.post('/admin/seed-demo', protect, adminOnly, asyncHandler(async (req, res) => {
+  try {
+    const out = await seedDemoReviews();
+    res.status(201).json(out);
+  } catch (ex) {
+    if (ex.statusCode === 409 || ex.statusCode === 400) return res.status(ex.statusCode).json({ message: ex.message });
+    throw ex;
+  }
+}));
+router.seedDemoReviews = seedDemoReviews; // exposed for the QA script only
+
 module.exports = router;

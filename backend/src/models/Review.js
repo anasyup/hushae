@@ -27,6 +27,9 @@ const reviewSchema = new mongoose.Schema({
   adminReplyAt: { type: Date, default: null },
   featured:     { type: Boolean, default: false, index: true },
   pinned:       { type: Boolean, default: false },
+  // Demo / sample reviews seeded from the admin panel (one-shot). Marked so
+  // the seeder never runs twice and the merchant can spot them later.
+  demo:         { type: Boolean, default: false, index: true },
 }, { timestamps: true });
 
 reviewSchema.index({ product: 1, status: 1, createdAt: -1 });

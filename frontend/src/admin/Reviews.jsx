@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  AlertTriangle, Check, ExternalLink, MessageSquare, Search, Star, Trash2, X,
+  AlertTriangle, Check, ExternalLink, MessageSquare, Search, Sparkles, Star, Trash2, X,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
@@ -47,6 +47,10 @@ export default function Reviews() {
   const [loaded, setLoaded] = useState(false);
   const [err, setErr] = useState('');
   const [q, setQ] = useState('');
+  const [sort, setSort] = useState('newest');
+  const [pulse, setPulse] = useState(null);
+  const [seeding, setSeeding] = useState(false);
+  const [barsOn, setBarsOn] = useState(false);
 
   const load = () => {
     setErr('');
@@ -54,7 +58,26 @@ export default function Reviews() {
       .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); setSelected([]); })
       .catch(() => { setRows([]); setErr('Something prevented the reviews from loading.'); })
       .finally(() => setLoaded(true));
+    api('/reviews/admin/stats', { token: auth?.token }).then(setPulse).catch(() => {});
   };
+
+  /* One-shot sample data — reviews from delivered orders (backend links real
+     orders + customers, verified). Refuses to run twice; toasts the truth. */
+  const seedDemo = async () => {
+    setSeeding(true);
+    try {
+      const r = await api('/reviews/admin/seed-demo', { method: 'POST', token: auth.token, body: {} });
+      toast(`${r.created} sample reviews added (${r.linked} from delivered orders)`);
+      load();
+    } catch (e) { toast(e.message || 'Could not add sample reviews'); }
+    setSeeding(false);
+  };
+
+  useEffect(() => {
+    if (!pulse) return undefined;
+    const t = setTimeout(() => setBarsOn(true), 150);
+    return () => clearTimeout(t);
+  }, [pulse]);
 
   const toggleOne = (id) => setSelected((s2) => (s2.includes(id) ? s2.filter((x) => x !== id) : [...s2, id]));
   const allChecked = rows.length > 0 && selected.length === rows.length;
@@ -102,14 +125,22 @@ export default function Reviews() {
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return rows;
-    return rows.filter((r) =>
-      r.customerName?.toLowerCase().includes(term) ||
-      r.title?.toLowerCase().includes(term) ||
-      r.body?.toLowerCase().includes(term) ||
-      r.product?.name?.toLowerCase().includes(term)
-    );
-  }, [rows, q]);
+    let out = rows;
+    if (term) {
+      out = out.filter((r) =>
+        r.customerName?.toLowerCase().includes(term) ||
+        r.title?.toLowerCase().includes(term) ||
+        r.body?.toLowerCase().includes(term) ||
+        r.product?.name?.toLowerCase().includes(term)
+      );
+    }
+    if (sort === 'oldest') out = [...out].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    if (sort === 'highest') out = [...out].sort((a, b) => b.rating - a.rating);
+    if (sort === 'lowest') out = [...out].sort((a, b) => a.rating - b.rating);
+    if (sort === 'helpful') out = [...out].sort((a, b) => (b.helpful || 0) - (a.helpful || 0));
+    // 'newest' = API default order
+    return out;
+  }, [rows, q, sort]);
 
   const stats = [
     { id: 'pending', label: 'Pending', note: { text: 'Needs you', tone: 'pa-note-yellow' } },
@@ -134,6 +165,11 @@ export default function Reviews() {
               <h1>Reviews</h1>
               <p>Moderate customer reviews before they appear on product pages.</p>
             </div>
+            <div className="pa-head-actions">
+              <button type="button" onClick={seedDemo} disabled={seeding} className="pa-btn-sm" title="One-shot: adds 16 realistic reviews from delivered orders">
+                <Sparkles size={12} strokeWidth={2} /> {seeding ? 'Adding…' : 'Sample reviews'}
+              </button>
+            </div>
           </div>
 
           {/* ── Stats = tabs ──────────────────────────────────────────── */}
@@ -147,7 +183,43 @@ export default function Reviews() {
             ))}
           </div>
 
-          {/* ── Search ────────────────────────────────────────────────── */}
+          {/* ── Rating pulse (approved reviews) ───────────────────────── */}
+          {pulse && pulse.totalApproved > 0 && (
+            <div className="pa-card pa-pulse">
+              <div className="pa-pulse-avg">
+                <p className="pa-pulse-avg-val">{pulse.avg.toFixed(1)}</p>
+                <div style={{ margin: '7px 0 6px' }}><Stars n={Math.round(pulse.avg)} /></div>
+                <p className="pa-pulse-label">{pulse.totalApproved} approved review{pulse.totalApproved === 1 ? '' : 's'}</p>
+              </div>
+              <div className="pa-pulse-bars">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const n = pulse.rating?.[star] || 0;
+                  const pct = pulse.totalApproved ? Math.round((n / pulse.totalApproved) * 100) : 0;
+                  return (
+                    <div key={star} className="pa-pulse-bar-row">
+                      <span>{star} ★</span>
+                      <div className="pa-pulse-track">
+                        <div className="pa-pulse-bar" style={{ width: barsOn ? `${pct}%` : '0%' }} />
+                      </div>
+                      <span>{n}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="pa-pulse-facts">
+                <div>
+                  <p className="pa-pulse-fact-val">{pulse.last30Days || 0}</p>
+                  <p className="pa-pulse-fact-label">Last 30 days</p>
+                </div>
+                <div>
+                  <p className={`pa-pulse-fact-val ${pulse.reported > 0 ? 'warn' : ''}`}>{pulse.reported || 0}</p>
+                  <p className="pa-pulse-fact-label">Reported</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Search + sort ─────────────────────────────────────────── */}
           <div className="pa-card pa-toolbar">
             <div className="pa-search">
               <Search size={13} strokeWidth={2} />
@@ -158,6 +230,13 @@ export default function Reviews() {
                 aria-label="Search reviews"
               />
             </div>
+            <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort reviews" className="pa-select">
+              <option value="newest">Sort · Newest</option>
+              <option value="oldest">Sort · Oldest</option>
+              <option value="highest">Sort · Highest rated</option>
+              <option value="lowest">Sort · Lowest rated</option>
+              <option value="helpful">Sort · Most helpful</option>
+            </select>
             {q && (
               <button type="button" onClick={() => setQ('')} className="pa-btn-sm" style={{ marginLeft: 'auto' }}>Clear</button>
             )}
@@ -235,6 +314,13 @@ export default function Reviews() {
 
                     {r.title && <p className="pa-rev-title">{r.title}</p>}
                     <p className="pa-rev-body">{r.body}</p>
+
+                    {r.images?.length > 0 && (
+                      <div className="pa-thumbs">
+                        {r.images.slice(0, 5).map((img, j) => <img key={j} src={img.url} alt={`${r.customerName}'s photo ${j + 1}`} />)}
+                      </div>
+                    )}
+                    {r.helpful > 0 && <p className="pa-helpful">{r.helpful} customer{r.helpful === 1 ? '' : 's'} found this helpful</p>}
 
                     {r.adminReply && (
                       <div className="pa-reply-block">
