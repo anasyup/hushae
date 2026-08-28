@@ -107,18 +107,15 @@ const NAV_SECTIONS = [
         label: 'Orders',
         icon: ShoppingCart,
         children: [
+          /* One entry per distinct destination. Pipeline states (pending,
+             processing, shipped, delivered, cancelled, returns, refunds)
+             live inside the All Orders desk as tabs/filters — listing them
+             here too put the same option in two places. */
           { to: '/admin/orders', label: 'All Orders', icon: ShoppingBag },
           { to: '/admin/orders/draft', label: 'Draft Orders', icon: FileText },
           { to: '/admin/abandoned-carts', label: 'Abandoned Checkouts', icon: Package },
-          { to: '/admin/orders/pending', label: 'Pending Payment', icon: CreditCard },
-          { to: '/admin/orders/processing', label: 'Processing', icon: PackageCheck },
-          { to: '/admin/orders/fulfillment', label: 'Fulfillment', icon: Truck },
-          { to: '/admin/orders/shipped', label: 'Shipped', icon: ShoppingBag },
-          { to: '/admin/orders/delivered', label: 'Delivered', icon: PackageCheck },
-          { to: '/admin/orders/cancelled', label: 'Cancelled', icon: Box },
-          { to: '/admin/orders/returns', label: 'Returns', icon: Package },
-          { to: '/admin/orders/refunds', label: 'Refunds', icon: DollarSign },
           { to: '/admin/orders/issues', label: 'Payment Issues', icon: ShieldCheck },
+          { to: '/admin/cod-recon', label: 'COD Reconciliation', icon: DollarSign },
         ],
       },
       {
@@ -127,6 +124,7 @@ const NAV_SECTIONS = [
         icon: Package,
         children: [
           { to: '/admin/products', label: 'Products', icon: Package },
+          { to: '/admin/products/inventory', label: 'Inventory', icon: Box },
           { to: '/admin/categories', label: 'Categories', icon: Tag },
           { to: '/admin/collections', label: 'Collections', icon: FolderOpen },
           { to: '/admin/reviews', label: 'Reviews & Questions', icon: Star },
