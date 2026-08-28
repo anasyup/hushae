@@ -132,12 +132,23 @@
   white-space: nowrap;
 }
 .adm-brand-sub {
-  font-size: 9.5px;
-  font-weight: 500;
+  font-size: 8.5px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--adm-label);
+  color: #0e9f6e;
+  border: 1px solid rgba(14, 159, 110, 0.35);
+  background: rgba(14, 159, 110, 0.10);
+  border-radius: 5px;
+  padding: 3px 6px;
   white-space: nowrap;
+  line-height: 1;
+}
+/* Dark admin — brighter emerald chip so it stays legible on the navy rail. */
+.dark-admin .adm-brand-sub {
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.12);
 }
 /* Rail mode: the mark sits alone, optically centred, no wordmark. */
 .adm-sidebar.is-rail .adm-brand {
