@@ -35,6 +35,7 @@ import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import CommandPalette from './CommandPalette';
 import SettingsRail from './settings/SettingsRail';
+import ProfitCalculator from './ProfitCalculator';
 import NotificationBell from './dashboard/NotificationBell';
 
 /* ============================================================================
@@ -627,6 +628,12 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
     return parts[parts.length - 1].replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   })();
 
+  /* Tab title — the browser tab always reads "HUSHAE Admin · <page>"
+     so the H logo never sits next to a bare storefront tagline. */
+  useEffect(() => {
+    document.title = `HUSHAE Admin · ${pageTitle}`;
+  }, [pageTitle]);
+
   const initials = (auth?.user?.name || 'A').trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join('').toUpperCase();
 
   return (
@@ -868,6 +875,7 @@ export default function AdminLayout({ children, title }) {
       </div>
 
       {/* Floating Elements */}
+      <ProfitCalculator />
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
     </div>
   );
