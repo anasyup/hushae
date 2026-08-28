@@ -6,13 +6,13 @@ import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import {
-  BenchRow, Chip, CohortGrid, ConvChip, EmptyState, HeadRow, Metric, Pills, Row, Section, StatStrip,
+  Chip, CohortGrid, ConvChip, EmptyState, HeadRow, Metric, Pills, Row, Section, StatStrip,
 } from './analytics/sections';
 import {
   COUPON_COLS, CUSTOM_COLS, CUSTOMER_COLS, PRODUCT_COLS, QUALITY_COLS, VARIANT_COLS, WINBACK_COLS,
 } from './analytics/columns';
 import {
-  BubbleScatter, CandleChart, DonutChart, GaugeChart, ParetoChart, toCandles,
+  BandMeter, CandleChart, SplitBar, TrafficScatter, toCandles,
 } from './analytics/svgcharts';
 
 /* ============================================================================
@@ -381,14 +381,11 @@ export default function Analytics() {
                 title="You vs industry benchmarks"
                 subtitle={`${rangeLabel} · where the store sits against typical fashion e-commerce`}
               >
-                <div className="an-gauges">
+                <div className="an-bands">
                   {benchmarks.map((m) => (
-                    <GaugeChart key={m.label} value={m.value} lo={m.lo} hi={m.hi} label={m.label} />
+                    <BandMeter key={m.label} value={m.value} lo={m.lo} hi={m.hi} label={m.label} />
                   ))}
                 </div>
-                {benchmarks.map((m) => (
-                  <BenchRow key={m.label} label={m.label} value={m.value} lo={m.lo} hi={m.hi} note={m.note} good={m.good} />
-                ))}
               </Section>
             )}
 
@@ -405,7 +402,7 @@ export default function Analytics() {
                   </Chip>
                 }
               >
-                <CandleChart series={bench.series} fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`} />
+                <CandleChart series={bench.series} />
               </Section>
             )}
 
@@ -430,7 +427,7 @@ export default function Analytics() {
                 {a.productIntel.length > 0 && (
                   <div className="an-chart-block">
                     <p className="an-sub-h">Views vs conversion</p>
-                    <BubbleScatter points={a.productIntel} target={1.5} />
+                    <TrafficScatter points={a.productIntel} target={1.5} />
                   </div>
                 )}
                 {a.productIntel.length === 0 ? (
@@ -517,40 +514,32 @@ export default function Analytics() {
                 className="an-c12"
                 delay={210}
                 title="Where the money comes from"
-                subtitle={`Revenue split, ${rangeLabel.toLowerCase()} — hover a slice or a legend row for its share`}
+                subtitle={`Revenue split, ${rangeLabel.toLowerCase()} — hover a segment or a row for its share`}
               >
-                <div className="an-donuts">
-                  <div className="an-donut-cell">
-                    <p className="an-sub-h">By category</p>
-                    <DonutChart
-                      label="Categories"
-                      data={(bench.byCategory || []).map((c) => ({ label: c.cat, value: c.revenue }))}
-                      fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`}
-                    />
-                  </div>
-                  <div className="an-donut-cell">
-                    <p className="an-sub-h">By payment method</p>
-                    <DonutChart
-                      label="Payments"
-                      data={(bench.byPayment || []).map((p) => ({ label: p.method || 'Unspecified', value: p.revenue }))}
-                      fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`}
-                    />
-                  </div>
+                <div className="an-splits">
+                  <SplitBar
+                    label="By category"
+                    data={(bench.byCategory || []).map((c) => ({ label: c.cat, value: c.revenue }))}
+                  />
+                  <SplitBar
+                    label="By payment method"
+                    data={(bench.byPayment || []).map((pm) => ({ label: pm.method || 'Unspecified', value: pm.revenue }))}
+                  />
                 </div>
               </Section>
             )}
 
-            {/* ── 6 · revenue concentration ─────────────────────────────────── */}
+            {/* ── 6 · what actually sells ───────────────────────────────────── */}
             {bench?.topProducts?.length > 0 && (
               <Section
                 className="an-c12"
                 delay={240}
-                title="Revenue concentration"
-                subtitle="Top products with the running share of total revenue — shows how much rides on how few lines"
+                title="What actually sells"
+                subtitle="Top products ranked by revenue, with each one's share of the total"
               >
-                <ParetoChart
-                  rows={bench.topProducts}
-                  fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`}
+                <SplitBar
+                  label="Top products"
+                  data={(bench.topProducts || []).map((t) => ({ label: t.name, value: t.revenue }))}
                 />
               </Section>
             )}

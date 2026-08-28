@@ -30,7 +30,7 @@ const columnsAbs = join(root, 'src/admin/analytics/columns.js');
 /* Probe = renders the boss's exact data through the real components. */
 writeFileSync(entry, `
 import React from 'react';
-import { Section, HeadRow, Row, Metric, Chip, ConvChip, EmptyState, BenchRow, CohortGrid, StatStrip, Pills } from '${sectionsAbs}';
+import { Section, HeadRow, Row, Metric, Chip, ConvChip, EmptyState, CohortGrid, StatStrip, Pills } from '${sectionsAbs}';
 import { PRODUCT_COLS, CUSTOMER_COLS, COUPON_COLS, VARIANT_COLS, WINBACK_COLS, QUALITY_COLS, CUSTOM_COLS, ALL_COL_SETS, colSum, METRIC_BUDGET, LEAD_SPAN, GRID_COLS } from '${columnsAbs}';
 
 /* boss's pasted R1 rows (12 products) */
@@ -84,10 +84,12 @@ const cols = PRODUCT_COLS;
 export function Probe() {
   return (
     <div className="an-grid">
+      {/* benchmarks are now band meters in svgcharts.jsx — covered by
+          test-analytics-charts.mjs, so this section renders as a plain card */}
       <Section className="an-c12" title="You vs industry benchmarks" subtitle="last 30 days">
-        <BenchRow label="Conversion rate" value={1.6} lo={1.5} hi={2.5} note="in range" good />
-        <BenchRow label="Repeat purchase rate" value={0} lo={15} hi={25} note="below benchmark" good={false} />
-        <BenchRow label="Refund rate" value={0} lo={0} hi={5} note="healthy" good />
+        <div className="an-bands">
+          <span>Conversion rate 1.6% — in healthy band</span>
+        </div>
       </Section>
 
       <Section className="an-c12" title="Product conversion" subtitle="Views to orders, last 30 days"

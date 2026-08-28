@@ -136,27 +136,6 @@ export function EmptyState({ icon, title, body, action }) {
   );
 }
 
-/* ------------------------------------------------------------- <BenchRow> */
-/* Metric vs industry range: label · range track with zone + marker · chip. */
-export function BenchRow({ label, value, unit = '%', lo, hi, note, good, scaleMax }) {
-  const max = scaleMax || Math.max(hi * 2, value * 1.5, 1);
-  const pos = Math.min(100, (value / max) * 100);
-  return (
-    <div className="an-bench">
-      <span className="an-bench-l">{label}</span>
-      <span className="an-bench-track">
-        <span className="zone" style={{ left: `${(lo / max) * 100}%`, width: `${((hi - lo) / max) * 100}%` }} />
-        <i style={{ width: `${pos}%`, background: good ? '#0e9f6e' : '#f59e0b' }} />
-        <b style={{ left: `${pos}%` }} />
-      </span>
-      <span className="an-bench-v">
-        <Chip tone={good ? 'good' : 'warn'}>{value}{unit}</Chip>
-        <span className="an-bench-n">{note} · industry {lo}–{hi}{unit}</span>
-      </span>
-    </div>
-  );
-}
-
 /* ---------------------------------------------------------- <CohortGrid> */
 /* Retention heatmap: 6 month columns, tint scales with the repeat rate. */
 export function CohortGrid({ rows, months = 6 }) {

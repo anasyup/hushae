@@ -200,24 +200,15 @@
   border-bottom: 1px solid var(--od-border-light);
 }
 
-/* benchmark gauges: 3 across, wrapping */
-.an-gauges {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
-  gap: 10px 16px;
-  align-items: end;
-  margin-bottom: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--od-border-light);
-}
+/* benchmark band meters, stacked with breathing room */
+.an-bands { display: grid; gap: 18px; }
 
-/* donut pairs side by side */
-.an-donuts {
+/* revenue splits side by side on wide screens */
+.an-splits {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px 28px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 22px 34px;
 }
-.an-donut-cell { min-width: 0; }
 
 /* ── chips & pills ─────────────────────────────────────────────────────── */
 .an-chip {
