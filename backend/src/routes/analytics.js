@@ -352,10 +352,12 @@ router.post('/weekly-digest', protect, adminOnly, asyncHandler(async (req, res) 
 router.get('/executive', asyncHandler(async (req, res) => {
   const DAY = 24 * 60 * 60 * 1000;
   const now = new Date();
-  const key = ['today', '7d', '30d', '90d', 'ytd'].includes(req.query.range) ? req.query.range : '30d';
+  const isCustom = req.query.range === 'custom' && req.query.from;
+  const key = isCustom ? 'custom' : (['today', '7d', '30d', '90d', 'ytd'].includes(req.query.range) ? req.query.range : '30d');
   const days = { today: 1, '7d': 7, '30d': 30, '90d': 90 }[key] || 0;
-  const start = key === 'ytd' ? new Date(now.getFullYear(), 0, 1) : new Date(now.getTime() - days * DAY);
-  const span = now.getTime() - start.getTime();
+  const start = isCustom ? new Date(req.query.from) : key === 'ytd' ? new Date(now.getFullYear(), 0, 1) : new Date(now.getTime() - days * DAY);
+  const spanEnd = isCustom && req.query.to ? new Date(new Date(req.query.to).getTime() + DAY) : now;
+  const span = spanEnd.getTime() - start.getTime();
   const cmpMode = req.query.compare === 'yoy' ? 'yoy' : 'prev';
   const cmpStart = cmpMode === 'yoy'
     ? new Date(start.getFullYear() - 1, start.getMonth(), start.getDate())
@@ -365,8 +367,9 @@ router.get('/executive', asyncHandler(async (req, res) => {
     : start;
 
   const BAD = ['Cancelled', 'Refunded'];
+  const curRange = { $gte: start, ...(isCustom ? { $lt: spanEnd } : {}) };
   const [ordCur, ordCmp] = await Promise.all([
-    Order.find({ createdAt: { $gte: start } }).select('orderNumber total status paymentMethod paymentState courierName customerInfo.phone customerInfo.email customerInfo.city createdAt statusHistory').lean(),
+    Order.find({ createdAt: curRange }).select('orderNumber total status paymentMethod paymentState courierName customerInfo.phone customerInfo.email customerInfo.city createdAt statusHistory').lean(),
     Order.find({ createdAt: { $gte: cmpStart, $lt: cmpEnd } }).select('total status customerInfo.phone createdAt').lean(),
   ]);
 
@@ -396,7 +399,7 @@ router.get('/executive', asyncHandler(async (req, res) => {
   const cur = compute(ordCur);
 
   /* sessions + funnel (first-party PageView) */
-  const pv = { createdAt: { $gte: start } };
+  const pv = { createdAt: curRange };
   const [sess, viewSess, cartSess, coSess] = await Promise.all([
     PageView.distinct('sid', pv),
     PageView.distinct('sid', { ...pv, path: { $regex: '^/product/' } }),
@@ -483,6 +486,25 @@ router.get('/executive', asyncHandler(async (req, res) => {
   }
   const avgGapDays = gaps.length ? Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length) : null;
 
+  /* Q1 — paisa kahan se: sessions by acquisition source (first-party referrer) */
+  const refsAgg = await PageView.aggregate([
+    { $match: { createdAt: curRange, event: 'pageview' } },
+    { $group: { _id: '$referrer', sids: { $addToSet: '$sid' } } },
+  ]);
+  const srcMap = {};
+  refsAgg.forEach((r) => {
+    const ref = String(r._id || '').toLowerCase();
+    const cat = ref.includes('instagram') ? 'Instagram'
+      : ref.includes('tiktok') ? 'TikTok'
+      : ref.includes('facebook') || ref.includes('fb.com') ? 'Facebook'
+      : ref.includes('whatsapp') ? 'WhatsApp'
+      : ref.includes('google') ? 'Google'
+      : !ref ? 'Direct' : 'Other';
+    srcMap[cat] = (srcMap[cat] || 0) + r.sids.length;
+  });
+  const sources = Object.entries(srcMap).map(([src, sessions]) => ({ src, sessions }))
+    .sort((a, b) => b.sessions - a.sessions).slice(0, 6);
+
   res.json({
     range: key, compare: cmpMode,
     kpis: {
@@ -493,7 +515,7 @@ router.get('/executive', asyncHandler(async (req, res) => {
         retention: delta(cur.retention, prev.retention),
       },
     },
-    series, funnel, couriers, cities, tiers, avgGapDays,
+    series, funnel, couriers, cities, tiers, avgGapDays, sources,
   });
 }));
 

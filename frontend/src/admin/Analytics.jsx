@@ -14,8 +14,9 @@ import './analytics-intel.css';
  * ========================================================================== */
 
 const RANGES = [
-  ['today', 'Today'], ['7d', '7D'], ['30d', '30D'], ['90d', '90D'], ['ytd', 'YTD'],
+  ['today', 'Today'], ['7d', '7D'], ['30d', '30D'], ['90d', '90D'], ['ytd', 'YTD'], ['custom', 'Custom'],
 ];
+const FUNNEL_TARGETS = ['100%', 'target 50–60%', 'target 20–25%', 'target 12–15%', 'target 8–10%'];
 
 const money = (n) => pkr(Math.round(n || 0));
 const int = (n) => (n || 0).toLocaleString();
@@ -29,6 +30,8 @@ function Delta({ v, suffix = '%' }) {
 export default function Analytics() {
   const { auth } = useApp();
   const [range, setRange] = useState('30d');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [compare, setCompare] = useState('prev');
   const [exec, setExec] = useState(null);
   const [intel, setIntel] = useState(null);
@@ -36,12 +39,15 @@ export default function Analytics() {
   useEffect(() => {
     let alive = true;
     setExec(null);
-    api(`/analytics/executive?range=${range}&compare=${compare}`, { token: auth?.token })
+    const qs = range === 'custom' && from
+      ? `range=custom&from=${from}${to ? `&to=${to}` : ''}&compare=${compare}`
+      : `range=${range}&compare=${compare}`;
+    api(`/analytics/executive?${qs}`, { token: auth?.token })
       .then((d) => { if (alive) setExec(d); }).catch(() => { if (alive) setExec({ kpis: null, error: true }); });
     api(`/analytics/intelligence?range=${range}`, { token: auth?.token })
       .then((d) => { if (alive) setIntel(d); }).catch(() => { if (alive) setIntel({}); });
     return () => { alive = false; };
-  }, [range, compare, auth?.token]);
+  }, [range, from, to, compare, auth?.token]);
 
   const k = exec?.kpis?.cur;
   const d = exec?.kpis?.deltas;
@@ -128,6 +134,13 @@ export default function Analytics() {
                 <button key={key} type="button" className={range === key ? 'on' : ''} onClick={() => setRange(key)}>{label}</button>
               ))}
             </div>
+            {range === 'custom' && (
+              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+                <input type="date" className="an-date" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From date" />
+                <span style={{ color: 'var(--an-mut)', fontSize: 11 }}>→</span>
+                <input type="date" className="an-date" value={to} onChange={(e) => setTo(e.target.value)} aria-label="To date" />
+              </span>
+            )}
             <div className="an-cmp" role="group" aria-label="Compare">
               <button type="button" className={compare === 'prev' ? 'on' : ''} onClick={() => setCompare('prev')}>vs Previous</button>
               <button type="button" className={compare === 'yoy' ? 'on' : ''} onClick={() => setCompare('yoy')}>vs Last Year</button>
@@ -165,7 +178,7 @@ export default function Analytics() {
                 {funnel.map((s, i) => (
                   <div key={s.n}>
                     <div className="an-fun-row">
-                      <span className="n">{s.n}</span>
+                      <span className="n">{s.n}<em className="an-tgt">{FUNNEL_TARGETS[i]}</em></span>
                       <div className="an-fun-track"><div className="an-fun-fill" style={{ width: `${Math.max(2, s.pct)}%` }} /></div>
                       <span className="v">{int(s.v)}</span>
                     </div>
@@ -175,6 +188,29 @@ export default function Analytics() {
               </div>
             ) : <div className="an-skel" style={{ height: 240 }} />}
           </div>
+        </div>
+
+        {/* ── Q1 · acquisition sources ── */}
+        <div className="an-card an-in" style={{ marginBottom: 12 }}>
+          <h3>Acquisition — paisa kahan se aa raha hai</h3>
+          {exec?.sources?.length ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10 }} className="an-src">
+              {exec.sources.map((sr) => {
+                const max = Math.max(1, ...exec.sources.map((x) => x.sessions));
+                return (
+                  <div key={sr.src} style={{ textAlign: 'center' }}>
+                    <div className="an-fun-track" style={{ height: 64, display: 'flex', alignItems: 'flex-end' }}>
+                      <div style={{ width: '100%', height: `${Math.max(4, (sr.sessions / max) * 100)}%`, background: 'linear-gradient(180deg, #3a382f, #1c1b18)', borderRadius: '6px 6px 0 0', transition: 'height .8s cubic-bezier(.16,1,.3,1)' }} />
+                    </div>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, marginTop: 6 }}>{sr.src}</p>
+                    <p className="an-sub" style={{ marginTop: 1 }}>{int(sr.sessions)} sessions</p>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="an-sub">Abhi traffic-source data accumulate ho raha hai — first-party tracking live hai, sources yahan nazar aayengi (Instagram / TikTok / WhatsApp / Direct).</p>
+          )}
         </div>
 
         {/* ── 4 · R1–R4 matrices ── */}

@@ -82,3 +82,8 @@
 .an-skel { height: 120px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--an-ink) 5%, transparent) 25%, color-mix(in srgb, var(--an-ink) 9%, transparent) 50%, color-mix(in srgb, var(--an-ink) 5%, transparent) 75%); background-size: 200% 100%; animation: anSh 1.4s linear infinite; }
 @keyframes anSh { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 @media (prefers-reduced-motion: reduce) { .an-wrap * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* custom date inputs + funnel target labels + sources responsive */
+.an-date { height: 28px; border: 1px solid var(--an-line); border-radius: 999px; padding: 0 10px; background: var(--an-card); color: var(--an-ink); font-family: inherit; font-size: 11px; }
+.an-tgt { display: block; font-style: normal; font-size: 8.5px; font-weight: 600; letter-spacing: .06em; color: var(--an-mut2); text-transform: uppercase; margin-top: 1px; }
+@media (max-width: 900px) { .an-src { grid-template-columns: repeat(3, 1fr) !important; } }
