@@ -11,7 +11,6 @@ import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
 import { useOrderDesk } from './useOrderDesk';
-import OrdersPulse from './OrdersPulse';
 import PaginationBar from '../PaginationBar';
 import '../products-atelier.css';
 import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
@@ -215,9 +214,6 @@ export default function OrdersDesk() {
             </button>
           </div>
         </div>
-
-        {/* ── Orders Pulse: Overview DNA on the desk (additive) ── */}
-        <OrdersPulse />
 
         {/* ── stat cards with real 7-day sparklines ── */}
         <div className="od-stats">
