@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle, FilePlus2, Minus, PackageCheck, Pencil, Plus, Receipt,
-  Search, Trash2, User as UserIcon, Wallet, X,
+  AlertTriangle, Copy, FilePlus2, MessageCircle, Minus, PackageCheck, Pencil,
+  Plus, Receipt, Search, Trash2, User as UserIcon, Wallet, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -24,7 +24,9 @@ const PAYMENTS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'];
 
 const blankDraft = () => ({
   customerInfo: { name: '', phone: '', email: '', address: '', city: '', province: 'Punjab', postalCode: '' },
-  items: [], notes: '', manualDiscount: 0, paymentMethod: 'COD',
+  items: [], notes: '', manualDiscount: 0, discountType: 'amount',
+  shippingMode: 'store', customShipping: 0, taxExempt: false,
+  tags: [], linkedCustomerId: null, paymentMethod: 'COD',
 });
 
 function ageLabel(iso) {
@@ -68,6 +70,21 @@ export default function DraftOrders() {
     try { await api(`/orders/manage/drafts/${d._id}`, { method: 'DELETE', token: auth.token }); toast('Draft deleted'); load(); }
     catch (e) { toast(e.message || 'Delete failed'); }
     setBusyId(null);
+  };
+
+  const duplicate = (d) => {
+    const copy = { ...blankDraft(), ...d, customerInfo: { ...d.customerInfo }, items: (d.items || []).map((it) => ({ ...it })) };
+    delete copy._id; delete copy.createdAt; delete copy.updatedAt; delete copy.__v;
+    setEditing(copy);
+  };
+
+  const waShare = (d) => {
+    const digits = String(d.customerInfo?.phone || '').replace(/\D/g, '');
+    if (!digits) { toast('Customer phone chahiye WhatsApp ke liye'); return; }
+    const intl = digits.startsWith('92') ? digits : digits.startsWith('0') ? `92${digits.slice(1)}` : `92${digits}`;
+    const lines = (d.items || []).map((it) => `• ${it.name} x${it.quantity} — ${pkr((it.price || 0) * (it.quantity || 1))}`);
+    const text = `HUSHAE — order summary for ${d.customerInfo?.name || 'you'}:\n${lines.join('\n')}\nEstimated total: ${pkr(d.estimatedTotal || 0)}\nReply YES to confirm.`;
+    window.open(`https://wa.me/${intl}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
   };
 
   const convert = async (d) => {
@@ -186,6 +203,12 @@ export default function DraftOrders() {
                         <td className="pa-hide-xl"><span className="pa-cell-muted">{d.updatedAt ? ageLabel(d.updatedAt) : '—'}</span></td>
                         <td>
                           <div className="pa-row-actions">
+                            <button type="button" className="pa-action-btn" onClick={() => waShare(d)} aria-label="Share on WhatsApp" title="WhatsApp summary bhejein">
+                              <MessageCircle size={12} strokeWidth={2} />
+                            </button>
+                            <button type="button" className="pa-action-btn" onClick={() => duplicate(d)} aria-label="Duplicate draft" title="Duplicate">
+                              <Copy size={12} strokeWidth={2} />
+                            </button>
                             <button type="button" className="pa-action-btn" onClick={() => setEditing(d)} aria-label="Edit draft" title="Edit">
                               <Pencil size={12} strokeWidth={2} />
                             </button>
@@ -250,6 +273,28 @@ function DraftEditor({ draft, onClose, onSaved }) {
   const [searching, setSearching] = useState(false);
   const productsRef = useRef(new Map()); // id → full product (for sizes)
 
+  /* Link an existing customer account (prefill + attach on convert). */
+  const [allCustomers, setAllCustomers] = useState(null);
+  const [cq, setCq] = useState('');
+  useEffect(() => {
+    api('/admin/customers', { token: auth.token }).then((d) => setAllCustomers(d.customers || [])).catch(() => setAllCustomers([]));
+  }, [auth.token]);
+  const custResults = useMemo(() => {
+    const term = cq.trim().toLowerCase();
+    if (!term || !allCustomers) return [];
+    return allCustomers.filter((cu) =>
+      cu.name?.toLowerCase().includes(term) || cu.phone?.includes(term) || cu.email?.toLowerCase().includes(term)
+    ).slice(0, 5);
+  }, [cq, allCustomers]);
+  const attachCustomer = (cu) => {
+    setC((x) => ({
+      ...x,
+      linkedCustomerId: cu.id,
+      customerInfo: { ...x.customerInfo, name: cu.name || x.customerInfo.name, phone: cu.phone || x.customerInfo.phone, email: cu.email || x.customerInfo.email },
+    }));
+    setCq('');
+  };
+
   /* product search */
   useEffect(() => {
     const term = pq.trim();
@@ -278,17 +323,28 @@ function DraftEditor({ draft, onClose, onSaved }) {
   const dropItem = (i) => setC((x) => ({ ...x, items: x.items.filter((_, j) => j !== i) }));
 
   const subtotal = (c.items || []).reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0);
-  const discount = Math.min(Math.max(0, Number(c.manualDiscount) || 0), subtotal);
+  const discVal = Math.max(0, Number(c.manualDiscount) || 0);
+  const discount = c.discountType === 'percent'
+    ? Math.round((subtotal * Math.min(100, discVal)) / 100)
+    : Math.min(discVal, subtotal);
   const shipFree = subtotal >= (settings?.freeShippingThreshold || Infinity);
-  const shipping = shipFree ? 0 : (settings?.shippingFlatRate || 350);
-  const total = Math.max(0, subtotal - discount + (c.items.length ? shipping : 0));
+  const taxPct = c.taxExempt ? 0 : (Number(settings?.cart?.taxPercent) || 0);
+  const tax = taxPct > 0 ? Math.round(((subtotal - discount) * taxPct) / 100) : 0;
+  const shipping = !c.items.length ? 0
+    : c.shippingMode === 'none' ? 0
+    : c.shippingMode === 'custom' ? Math.max(0, Number(c.customShipping) || 0)
+    : (shipFree ? 0 : (settings?.shippingFlatRate || 350));
+  const total = Math.max(0, subtotal - discount + shipping + tax);
 
   const save = async () => {
     setBusy(true);
     try {
       const body = {
         customerInfo: c.customerInfo, items: c.items, notes: c.notes,
-        manualDiscount: discount, paymentMethod: c.paymentMethod,
+        manualDiscount: discVal, discountType: c.discountType,
+        shippingMode: c.shippingMode, customShipping: c.customShipping,
+        taxExempt: c.taxExempt, tags: c.tags, linkedCustomerId: c.linkedCustomerId,
+        paymentMethod: c.paymentMethod,
       };
       if (isNew) await api('/orders/manage/drafts', { method: 'POST', token: auth.token, body });
       else await api(`/orders/manage/drafts/${draft._id}`, { method: 'PUT', token: auth.token, body });
@@ -356,6 +412,37 @@ function DraftEditor({ draft, onClose, onSaved }) {
             </div>
           </div>
 
+          {/* ── link existing customer ── */}
+          <div className="pa-field">
+            <label className="pa-field-label">Link existing customer (optional)</label>
+            {c.linkedCustomerId ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="pa-badge pa-b-green"><span className="pa-dot" aria-hidden />Account linked</span>
+                <button type="button" className="pa-text-link" onClick={() => setC((x) => ({ ...x, linkedCustomerId: null }))}>Unlink</button>
+              </div>
+            ) : (
+              <>
+                <div className="pa-search" style={{ maxWidth: 'none', position: 'relative' }}>
+                  <Search size={13} strokeWidth={2} />
+                  <input value={cq} onChange={(e) => setCq(e.target.value)} placeholder="Search customers by name / phone / email…" aria-label="Search customers" />
+                </div>
+                {cq.trim() && (
+                  <div className="pa-picker" style={{ maxHeight: 150, marginTop: 6 }}>
+                    {custResults.map((cu) => (
+                      <button type="button" key={cu.id} className="pa-picker-row" onClick={() => attachCustomer(cu)}>
+                        <span style={{ minWidth: 0, flex: 1 }}>
+                          <span className="pa-picker-name">{cu.name}</span>
+                          <span className="pa-picker-sub">{cu.phone} · {cu.orders} order{cu.orders === 1 ? '' : 's'}</span>
+                        </span>
+                      </button>
+                    ))}
+                    {custResults.length === 0 && <p className="pa-picker-empty">No customers match.</p>}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
           {/* ── items ── */}
           <p className="pa-section-title" style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '4px 0 10px' }}>
             <Wallet size={12} strokeWidth={2} /> Products
@@ -384,11 +471,21 @@ function DraftEditor({ draft, onClose, onSaved }) {
             const prod = productsRef.current.get(String(it.product));
             const sizes = prod?.sizes || [];
             return (
-              <div key={`${it.product}-${i}`} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) 90px 96px 90px 26px', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <div key={`${it.product}-${i}`} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.3fr) 84px 92px 92px 84px 26px', gap: 8, alignItems: 'center', marginBottom: 8 }}>
                 <span className="pa-picker-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.name}</span>
                 <select className="pa-select" style={{ height: 30, maxWidth: 'none' }} value={it.size} onChange={(e) => setItem(i, { size: e.target.value })} aria-label="Size" disabled={!sizes.length}>
                   {(sizes.length ? sizes : [it.size || '—']).map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
+                <input
+                  className="pa-modal-input"
+                  style={{ height: 30, fontSize: 11.5 }}
+                  type="number"
+                  min="0"
+                  value={it.price ?? ''}
+                  onChange={(e) => setItem(i, { price: Math.max(0, Number(e.target.value) || 0) })}
+                  aria-label="Unit price (custom override)"
+                  title="Custom unit price — catalog price se alag rate yahan likhein"
+                />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <button type="button" className="pa-action-btn" style={{ width: 22, height: 22 }} onClick={() => setItem(i, { quantity: Math.max(1, it.quantity - 1) })} aria-label="Less"><Minus size={10} /></button>
                   <span className="pa-stock-num">{it.quantity}</span>
@@ -400,7 +497,7 @@ function DraftEditor({ draft, onClose, onSaved }) {
             );
           })}
 
-          {/* ── totals + options ── */}
+          {/* ── pricing + options (Shopify parity) ── */}
           <div className="pa-rules-box" style={{ marginTop: 12, marginBottom: 0 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
@@ -410,9 +507,52 @@ function DraftEditor({ draft, onClose, onSaved }) {
                 </select>
               </div>
               <div>
-                <label className="pa-field-label">Discount (PKR)</label>
-                <input className="pa-modal-input" type="number" min="0" value={c.manualDiscount || ''} onChange={(e) => setC((x) => ({ ...x, manualDiscount: Number(e.target.value) || 0 }))} placeholder="0" />
+                <label className="pa-field-label">Discount</label>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <select className="pa-select" style={{ height: 34, maxWidth: 84 }} value={c.discountType} onChange={(e) => setC((x) => ({ ...x, discountType: e.target.value }))} aria-label="Discount type">
+                    <option value="amount">PKR</option>
+                    <option value="percent">%</option>
+                  </select>
+                  <input className="pa-modal-input" type="number" min="0" value={c.manualDiscount || ''} onChange={(e) => setC((x) => ({ ...x, manualDiscount: Number(e.target.value) || 0 }))} placeholder="0" />
+                </div>
               </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+              <div>
+                <label className="pa-field-label">Shipping</label>
+                <select className="pa-select" style={{ width: '100%', maxWidth: 'none', height: 34 }} value={c.shippingMode} onChange={(e) => setC((x) => ({ ...x, shippingMode: e.target.value }))}>
+                  <option value="store">Store rates (free over threshold)</option>
+                  <option value="custom">Custom rate</option>
+                  <option value="none">No shipping / pickup</option>
+                </select>
+              </div>
+              {c.shippingMode === 'custom' ? (
+                <div>
+                  <label className="pa-field-label">Custom shipping (PKR)</label>
+                  <input className="pa-modal-input" type="number" min="0" value={c.customShipping || ''} onChange={(e) => setC((x) => ({ ...x, customShipping: Number(e.target.value) || 0 }))} placeholder="0" />
+                </div>
+              ) : (
+                <div className="pa-switch-row">
+                  <div>
+                    <p className="pa-switch-label" style={{ margin: 0 }}>Tax exempt</p>
+                    <p className="pa-switch-desc" style={{ margin: 0 }}>Is order pe tax nahi lagega</p>
+                  </div>
+                  <button type="button" role="switch" aria-checked={!!c.taxExempt} aria-label="Tax exempt" className={`pa-switch ${c.taxExempt ? 'on' : ''}`} onClick={() => setC((x) => ({ ...x, taxExempt: !x.taxExempt }))} />
+                </div>
+              )}
+            </div>
+            {c.shippingMode === 'custom' && (
+              <div className="pa-switch-row" style={{ marginTop: 6 }}>
+                <div>
+                  <p className="pa-switch-label" style={{ margin: 0 }}>Tax exempt</p>
+                  <p className="pa-switch-desc" style={{ margin: 0 }}>Is order pe tax nahi lagega</p>
+                </div>
+                <button type="button" role="switch" aria-checked={!!c.taxExempt} aria-label="Tax exempt" className={`pa-switch ${c.taxExempt ? 'on' : ''}`} onClick={() => setC((x) => ({ ...x, taxExempt: !x.taxExempt }))} />
+              </div>
+            )}
+            <div className="pa-field" style={{ marginTop: 12, marginBottom: 0 }}>
+              <label className="pa-field-label">Tags (comma separated)</label>
+              <input className="pa-modal-input" value={(c.tags || []).join(', ')} onChange={(e) => setC((x) => ({ ...x, tags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean) }))} placeholder="wholesale, repeat-caller…" />
             </div>
             <div className="pa-field" style={{ marginTop: 12, marginBottom: 0 }}>
               <label className="pa-field-label">Notes</label>
@@ -420,13 +560,14 @@ function DraftEditor({ draft, onClose, onSaved }) {
             </div>
             <div style={{ marginTop: 12, borderTop: '1px solid var(--pa-border-light)', paddingTop: 10, fontSize: 11.5, color: 'var(--pa-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><b style={{ color: 'var(--pa-text)' }}>{pkr(subtotal)}</b></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}><span>Discount</span><b style={{ color: 'var(--pa-text)' }}>− {pkr(discount)}</b></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}><span>Shipping {shipFree && subtotal > 0 ? '(free over threshold)' : ''}</span><b style={{ color: 'var(--pa-text)' }}>{c.items.length ? pkr(shipping) : pkr(0)}</b></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}><span>Discount{c.discountType === 'percent' ? ` (${Math.min(100, discVal)}%)` : ''}</span><b style={{ color: 'var(--pa-text)' }}>− {pkr(discount)}</b></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}><span>Shipping {c.shippingMode === 'store' && shipFree && subtotal > 0 ? '(free over threshold)' : ''}</span><b style={{ color: 'var(--pa-text)' }}>{pkr(shipping)}</b></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}><span>Tax{c.taxExempt ? ' (exempt)' : taxPct ? ` (${taxPct}%)` : ''}</span><b style={{ color: 'var(--pa-text)' }}>{pkr(tax)}</b></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 13 }}>
                 <b style={{ color: 'var(--pa-text)' }}>Estimated total</b>
                 <b style={{ color: 'var(--pa-text)', fontVariantNumeric: 'tabular-nums' }}>{pkr(total)}</b>
               </div>
-              <p className="pa-field-hint" style={{ marginTop: 6 }}>Final total order banate waqt server compute karta hai (tax + shipping rules ke sath).</p>
+              <p className="pa-field-hint" style={{ marginTop: 6 }}>Custom prices aur overrides order bante waqt server-side apply hote hain — final total wahin se aata hai.</p>
             </div>
           </div>
         </div>

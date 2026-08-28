@@ -186,7 +186,8 @@ const draftLimit = rateLimit({ windowMs: 60 * 1000, max: 15, key: 'draft-order',
 async function manualOrderHandler(req, res) {
   const {
     customerInfo = {}, items = [], paymentMethod = 'COD', shippingMethod = 'standard',
-    manualDiscount = 0, notes = '', discreetPackaging = true,
+    manualDiscount = 0, discountType = 'amount', shippingMode = 'store', customShipping = 0,
+    taxExempt = false, notes = '', discreetPackaging = true,
   } = req.body || {};
 
   // ── Customer identity ────────────────────────────────────────────────────
@@ -241,7 +242,11 @@ async function manualOrderHandler(req, res) {
     const size = it.size || product.sizes[0] || '';
     const color = it.color || product.colors[0]?.name || '';
     const v = pickVariant(product, size, color);
-    const unit = (v && v.price != null) ? Number(v.price) : product.price;
+    const base = (v && v.price != null) ? Number(v.price) : product.price;
+    /* Draft-order price overrides (Shopify parity): the staff-negotiated unit
+       price wins when present and sane; otherwise the live catalog price. */
+    const cp = Number(it.customPrice);
+    const unit = (it.customPrice !== undefined && it.customPrice !== null && it.customPrice !== '' && Number.isFinite(cp) && cp >= 0) ? Math.round(cp) : base;
     lineItems.push({
       product: product._id, name: product.name, slug: product.slug,
       image: (v && v.image) || product.images[0]?.url || '', size, color,
@@ -263,14 +268,24 @@ async function manualOrderHandler(req, res) {
   const shipMethods = (settings.checkout && settings.checkout.shippingMethods) || [];
   const chosenShip = shipMethods.find((m) => m.id === shippingMethod && m.enabled);
   const free = subtotal >= (settings.freeShippingThreshold || 0);
-  const shippingCharge = chosenShip
-    ? (chosenShip.freeEligible !== false && free ? 0 : Number(chosenShip.rate) || 0)
-    : (free ? 0 : settings.shippingFlatRate || 0);
+  const shippingCharge = shippingMode === 'none'
+    ? 0
+    : shippingMode === 'custom'
+      ? Math.max(0, Math.round(Number(customShipping) || 0))
+      : (chosenShip
+        ? (chosenShip.freeEligible !== false && free ? 0 : Number(chosenShip.rate) || 0)
+        : (free ? 0 : settings.shippingFlatRate || 0));
 
-  const taxPercent = Number(settings.cart && settings.cart.taxPercent) || 0;
+  const taxPercent = taxExempt ? 0 : (Number(settings.cart && settings.cart.taxPercent) || 0);
   const tax = taxPercent > 0 ? Math.round((subtotal * taxPercent) / 100) : 0;
 
-  const discount = Math.min(Math.max(0, Number(manualDiscount) || 0), subtotal);
+  let discount;
+  if (String(discountType) === 'percent') {
+    const pct = Math.min(100, Math.max(0, Number(manualDiscount) || 0));
+    discount = Math.round((subtotal * pct) / 100);
+  } else {
+    discount = Math.min(Math.max(0, Number(manualDiscount) || 0), subtotal);
+  }
   const total = Math.max(0, subtotal - discount + shippingCharge + tax);
 
   // ── Allowed payment method (mirror of the public checkout rule) ──────────
@@ -1301,6 +1316,12 @@ const sanitizeDraft = (b, user) => {
     items,
     notes: String(b.notes || '').slice(0, 1000),
     manualDiscount: discount,
+    discountType: String(b.discountType) === 'percent' ? 'percent' : 'amount',
+    shippingMode: ['store', 'custom', 'none'].includes(b.shippingMode) ? b.shippingMode : 'store',
+    customShipping: Math.max(0, Number(b.customShipping) || 0),
+    taxExempt: !!b.taxExempt,
+    tags: [...new Set((Array.isArray(b.tags) ? b.tags : String(b.tags || '').split(',')).map((t) => String(t).trim()).filter(Boolean).slice(0, 10))].map((t) => t.slice(0, 30)),
+    linkedCustomerId: b.linkedCustomerId || null,
     paymentMethod: String(b.paymentMethod || 'COD'),
     estimatedTotal: Math.max(0, subtotal - Math.min(discount, subtotal)),
     createdBy: user?.email || '',
@@ -1361,10 +1382,14 @@ router.post('/drafts/:id/convert', protect, adminOnly, asyncHandler(async (req, 
   const d = await DraftOrder.findById(req.params.id);
   if (!d) return res.status(404).json({ message: 'Draft not found' });
   const r = await runManualOrder({
-    customerInfo: d.customerInfo,
-    items: d.items,
+    customerInfo: { ...d.customerInfo.toObject ? d.customerInfo.toObject() : d.customerInfo, userId: d.linkedCustomerId || undefined },
+    items: d.items.map((it) => ({ product: it.product, size: it.size, quantity: it.quantity, customPrice: it.price })),
     notes: d.notes,
     manualDiscount: d.manualDiscount,
+    discountType: d.discountType,
+    shippingMode: d.shippingMode,
+    customShipping: d.customShipping,
+    taxExempt: d.taxExempt,
     paymentMethod: d.paymentMethod,
   }, req.user);
   if (r.status === 201) {
