@@ -181,6 +181,25 @@
 .ov-pend { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
 .ov-mt { margin-top: 10px; }
 
+.ov-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.ov-tabs button {
+  height: 26px; padding: 0 10px; border: 0; border-radius: 20px; cursor: pointer;
+  font: 600 10.5px Inter, sans-serif; background: #f3f3f2; color: #6b7280;
+}
+.ov-tabs button.on { background: #111; color: #fff; }
+
+.ov-toast {
+  position: fixed; right: 20px; bottom: 20px; z-index: 80;
+  background: #111; color: #fff; padding: 11px 14px; border-radius: 10px;
+  font-size: 12.5px; font-weight: 600; box-shadow: 0 10px 28px rgba(0,0,0,.2);
+  transform: translateY(80px); opacity: 0; pointer-events: none;
+  transition: .35s cubic-bezier(.34,1.56,.64,1);
+}
+.ov-toast.on { transform: none; opacity: 1; }
+
+.ov-hit td { animation: ovHit 1.1s ease; }
+@keyframes ovHit { from { background: #fef3c7; } to { background: transparent; } }
+
 @media (prefers-reduced-motion: reduce) {
   .ov-live-dot, .ov-sk { animation: none !important; }
   .ov-stat:hover, .ov-q:hover, .ov-g:hover { transform: none; }

@@ -42,6 +42,25 @@ class ChartBoundary extends Component {
 
 const tipStyle = { borderRadius: 10, border: '1px solid #ECECEC', fontSize: 11, padding: '6px 9px' };
 
+function CountUp({ value, money, suffix = '', decimals = 0 }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const target = Number(value) || 0;
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (now) => {
+      const p = Math.min((now - t0) / 900, 1);
+      const e = 1 - (1 - p) ** 3;
+      setN(target * e);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  if (money) return <span>{pkr(n)}</span>;
+  return <span>{n.toLocaleString('en-US', { maximumFractionDigits: decimals, minimumFractionDigits: decimals })}{suffix}</span>;
+}
+
 function Spark({ data }) {
   if (!data?.length) return <div style={{ width: 78, height: 28 }} />;
   return (
@@ -84,7 +103,15 @@ export default function Dashboard() {
   const [smart, setSmart] = useState([]);
   const [abandoned, setAbandoned] = useState(null);
   const [q, setQ] = useState('');
+  const [revTab, setRevTab] = useState('revenue');
+  const [toast, setToast] = useState('');
+  const toastRef = useRef(0);
   const rootRef = useRef(null);
+  const say = (m) => {
+    setToast(m);
+    clearTimeout(toastRef.current);
+    toastRef.current = setTimeout(() => setToast(''), 2200);
+  };
 
   const [range, setRange] = useState(() => {
     try {
@@ -244,12 +271,12 @@ export default function Dashboard() {
   const pages = topPages.length ? topPages : [['/', live?.visitorsNow || 0], ['/collections', 0], ['/cart', 0]];
 
   const kpis = [
-    { icon: CircleDollarSign, label: 'Total Sales', val: pkr(k.revenue?.value || 0), change: k.revenue?.change, spark: sparkRev, to: '/admin/analytics' },
-    { icon: ShoppingBag, label: 'Orders', val: Number(k.orders?.value || 0).toLocaleString(), change: k.orders?.change, spark: sparkOrd, to: '/admin/orders' },
-    { icon: Users, label: 'Customers', val: Number(k.customers?.value || 0).toLocaleString(), change: k.customers?.change, spark: sparkCust, to: '/admin/customers' },
-    { icon: CreditCard, label: 'Avg. Order Value', val: pkr(k.aov?.value || 0), change: k.aov?.change, spark: sparkAov, to: '/admin/analytics' },
-    { icon: TrendingUp, label: 'Conversion Rate', val: `${conversion.toFixed(2)}%`, change: null, spark: sparkOrd, to: '/admin/live' },
-    { icon: Wallet, label: 'Net Profit', val: pkr(k.profit?.value || 0), change: k.profit?.change, spark: sparkRev, to: '/admin/finance' },
+    { icon: CircleDollarSign, label: 'Total Sales', node: <CountUp value={k.revenue?.value || 0} money />, change: k.revenue?.change, spark: sparkRev, to: '/admin/analytics' },
+    { icon: ShoppingBag, label: 'Orders', node: <CountUp value={k.orders?.value || 0} decimals={0} />, change: k.orders?.change, spark: sparkOrd, to: '/admin/orders' },
+    { icon: Users, label: 'Customers', node: <CountUp value={k.customers?.value || 0} decimals={0} />, change: k.customers?.change, spark: sparkCust, to: '/admin/customers' },
+    { icon: CreditCard, label: 'Avg. Order Value', node: <CountUp value={k.aov?.value || 0} money />, change: k.aov?.change, spark: sparkAov, to: '/admin/analytics' },
+    { icon: TrendingUp, label: 'Conversion Rate', node: <CountUp value={conversion} decimals={2} suffix="%" />, change: null, spark: sparkOrd, to: '/admin/live' },
+    { icon: Wallet, label: 'Net Profit', node: <CountUp value={k.profit?.value || 0} money />, change: k.profit?.change, spark: sparkRev, to: '/admin/finance' },
   ];
 
   const insightCards = [
@@ -270,7 +297,13 @@ export default function Dashboard() {
         <div className="ov-head-right">
           <label className="ov-search">
             <Search size={14} color="#9CA3AF" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search orders, products, customers…" aria-label="Search on this page" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') say(q.trim() ? `Searching “${q.trim()}”` : 'Type to search'); }}
+              placeholder="Search orders, products, customers…"
+              aria-label="Search on this page"
+            />
           </label>
           <RangePicker value={range} onChange={applyRange} />
           <Link to="/admin/products/new" className="ov-black">
@@ -281,7 +314,7 @@ export default function Dashboard() {
             {alerts > 0 && <span className="ov-badge">{alerts}</span>}
           </Link>
           <button type="button" className="ov-icon" onClick={toggleFs} title="Fullscreen"><Maximize2 size={14} /></button>
-          <button type="button" className="ov-pill" onClick={() => load()}><RefreshCw size={12} /> {rangeLabel}</button>
+          <button type="button" className="ov-pill" onClick={() => { load(); say('Refreshed'); }}><RefreshCw size={12} /> {rangeLabel}</button>
         </div>
       </div>
 
@@ -290,7 +323,7 @@ export default function Dashboard() {
           <motion.div key={x.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
             <Link to={x.to} className="ov-stat">
               <div className="ov-stat-l"><x.icon size={14} strokeWidth={1.6} /> {x.label}</div>
-              <div className="ov-stat-v">{x.val}</div>
+              <div className="ov-stat-v">{x.node}</div>
               <div className="ov-stat-f">
                 <div><Delta change={x.change} /><p className="ov-vs">{vs}</p></div>
                 <Spark data={x.spark} />
@@ -304,6 +337,18 @@ export default function Dashboard() {
         <section className="ov-card">
           <div className="ov-card-h">
             <h2 className="ov-card-t">Sales Overview</h2>
+            <select
+              className="ov-select"
+              value={range.preset === 'custom' ? '7d' : range.preset}
+              onChange={(e) => {
+                const r = resolvePreset(e.target.value);
+                if (r) { applyRange({ preset: e.target.value, from: r.from, to: r.to }); say(`Range: ${e.target.value}`); }
+              }}
+            >
+              <option value="7d">This Week</option>
+              <option value="this-month">This Month</option>
+              <option value="30d">Last 30 Days</option>
+            </select>
           </div>
           <p className="ov-legend"><span><i /> This period</span></p>
           <ChartBoundary>
@@ -401,7 +446,7 @@ export default function Dashboard() {
               <thead><tr><th>Product</th><th className="r">Sold</th><th className="r">Revenue</th></tr></thead>
               <tbody>
                 {prodRows.map((p) => (
-                  <tr key={p.name}>
+                  <tr key={p.name} className={needle ? 'ov-hit' : ''}>
                     <td>
                       <span className="ov-prod">
                         <span className="ov-av">{String(p.name || 'P').slice(0, 1)}</span>
@@ -446,15 +491,19 @@ export default function Dashboard() {
       <div className="ov-grid4b">
         <section className="ov-card">
           <h2 className="ov-card-t">Revenue &amp; Orders</h2>
+          <div className="ov-tabs">
+            <button type="button" className={revTab === 'revenue' ? 'on' : ''} onClick={() => { setRevTab('revenue'); say('Showing revenue'); }}>Revenue</button>
+            <button type="button" className={revTab === 'orders' ? 'on' : ''} onClick={() => { setRevTab('orders'); say('Showing orders'); }}>Orders</button>
+          </div>
           <ChartBoundary>
             <div style={{ height: 160 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chart} margin={{ top: 6, right: 6, left: -18, bottom: 0 }}>
                   <CartesianGrid stroke="#F5F5F5" vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={false} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
-                  <Tooltip contentStyle={tipStyle} formatter={(v) => [pkr(v), 'Revenue']} />
-                  <Bar dataKey="revenue" fill={INK} radius={[4, 4, 0, 0]} barSize={18} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={false} tickFormatter={(v) => (revTab === 'revenue' && v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
+                  <Tooltip contentStyle={tipStyle} formatter={(v) => [revTab === 'revenue' ? pkr(v) : v, revTab === 'revenue' ? 'Revenue' : 'Orders']} />
+                  <Bar dataKey={revTab} fill={INK} radius={[4, 4, 0, 0]} barSize={18} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
