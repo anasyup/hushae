@@ -79,12 +79,12 @@ export default function AdminLogin() {
   return (
     <div className="al-page">
       <aside className="al-brand">
-        <p className="al-mark">HUSHAE</p>
-        <div>
+        <p className="al-mark al-rise al-d1">HUSHAE</p>
+        <div className="al-rise al-d2">
           <h1>The quiet room behind the store.</h1>
           <p className="lead">Orders, inventory, and the people who keep HUSHAE running — one considered surface.</p>
         </div>
-        <p className="al-brand-foot">Second Skin, First Choice.</p>
+        <p className="al-brand-foot al-rise al-d3">Second Skin, First Choice.</p>
       </aside>
 
       <main className="al-panel">
