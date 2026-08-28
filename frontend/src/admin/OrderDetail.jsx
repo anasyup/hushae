@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, Copy, ExternalLink, MapPin, MessageCircle, Minus, Plus, Printer,
+  ArrowLeft, Copy, ExternalLink, Mail, MapPin, MessageCircle, Minus, Phone, Plus, Printer,
   RefreshCw, Save, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -34,11 +34,28 @@ export default function OrderDetail() {
   const [reliability, setReliability] = useState(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+  const [life, setLife] = useState(null);
+
+  const copyText = (t, msg) => {
+    try { navigator.clipboard?.writeText(t).then(() => toast(msg || 'Copied')); } catch { toast('Copy failed'); }
+  };
 
   const load = () => api(`/orders/admin/${id}`, { token: auth.token })
     .then((d) => { setO(d.order); setReliability(d.reliability || null); })
     .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Could not load order.'); });
   useEffect(() => { load(); }, [id]); // eslint-disable-line
+
+  /* Lifetime stats for the linked customer (Shopify-style summary). */
+  const custId = o?.customer ? String(o.customer._id || o.customer) : null;
+  useEffect(() => {
+    if (!custId) return;
+    api('/admin/customers', { token: auth.token })
+      .then((d) => {
+        const m = (d.customers || []).find((cu) => String(cu.id) === custId);
+        if (m) setLife({ orders: m.orders || 0, spent: m.spent || 0 });
+      })
+      .catch(() => {});
+  }, [custId, auth.token]);
 
   const patch = async (path, body, msg) => {
     setBusy(true);
@@ -394,35 +411,65 @@ export default function OrderDetail() {
                 <h3>Customer</h3>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <span className="odt-ava">{(c.name || '?').slice(0, 1).toUpperCase()}</span>
-                  <div style={{ minWidth: 0 }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
                       <b style={{ fontSize: 14, letterSpacing: '-0.2px' }}>{c.name}</b>
                       <ReliabilityBadge reliability={reliability} />
                     </div>
-                    <p className="pa-field-hint" style={{ marginTop: 2 }}>{c.city}{c.province ? `, ${c.province}` : ''}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
-                    {c.email && <p className="pa-field-hint" style={{ marginTop: 1 }}>{c.email}</p>}
+                    {life && (
+                      <div className="odt-life">
+                        <div><b>{life.orders}</b><span>Orders</span></div>
+                        <div><b>{pkr(life.spent)}</b><span>Lifetime</span></div>
+                      </div>
+                    )}
+                    <div className="odt-links">
+                      {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="pa-btn-sm">Customer 360</Link>}
+                    </div>
                   </div>
                 </div>
-                <div className="odt-links">
-                  {c.phone && <a href={`tel:${c.phone}`} className="pa-btn-sm">Call</a>}
-                  {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="pa-btn-sm">WhatsApp</a>}
-                  {c.email && <a href={`mailto:${c.email}`} className="pa-btn-sm">Email</a>}
-                  {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="pa-btn-sm">Customer 360</Link>}
+
+                <div className="odt-crow" style={{ marginTop: 12 }}>
+                  <span className="ico"><Phone size={13} strokeWidth={2} /></span>
+                  <div style={{ minWidth: 0 }}>
+                    <p className="lbl">Phone</p>
+                    <p className="val">{c.phone || '—'}</p>
+                  </div>
+                  <div className="acts">
+                    {c.phone && <a href={`tel:${c.phone}`} className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="Call customer" title="Call"><Phone size={11} strokeWidth={2} /></a>}
+                    {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="WhatsApp customer" title="WhatsApp"><MessageCircle size={11} strokeWidth={2} /></a>}
+                    {c.phone && <button type="button" onClick={() => copyText(c.phone, 'Phone copied')} className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="Copy phone" title="Copy"><Copy size={11} strokeWidth={2} /></button>}
+                  </div>
+                </div>
+
+                <div className="odt-crow">
+                  <span className="ico"><Mail size={13} strokeWidth={2} /></span>
+                  <div style={{ minWidth: 0 }}>
+                    <p className="lbl">Email</p>
+                    <p className="val">{c.email || '—'}</p>
+                  </div>
+                  <div className="acts">
+                    {c.email && <a href={`mailto:${c.email}`} className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="Email customer" title="Email"><Mail size={11} strokeWidth={2} /></a>}
+                    {c.email && <button type="button" onClick={() => copyText(c.email, 'Email copied')} className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="Copy email" title="Copy"><Copy size={11} strokeWidth={2} /></button>}
+                  </div>
+                </div>
+
+                <div className="odt-crow">
+                  <span className="ico"><MapPin size={13} strokeWidth={2} /></span>
+                  <div style={{ minWidth: 0 }}>
+                    <p className="lbl">Shipping address</p>
+                    <p className="odt-addr">{c.address || '—'}<br /><span className="dim">{[c.city, c.province].filter(Boolean).join(', ')}{c.postalCode ? ` — ${c.postalCode}` : ''}</span></p>
+                  </div>
+                  <div className="acts" style={{ flexDirection: 'column', gap: 5 }}>
+                    <button type="button" onClick={() => copyText([c.name, c.phone, c.address, [c.city, c.province].filter(Boolean).join(', '), c.postalCode].filter(Boolean).join(', '), 'Address copied')} className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="Copy address" title="Copy address"><Copy size={11} strokeWidth={2} /></button>
+                    {c.location?.lat != null && (
+                      <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer" className="pa-action-btn" style={{ width: 26, height: 26 }} aria-label="Open in Maps" title="Open in Maps"><ExternalLink size={11} strokeWidth={2} /></a>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div className="odt-card">
-                <h3>Shipping address</h3>
-                <p style={{ fontSize: 13, lineHeight: 1.7 }}>{c.address}</p>
-                <p className="pa-field-hint" style={{ marginTop: 2 }}>{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
-                {c.location?.lat != null && (
-                  <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer" className="pa-btn-sm" style={{ marginTop: 10 }}>
-                    <MapPin size={12} strokeWidth={2} /> Open in Maps
-                  </a>
-                )}
-              </div>
-
-              <div className="odt-card">
+                
                 <h3>Payment</h3>
                 <div className="odt-row"><span className="k">Method</span><span className="v">{o.paymentMethod}</span></div>
                 <div className="odt-row"><span className="k">Status</span><span className="v">{o.paymentStatus}</span></div>

@@ -463,3 +463,19 @@
 .odt-dot.now { background: #111; box-shadow: 0 0 0 3px rgba(17,17,17,.12); }
 .odt-ava { width: 40px; height: 40px; border-radius: 13px; background: linear-gradient(180deg,#2c2b28,#121110); color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 700; flex-shrink: 0; box-shadow: 0 6px 14px -6px rgba(16,15,13,.4); }
 .odt-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+
+/* ════ CUSTOMER BLOCK v3 — Shopify-grade contact + address (inspired) ════ */
+.odt-crow { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--pa-border-light); }
+.odt-crow:last-child { border-bottom: 0; }
+.odt-crow .ico { width: 30px; height: 30px; border-radius: 10px; background: linear-gradient(180deg, #f6f3ee, #efece5); color: #171614; display: grid; place-items: center; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(17,17,17,.06); }
+.dark-admin .odt-crow .ico { background: #1d1c1a; color: #e8e6e1; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.odt-crow .lbl { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pa-muted2); }
+.odt-crow .val { font-size: 12.5px; font-weight: 600; color: var(--pa-text); word-break: break-word; }
+.odt-crow .acts { margin-left: auto; display: flex; gap: 5px; flex-shrink: 0; }
+.odt-addr { font-size: 13px; line-height: 1.7; color: var(--pa-text); }
+.odt-addr .dim { color: var(--pa-muted); }
+.odt-life { display: flex; gap: 8px; margin-top: 10px; }
+.odt-life > div { flex: 1; background: rgba(17,17,17,.04); border-radius: 12px; padding: 8px 10px; text-align: center; }
+.dark-admin .odt-life > div { background: rgba(255,255,255,.06); }
+.odt-life b { display: block; font-size: 13px; letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
+.odt-life span { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pa-muted2); }
