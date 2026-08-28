@@ -79,7 +79,7 @@
   transition: 0.15s;
   text-decoration: none;
 }
-.od-btn-black:hover { opacity: 0.88; }
+.od-btn-black:hover { opacity: 0.9; transform: translateY(-1px); }
 .od-icon-btn {
   width: 34px;
   height: 34px;
@@ -113,7 +113,12 @@
   overflow: hidden;
   transition: 0.2s;
 }
-.od-stat:hover { border-color: var(--od-border); }
+.od-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: var(--od-border);
+}
+.dark-admin .od-stat:hover { box-shadow: none; }
 .od-stat-head {
   display: flex;
   align-items: center;
@@ -197,6 +202,10 @@
 .od-table-wrap { width: 100%; overflow-x: auto; }
 .od-tbl { width: 100%; border-collapse: collapse; min-width: 940px; }
 .od-tbl th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--od-card);
   font-size: 10px;
   color: var(--od-muted2);
   font-weight: 500;
@@ -351,3 +360,41 @@
   cursor: pointer;
 }
 .od-views button:hover { color: var(--od-text); border-color: var(--od-black); }
+
+/* focus ring on search inputs */
+.od-filters input:focus, .od-filters select:focus {
+  border-color: var(--od-black);
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+  outline: none;
+}
+.dark-admin .od-filters input:focus, .dark-admin .od-filters select:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+/* date pills */
+.od-dates { display: flex; gap: 6px; align-items: center; }
+.od-date {
+  height: 34px;
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-muted);
+  border-radius: 10px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+.od-date:hover { color: var(--od-text); border-color: var(--od-black); }
+.od-date.active { background: var(--od-black); color: var(--od-on-black); border-color: var(--od-black); }
+
+/* skeleton shimmer */
+@keyframes od-shimmer { 0% { opacity: 0.45; } 50% { opacity: 0.9; } 100% { opacity: 0.45; } }
+.od-skel {
+  height: 14px;
+  border-radius: 6px;
+  background: var(--od-hover);
+  animation: od-shimmer 1.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .od-skel { animation: none; } }

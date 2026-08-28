@@ -38,7 +38,7 @@ const fulBadge = (label) => {
 };
 
 export default function OrderRow({
-  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer, onOpenTracking,
+  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer, onOpenTracking, onOpen,
 }) {
   const [menu, setMenu] = useState(false);
   const [cancelMenu, setCancelMenu] = useState(false);
@@ -56,7 +56,7 @@ export default function OrderRow({
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
   return (
-    <tr className={selected ? 'od-selected' : ''}>
+    <tr className={selected ? 'od-selected' : ''} onClick={onOpen}>
       <td>
         <input
           type="checkbox"
@@ -97,7 +97,7 @@ export default function OrderRow({
       <td className="od-strong">{`PKR ${Number(o.total || 0).toLocaleString('en-PK')}`}</td>
 
       <td>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 5 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 5 }} onClick={(e) => e.stopPropagation()}>
           {next && (
             <button
               disabled={busy}

@@ -168,7 +168,7 @@ export default function OrdersDesk() {
   const prev = counts?.prev;
   const cur = counts?.cur;
   const stats = [
-    { label: 'Total Orders', icon: CalendarDays, val: counts?.total, series: trend?.total, c: cur?.total, p: prev?.total, color: '#111' },
+    { label: 'Total Orders', icon: CalendarDays, val: counts?.total, series: trend?.total, c: cur?.total, p: prev?.total, color: 'var(--od-text)' },
     { label: 'Pending', icon: Clock, val: counts?.byGroup?.new, series: trend?.pending, c: cur?.pending, p: prev?.pending, color: '#f59e0b' },
     { label: 'Processing', icon: Package, val: (counts?.byGroup?.processing || 0) + (counts?.byGroup?.['to-ship'] || 0), series: trend?.processing, c: cur?.processing, p: prev?.processing, color: '#8b5cf6' },
     { label: 'Completed', icon: CheckCircle2, val: counts?.byGroup?.delivered, series: trend?.completed, c: cur?.completed, p: prev?.completed, color: '#0e9f6e' },
@@ -188,6 +188,20 @@ export default function OrdersDesk() {
             </p>
           </div>
           <div className="od-head-right">
+            <div className="od-dates" role="group" aria-label="Quick date range">
+              {[
+                ['Today', 0], ['7 days', 6], ['30 days', 29], ['All', null],
+              ].map(([lbl, days]) => {
+                const from = days == null ? '' : new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+                const active = (filters.from || '') === from;
+                return (
+                  <button key={lbl} type="button" className={`od-date ${active ? 'active' : ''}`}
+                    onClick={() => setFilter({ from })}>
+                    {lbl}
+                  </button>
+                );
+              })}
+            </div>
             <Link to="/admin/orders/new" className="od-btn-black"><Plus size={11} /> Add Order</Link>
             <button type="button" onClick={() => reload()} className="od-icon-btn" aria-label="Refresh" title="Refresh">
               <RefreshCcw size={13} className={loading ? 'animate-spin' : ''} />
@@ -288,7 +302,25 @@ export default function OrdersDesk() {
           )}
 
           {loading && orders.length === 0 && !error && (
-            <div className="od-empty"><p className="od-empty-b">Loading orders…</p></div>
+            <div className="od-table-wrap">
+              <table className="od-tbl" aria-label="Loading orders">
+                <tbody>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <tr key={i}>
+                      <td><div className="od-skel" style={{ width: 14, height: 14 }} /></td>
+                      <td><div className="od-skel" style={{ width: '70%' }} /></td>
+                      <td><div className="od-skel" style={{ width: '80%' }} /></td>
+                      <td><div className="od-skel" style={{ width: '60%' }} /></td>
+                      <td><div className="od-skel" style={{ width: 70 }} /></td>
+                      <td><div className="od-skel" style={{ width: 60 }} /></td>
+                      <td><div className="od-skel" style={{ width: 70 }} /></td>
+                      <td><div className="od-skel" style={{ width: 60 }} /></td>
+                      <td />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
           {!loading && orders.length === 0 && !error && (
@@ -340,6 +372,7 @@ export default function OrdersDesk() {
                       onPrint={handlePrint} onOpenService={setServiceFor}
                       onOpenCustomer={setCustomerPhone}
                       onOpenTracking={(ord) => setTrackReq({ order: ord })}
+                      onOpen={() => nav(`/admin/orders/${o._id}`)}
                     />
                   ))}
                 </tbody>
