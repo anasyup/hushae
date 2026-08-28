@@ -442,23 +442,27 @@ export default function Dashboard() {
             <Link to="/admin/products" className="ov-more">View all</Link>
           </div>
           {prodRows.length === 0 ? <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center' }}>Product sales appear once orders land.</p> : (
-            <table className="ov-tbl">
-              <thead><tr><th>Product</th><th className="r">Sold</th><th className="r">Revenue</th></tr></thead>
-              <tbody>
-                {prodRows.map((p) => (
-                  <tr key={p.name} className={needle ? 'ov-hit' : ''}>
-                    <td>
-                      <span className="ov-prod">
-                        <span className="ov-av">{String(p.name || 'P').slice(0, 1)}</span>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                      </span>
-                    </td>
-                    <td className="r">{p.qty || 0}</td>
-                    <td className="r"><b>{pkr(p.revenue || 0)}</b></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="ov-prows">
+              <div className="ov-prow-h" role="row">
+                <span>Product</span>
+                <span>Sold</span>
+                <span>Revenue</span>
+              </div>
+              {prodRows.map((p) => (
+                <div key={p.name} className={`ov-prow${needle ? ' ov-hit' : ''}`} role="row">
+                  <span className="ov-prod">
+                    <span className="ov-av">
+                      {p.image
+                        ? <img src={p.image} alt="" />
+                        : String(p.name || 'P').slice(0, 1)}
+                    </span>
+                    <em title={p.name}>{p.name}</em>
+                  </span>
+                  <span className="ov-sold">{p.qty || 0}</span>
+                  <span className="ov-rev">{pkr(p.revenue || 0)}</span>
+                </div>
+              ))}
+            </div>
           )}
         </section>
         <section className="ov-card">
