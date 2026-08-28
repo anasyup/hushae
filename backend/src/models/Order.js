@@ -31,6 +31,8 @@ const orderSchema = new mongoose.Schema({
      Pending → … pipeline, so the warehouse treats it like any other order. */
   source: { type: String, enum: ['web', 'admin'], default: 'web', index: true },
   adminCreatedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  // Set when the order was recovered from an abandoned cart (admin recover flow).
+  abandonedCartId: { type: mongoose.Schema.Types.ObjectId, ref: 'AbandonedCart', default: null, index: true },
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   customerInfo: {
     name: { type: String, required: true },
