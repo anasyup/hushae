@@ -607,3 +607,33 @@
 .od-bar-track { height: 6px; border-radius: 4px; background: var(--od-hover); overflow: hidden; }
 .od-bar-fill { height: 100%; border-radius: 4px; background: var(--od-black); transition: width 0.4s ease; }
 .dark-admin .od-bar-fill { background: var(--od-text); }
+
+/* ── ONE-LEVEL PASS (boss: sab pages ek hi premium level pe) ─────────────
+ * Same canvas geometry as the ATELIER pa-outer pages so Orders, Drafts,
+ * Abandoned, Verification and COD Recon all sit on the identical #f8f8f7
+ * sheet. Dark admin keeps its jet canvas. Nothing removed — additive only. */
+.od {
+  background: #f8f8f7;
+  margin: -16px;
+  padding: 16px 18px 32px;
+  min-height: calc(100vh - 48px);
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .od { margin: -16px -24px -24px; }
+}
+.dark-admin .od { background: #09090b; }
+
+.od-card {
+  transition: border-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.od-card:hover {
+  border-color: var(--od-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.od-btn-sm, .od-tab, .od-pill {
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.od-btn-sm:hover:not(:disabled), .od-tab:hover {
+  transform: translateY(-1px);
+}

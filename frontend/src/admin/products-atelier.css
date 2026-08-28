@@ -243,6 +243,8 @@
 .pa-page-btn:disabled { opacity: .4; cursor: not-allowed; }
 .pa-ellipsis { min-width: 20px; text-align: center; font-size: 11px; color: var(--pa-muted2); }
 .pa-per-select { height: 28px; margin-left: 6px; }
+@keyframes paSpin { to { transform: rotate(360deg); } }
+.pa-spin { animation: paSpin 0.9s linear infinite; }
 
 /* ── Skeleton / empty / error ──────────────────────────────────────────── */
 .pa-skeleton { padding: 16px; }
