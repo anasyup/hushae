@@ -401,3 +401,22 @@ B({
     { type: 'range', id: 'size', label: 'Digit size', min: 14, max: 72, step: 2, unit: 'px', default: 28 },
   ],
 });
+
+/* ══ Product buy-box blocks (nested inside buy_trust / buy_accordion) ══════ */
+
+B({
+  type: 'buy_trust_item', name: 'Trust item', icon: 'BadgeCheck',
+  settings: [
+    { type: 'icon_picker', id: 'icon', label: 'Icon', default: 'Truck' },
+    { type: 'text', id: 'text', label: 'Text', default: 'Nationwide delivery' },
+  ],
+});
+
+B({
+  type: 'buy_accordion_item', name: 'Accordion item', icon: 'ListCollapse',
+  settings: [
+    { type: 'text', id: 'title', label: 'Title', default: 'Description' },
+    { type: 'richtext', id: 'body', label: 'Content', rows: 5, default: '<p>Details about this piece.</p>' },
+    { type: 'checkbox', id: 'open', label: 'Open by default', default: true },
+  ],
+});

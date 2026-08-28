@@ -11,6 +11,13 @@ export interface StoreData {
   blogs: any[];
   menus: Record<string, any[]>;
   settings: Record<string, any>;
+  /** Route data for non-home templates (product / collection / CMS page). */
+  product?: any;
+  collectionSlug?: string;
+  page?: any;
+  /** Current sort chosen by a collection_filters section. */
+  collectionSort?: string;
+  setCollectionSort?: (sort: string) => void;
 }
 
 export interface RenderCtx {

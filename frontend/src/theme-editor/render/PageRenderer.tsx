@@ -8,6 +8,10 @@ import { api } from '../../api/client';
 /* ============================================================================
  * Renders a whole page document. Used by the editor preview (editable) and by
  * the live storefront (read-only) — same component, same output.
+ *
+ * `pageData` carries route context for non-home templates (the current
+ * product, collection slug or CMS page) so product/collection/page sections
+ * can pull live data.
  * ========================================================================== */
 
 interface Props {
@@ -18,12 +22,19 @@ interface Props {
   hoveredId?: string | null;
   onSelect?: (id: string) => void;
   onHover?: (id: string | null) => void;
+  /** Route data: { product?, collectionSlug?, page? } */
+  pageData?: { product?: any; collectionSlug?: string; page?: any };
 }
 
-export default function PageRenderer({ doc, theme, editable = false, selectedId, hoveredId, onSelect, onHover }: Props) {
+export default function PageRenderer({ doc, theme, editable = false, selectedId, hoveredId, onSelect, onHover, pageData }: Props) {
   const [products, setProducts] = useState<Record<string, any[]>>({});
+  const [collectionSort, setCollectionSort] = useState<string>('newest');
   const [data, setData] = useState<StoreData>({
     products: {}, categories: [], collections: [], pages: [], blogs: [], menus: {}, settings: {},
+    product: pageData?.product,
+    collectionSlug: pageData?.collectionSlug,
+    page: pageData?.page,
+    collectionSort: 'newest',
   });
   const inflight = useRef<Set<string>>(new Set());
 
@@ -41,6 +52,36 @@ export default function PageRenderer({ doc, theme, editable = false, selectedId,
     return () => { alive = false; };
   }, []);
 
+  // Route context can arrive asynchronously (storefront bridges fetch the
+  // product after mount) — keep `data` in sync with pageData.
+  useEffect(() => {
+    if (!pageData) return;
+    const prod = pageData.product;
+    const col = pageData.collectionSlug;
+    const pg = pageData.page;
+    setData((d) => ({
+      ...d,
+      product: prod !== undefined ? prod : d.product,
+      collectionSlug: col !== undefined ? col : d.collectionSlug,
+      page: pg !== undefined ? pg : d.page,
+    }));
+  }, [pageData?.product, pageData?.collectionSlug, pageData?.page]);
+
+  // Editor preview has no route context — seed a sample product and the first
+  // collection so product/collection template sections show real content
+  // while the merchant is designing.
+  useEffect(() => {
+    if (!editable || data.product) return;
+    api('/products?limit=1')
+      .then((d: any) => { if (d?.products?.[0]) setData((s) => (s.product ? s : { ...s, product: d.products[0] })); })
+      .catch(() => {});
+  }, [editable, data.product]);
+
+  useEffect(() => {
+    if (!editable || data.collectionSlug || !data.categories.length) return;
+    setData((d) => ({ ...d, collectionSlug: d.categories[0]?.slug }));
+  }, [editable, data.collectionSlug, data.categories]);
+
   const requestProducts = useCallback((key: string, query: string) => {
     if (inflight.current.has(key)) return;
     inflight.current.add(key);
@@ -52,7 +93,10 @@ export default function PageRenderer({ doc, theme, editable = false, selectedId,
   const getProducts = useCallback((key: string) => products[key], [products]);
 
   const ctx = useMemo(
-    () => ({ editable, theme, data, selectedId, hoveredId, onSelect, onHover, getProducts, requestProducts }),
+    () => ({
+      editable, theme, data, selectedId, hoveredId, onSelect, onHover, getProducts, requestProducts,
+      setCollectionSort: (sort: string) => { setCollectionSort(sort); setData((d) => ({ ...d, collectionSort: sort })); },
+    }),
     [editable, theme, data, selectedId, hoveredId, onSelect, onHover, getProducts, requestProducts],
   );
 
@@ -61,7 +105,7 @@ export default function PageRenderer({ doc, theme, editable = false, selectedId,
 
   return (
     <RenderProvider value={ctx}>
-      <div className="te-root" style={{ ...vars, background: 'var(--t-bg)', color: 'var(--t-text)' } as React.CSSProperties}
+      <div className={`te-root${theme.kenBurns ? ' te-kb' : ''}`} style={{ ...vars, background: 'var(--t-bg)', color: 'var(--t-text)' } as React.CSSProperties}
         onClick={editable ? () => onSelect?.('') : undefined}>
         {theme.customCss ? <style>{String(theme.customCss)}</style> : null}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--t-section-gap)' }}>

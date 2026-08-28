@@ -27,7 +27,7 @@ export default function ThemedHome({ fallback: Fallback }) {
 
   return (
     <Suspense fallback={<Fallback />}>
-      <PageRenderer doc={doc} theme={theme} />
+      <PageRenderer doc={doc.templates?.index || doc} theme={theme} />
     </Suspense>
   );
 }

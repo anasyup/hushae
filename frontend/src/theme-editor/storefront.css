@@ -1,0 +1,167 @@
+/* ============================================================================
+ * Theme-editor storefront chrome — premium polish layer.
+ * Loaded on every themed storefront page (App-level import).
+ * ========================================================================== */
+
+/* ── Preloader ──────────────────────────────────────────────────────────── */
+.te-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--t-bg, #FBFAF8);
+  animation: tePreFade 0.55s ease 0.85s forwards;
+  pointer-events: none;
+}
+.te-preloader-logo {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  color: var(--t-text, #0D0D0D);
+  animation: tePreLogo 1.2s cubic-bezier(0.34, 1.4, 0.64, 1) infinite alternate;
+  text-indent: 0.34em;
+}
+.te-preloader-bar {
+  width: 132px;
+  height: 2px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--t-muted, #F1EEE9);
+}
+.te-preloader-bar::after {
+  content: '';
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--t-accent, #7C8B72);
+  animation: tePreBar 1s ease-in-out infinite;
+}
+@keyframes tePreLogo {
+  from { opacity: 0.45; transform: translateY(4px); letter-spacing: 0.3em; }
+  to   { opacity: 1;   transform: translateY(0);   letter-spacing: 0.4em; }
+}
+@keyframes tePreBar {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(320%); }
+}
+@keyframes tePreFade {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* ── Back to top ────────────────────────────────────────────────────────── */
+.te-btt {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 900;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--t-bg, #FBFAF8);
+  background: var(--t-text, #0D0D0D);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  animation: teBttIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  opacity: 0.92;
+}
+.te-btt:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28); opacity: 1; }
+.te-btt:active { transform: scale(0.96); }
+@keyframes teBttIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.8); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Film grain (premium texture) ───────────────────────────────────────── */
+.te-grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 880;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: teGrain 0.9s steps(4) infinite;
+}
+@keyframes teGrain {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-2%, 1.5%); }
+  50%  { transform: translate(1.5%, -1%); }
+  75%  { transform: translate(-1%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ── Ken Burns hero motion (opt-in via App embeds) ──────────────────────── */
+.te-root.te-kb [data-type='hero'] img,
+.te-root.te-kb [data-type='image_banner'] img,
+.te-root.te-kb [data-type='split_hero'] img,
+.te-root.te-kb [data-type='slideshow'] img,
+.te-root.te-kb [data-type='collection_hero'] img {
+  animation: teKenBurns 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes teKenBurns {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.09) translate(-1.6%, 1.4%); }
+}
+
+/* ── Button shine sweep (micro-interaction) ─────────────────────────────── */
+.te-btn-shine { position: relative; overflow: hidden; }
+.te-btn-shine::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -70%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.55s ease;
+}
+.te-btn-shine:hover::after { left: 125%; }
+
+/* ── Focus rings + micro-interactions across the themed storefront ──────── */
+.te-root :focus-visible {
+  outline: 2px solid var(--t-accent, #7C8B72);
+  outline-offset: 2px;
+}
+.te-root a { transition: opacity 0.18s ease; }
+.te-root .te-section { transition: opacity 0.3s ease; }
+.te-root details summary { transition: color 0.15s ease; }
+.te-root details summary:hover { opacity: 0.7; }
+
+/* ── Buy box gallery ────────────────────────────────────────────────────── */
+.te-buy-zoom { isolation: isolate; }
+.te-buy-zoom::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.05));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.te-buy-zoom:hover::before { opacity: 1; }
+
+/* ── Body embed content ─────────────────────────────────────────────────── */
+.te-body-html { position: relative; z-index: 5; }
+
+/* ── Reduced motion: disable heavy motion politely ──────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .te-preloader, .te-preloader-logo, .te-preloader-bar::after,
+  .te-grain, .te-root.te-kb [data-type='hero'] img,
+  .te-root.te-kb [data-type='image_banner'] img,
+  .te-root.te-kb [data-type='split_hero'] img,
+  .te-root.te-kb [data-type='slideshow'] img,
+  .te-root.te-kb [data-type='collection_hero'] img {
+    animation: none !important;
+  }
+  .te-root { scroll-behavior: auto !important; }
+}

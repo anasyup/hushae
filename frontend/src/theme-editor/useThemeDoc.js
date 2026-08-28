@@ -25,10 +25,17 @@ function load() {
     .then((d) => {
       const doc = d?.theme?.doc;
       const hasBody = !!(doc && Array.isArray(doc.body) && doc.body.length);
+      // Multi-template: themed when the legacy doc OR any page-type template
+      // (index/product/collection/page) has a published body.
+      const tmpls = doc?.templates;
+      const anyTemplate = !!(tmpls && ['index', 'product', 'collection', 'page', 'blog', 'cart'].some((t) => {
+        const td = tmpls[t] && (tmpls[t].default || tmpls[t]);
+        return td && Array.isArray(td.body) && td.body.length;
+      }));
       cache = {
         doc,
         theme: d?.theme?.settings || {},
-        themed: hasBody, // published doc exists → render it
+        themed: hasBody || anyTemplate, // published doc exists → render it
       };
       return cache;
     })

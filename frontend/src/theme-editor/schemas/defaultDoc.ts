@@ -446,3 +446,132 @@ function productCard() {
     ],
   });
 }
+
+/* ══ Default templates for the other page types (Shopify OS 2.0) ══════════
+   Each template ships with a sensible starter layout that pulls live data —
+   the merchant then edits every section in the theme editor. */
+
+const sharedHeaderFooter = () => {
+  const announcement = createSection('announcement_bar', {
+    settings: { enabled: true, background: '#0D0D0D', textColor: '#F7F5F1', height: 38, autoRotate: true, speed: 5 },
+    blocks: [createBlock('announcement', {
+      settings: { text: 'Season Sale — up to 40% off · while stock lasts', ctaLabel: 'Shop the Sale', ctaHref: '/sale' },
+    })],
+  });
+  const header = createSection('header', {
+    settings: { layout: 'logo-left', width: 'full', sticky: true, transparentOnHero: false, height: 80, border: true },
+    blocks: [
+      createBlock('logo', { settings: { kind: 'text', text: 'HUSHAE', boxed: true, tracking: 32, size: 26 } }),
+      createBlock('menu', {
+        settings: { gap: 34, size: 13, uppercase: false },
+        blocks: [
+          createBlock('menu_item', { settings: { label: 'Women', href: '/women' } }),
+          createBlock('menu_item', { settings: { label: 'Men', href: '/men' } }),
+          createBlock('menu_item', { settings: { label: 'New Arrivals', href: '/new' } }),
+          createBlock('menu_item', { settings: { label: 'Best Sellers', href: '/best' } }),
+          createBlock('menu_item', { settings: { label: 'Sale', href: '/sale', highlight: true } }),
+        ],
+      }),
+      createBlock('header_icons', { settings: { search: true, wishlist: true, account: true, cart: true } }),
+    ],
+  });
+  const footer = createSection('footer', {
+    settings: { columns: 4, bottomText: '© HUSHAE — Second Skin, First Choice.', showPayments: true, paddingTop: 56, paddingBottom: 24 },
+    blocks: [
+      createBlock('footer_newsletter', { settings: { title: 'Join the inner circle', text: 'Early access to new drops.', button: 'Subscribe' } }),
+      createBlock('footer_about', { settings: { title: 'HUSHAE', text: 'Pakistan — nation-wide delivery. Discreet packaging, always.' } }),
+      createBlock('footer_column', { settings: { title: 'Shop' }, blocks: [
+        createBlock('menu_item', { settings: { label: 'Women', href: '/women' } }),
+        createBlock('menu_item', { settings: { label: 'Men', href: '/men' } }),
+        createBlock('menu_item', { settings: { label: 'Sale', href: '/sale' } }),
+      ] }),
+      createBlock('footer_contact', { settings: { title: 'Contact', note: 'Pakistan — nationwide delivery', payments: 'COD · JazzCash · EasyPaisa' } }),
+    ],
+  });
+  return { header: [announcement, header], footer: [footer] };
+};
+
+/** Starter document for a page type. */
+export function buildDefaultTemplate(type: 'product' | 'collection' | 'page' | 'blog' | 'cart'): PageDocument {
+  const { header, footer } = sharedHeaderFooter();
+
+  if (type === 'product') {
+    const buyBox = createSection('product_buy_box', {
+      settings: { layout: 'split', stickyInfo: true, showBreadcrumb: true, gap: 56, paddingTop: 32, paddingBottom: 56 },
+      blocks: [
+        createBlock('buy_gallery', { settings: { thumbs: true, zoom: true, aspect: 125 } }),
+        createBlock('buy_title', { settings: { tag: 'h1', showVendor: true, showRating: true } }),
+        createBlock('buy_price', { settings: { showCompareAt: true, showTaxNote: true } }),
+        createBlock('buy_variants', { settings: { sizeLabel: 'Size', colorLabel: 'Colour', swatches: true } }),
+        createBlock('buy_qty', { settings: { max: 10 } }),
+        createBlock('buy_buttons', { settings: { showBuyNow: true, fullWidth: true } }),
+        createBlock('buy_trust', { settings: {}, blocks: [
+          createBlock('buy_trust_item', { settings: { icon: 'Truck', text: 'Nationwide delivery' } }),
+          createBlock('buy_trust_item', { settings: { icon: 'BadgeCheck', text: 'COD available' } }),
+          createBlock('buy_trust_item', { settings: { icon: 'RefreshCw', text: '14-day easy exchange' } }),
+        ] }),
+        createBlock('buy_accordion', { settings: {}, blocks: [
+          createBlock('buy_accordion_item', { settings: { title: 'Description', open: true, body: '<p>Details about this piece.</p>' } }),
+          createBlock('buy_accordion_item', { settings: { title: 'Shipping & returns', body: '<p>COD available nationwide. 14-day easy exchange.</p>' } }),
+        ] }),
+        createBlock('buy_meta', { settings: { showSKU: true, showCategory: true } }),
+      ],
+    });
+    const related = createSection('related_products', {
+      settings: { source: 'category', count: 4, columns: 4, layout: 'grid', showPrice: true, paddingTop: 56, paddingBottom: 56 },
+      blocks: [createBlock('section_header', { settings: { eyebrow: 'Keep exploring', heading: 'You may also like' } })],
+    });
+    const reviews = createSection('product_reviews', {
+      settings: { heading: 'Customer reviews', limit: 6, showSummary: true, showVerified: true, paddingTop: 0, paddingBottom: 56 },
+    });
+    return { template: 'product', ...sharedHeaderFooter(), body: [buyBox, related, reviews] };
+  }
+
+  if (type === 'collection') {
+    const hero = createSection('collection_hero', {
+      settings: { showTitle: true, showDescription: true, showCount: true, height: 260, overlay: 'rgba(0,0,0,.18)', align: 'left', paddingBottom: 24 },
+    });
+    const filters = createSection('collection_filters', {
+      settings: { label: 'Sort by', showPriceSort: true, showAvailability: true, showCount: true, paddingBottom: 12 },
+    });
+    const grid = createSection('product_grid', {
+      settings: {
+        source: 'collection', gender: '', sort: 'newest', count: 12, columns: 4, mobileColumns: 2, layout: 'grid',
+        showPrice: true, showSaleBadge: true, showQuickAdd: true, showWishlist: true, imageRatio: 'portrait',
+        gapX: 12, gapY: 28, width: 'page', paddingTop: 0, paddingBottom: 64,
+      },
+    });
+    return { template: 'collection', ...sharedHeaderFooter(), body: [hero, filters, grid] };
+  }
+
+  // page
+  const rich = createSection('rich_text', {
+    settings: { width: 'page', align: 'left', paddingTop: 48, paddingBottom: 48 },
+    blocks: [
+      createBlock('eyebrow', { settings: { text: 'HUSHAE' } }),
+      createBlock('heading', { settings: { text: 'Your page title', tag: 'h1' } }),
+      createBlock('text', { settings: { text: 'Edit this page in the Theme Editor — add images, FAQs, banners, forms and more.' } }),
+    ],
+  });
+  const cta = createSection('cta_banner', {
+    settings: { align: 'center', paddingTop: 32, paddingBottom: 56 },
+    blocks: [
+      createBlock('heading', { settings: { text: 'Have questions?' } }),
+      createBlock('button', { settings: { label: 'Contact us', href: '/contact', variant: 'primary' } }),
+    ],
+  });
+  return { template: 'page', ...sharedHeaderFooter(), body: [rich, cta] };
+
+  if (type === 'blog') {
+    const list = createSection('blog_list', {
+      settings: { showFeatured: true, columns: 3, count: 9, showDate: true, showExcerpt: true, paddingTop: 48, paddingBottom: 64 },
+    });
+    return { template: 'blog', ...sharedHeaderFooter(), body: [list] };
+  }
+
+  // cart
+  const cart = createSection('cart_page', {
+    settings: { showShippingNote: true, showTrustBadges: true, paddingTop: 40, paddingBottom: 64 },
+  });
+  return { template: 'cart', ...sharedHeaderFooter(), body: [cart] };
+}

@@ -58,6 +58,8 @@ export type FieldType =
   | 'font_picker'
   | 'spacing'
   | 'alignment'
+  // one-click theme looks (premium)
+  | 'preset_picker'
   // repeaters
   | 'list'
   // presentational (no value)
@@ -146,6 +148,41 @@ export interface PageDocument {
   body: SectionNode[];
   /** Sections pinned below (footer group). */
   footer: SectionNode[];
+}
+
+/* ── Multi-template system (Shopify OS 2.0 style) ─────────────────────────
+   The theme document owns a bag of page-type templates: index (home),
+   product, collection and page. Each template is its own PageDocument, so a
+   merchant designs every page type in the editor — and the storefront renders
+   the right template per route, falling back to the hand-coded pages when no
+   template exists yet. */
+export type TemplateType = 'index' | 'product' | 'collection' | 'page' | 'blog' | 'cart';
+
+export interface CustomTemplate {
+  id: string;
+  name: string;
+  doc: PageDocument;
+}
+
+export interface TemplateBag {
+  index: PageDocument;
+  product: { default: PageDocument; custom: CustomTemplate[] };
+  collection: { default: PageDocument; custom: CustomTemplate[] };
+  page: { default: PageDocument; custom: CustomTemplate[] };
+  blog: { default: PageDocument; custom: CustomTemplate[] };
+  cart: { default: PageDocument; custom: CustomTemplate[] };
+}
+
+/** Full theme document: the index template plus every other template bag. */
+export interface ThemeDoc extends PageDocument {
+  templates?: TemplateBag;
+}
+
+/** Which template the editor is currently editing. */
+export interface ActiveTemplate {
+  type: TemplateType;
+  /** Custom template id, when editing a custom template (type !== 'index'). */
+  customId?: string;
 }
 
 export type SectionGroup = 'header' | 'body' | 'footer';

@@ -1,8 +1,11 @@
 import { create } from 'zustand';
 import type {
-  Device, HistoryEntry, PageDocument, SectionGroup, SettingsBag, ThemeVersion,
+  ActiveTemplate, Device, HistoryEntry, PageDocument, SectionGroup, SettingsBag,
+  TemplateBag, ThemeDoc, ThemeVersion,
 } from './types';
 import { createSection } from './registry';
+import { buildDefaultTemplate } from '../schemas/defaultDoc';
+import { applyPreset } from '../schemas/theme';
 import {
   addBlock, addSection, cloneDoc, diffDocs, duplicateNode, findNode, moveNode,
   moveWithinParent, patchNode, removeNode, toggleHidden, updateNodeSettings,
@@ -24,6 +27,10 @@ export interface EditorState {
   theme: SettingsBag;
   savedDoc: PageDocument | null;
   savedTheme: SettingsBag | null;
+
+  // multi-template bag (Shopify OS 2.0 style)
+  templates: TemplateBag;
+  activeTemplate: ActiveTemplate;
 
   // ui
   selectedId: string | null;
@@ -51,7 +58,7 @@ export interface EditorState {
   future: HistoryEntry[];
 
   // ── actions ───────────────────────────────────────────────────────────────
-  hydrate: (doc: PageDocument, theme: SettingsBag, versions?: ThemeVersion[], liveThemed?: boolean) => void;
+  hydrate: (doc: ThemeDoc, theme: SettingsBag, versions?: ThemeVersion[], liveThemed?: boolean) => void;
   setLiveThemed: (v: boolean) => void;
   commit: (label: string, mutate: (doc: PageDocument) => PageDocument) => void;
   setTheme: (patch: SettingsBag, label?: string) => void;
@@ -77,6 +84,13 @@ export interface EditorState {
   insertSection: (type: string, group: SectionGroup, index?: number) => void;
   insertBlock: (parentId: string, type: string, index?: number) => void;
 
+  // template bag
+  setTemplate: (t: ActiveTemplate) => void;
+  addCustomTemplate: (type: 'product' | 'collection' | 'page' | 'blog' | 'cart', name: string) => void;
+  renameCustomTemplate: (type: 'product' | 'collection' | 'page', id: string, name: string) => void;
+  deleteCustomTemplate: (type: 'product' | 'collection' | 'page' | 'blog' | 'cart', id: string) => void;
+  applyPreset: (presetId: string) => void;
+
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
@@ -92,11 +106,29 @@ export interface EditorState {
 
 const emptyDoc: PageDocument = { template: 'index', header: [], body: [], footer: [] };
 
+export function emptyTemplateBag(): TemplateBag {
+  return {
+    index: { template: 'index', header: [], body: [], footer: [] },
+    product: { default: buildDefaultTemplate('product'), custom: [] },
+    collection: { default: buildDefaultTemplate('collection'), custom: [] },
+    page: { default: buildDefaultTemplate('page'), custom: [] },
+    blog: { default: buildDefaultTemplate('blog'), custom: [] },
+    cart: { default: buildDefaultTemplate('cart'), custom: [] },
+  };
+}
+
+/** Key into the templates bag for an active template. */
+export function templateKey(t: ActiveTemplate): string {
+  return t.type === 'index' ? 'index' : `${t.type}${t.customId ? `__${t.customId}` : ''}`;
+}
+
 export const useEditor = create<EditorState>((set, get) => ({
   doc: emptyDoc,
   theme: {},
   savedDoc: null,
   savedTheme: null,
+  templates: emptyTemplateBag(),
+  activeTemplate: { type: 'index' },
 
   selectedId: null,
   hoveredId: null,
@@ -124,11 +156,23 @@ export const useEditor = create<EditorState>((set, get) => ({
   past: [],
   future: [],
 
-  hydrate: (doc, theme, versions = [], liveThemed = false) =>
+  hydrate: (themeDoc, theme, versions = [], liveThemed = false) => {
+    // ThemeDoc may carry a templates bag (new) or be a plain index document
+    // (legacy) — always normalise into the bag.
+    const indexDoc: PageDocument = {
+      template: 'index',
+      header: themeDoc?.header || [],
+      body: themeDoc?.body || [],
+      footer: themeDoc?.footer || [],
+    };
+    const base = themeDoc?.templates || emptyTemplateBag();
+    const bag: TemplateBag = { ...base, index: indexDoc };
     set({
-      doc,
+      doc: indexDoc,
+      templates: bag,
+      activeTemplate: { type: 'index' },
       theme,
-      savedDoc: cloneDoc(doc),
+      savedDoc: cloneDoc(indexDoc),
       savedTheme: { ...theme },
       loading: false,
       dirty: false,
@@ -136,16 +180,31 @@ export const useEditor = create<EditorState>((set, get) => ({
       future: [],
       versions,
       liveThemed,
-    }),
+    });
+  },
 
   setLiveThemed: (liveThemed) => set({ liveThemed }),
 
   commit: (label, mutate) => {
-    const { doc, theme, past } = get();
+    const { doc, theme, past, templates, activeTemplate } = get();
     const next = mutate(doc);
     if (next === doc) return;
+    // Persist the active template back into the bag so switching never loses it.
+    const bag: TemplateBag = { ...templates };
+    if (activeTemplate.type === 'index') {
+      bag.index = next;
+    } else if (activeTemplate.customId) {
+      const list = bag[activeTemplate.type].custom;
+      bag[activeTemplate.type] = {
+        ...bag[activeTemplate.type],
+        custom: list.map((c) => (c.id === activeTemplate.customId ? { ...c, doc: next } : c)),
+      };
+    } else {
+      bag[activeTemplate.type] = { ...bag[activeTemplate.type], default: next };
+    }
     set({
       doc: next,
+      templates: bag,
       past: [...past, { doc, theme, label, at: Date.now() }].slice(-HISTORY_LIMIT),
       future: [],
       dirty: true,
@@ -225,6 +284,80 @@ export const useEditor = create<EditorState>((set, get) => ({
     get().commit('Add block', () => next);
     set({ selectedId: newId, addBlockFor: null });
     get().toggleExpanded(parentId, true);
+  },
+
+  // ── Template bag ────────────────────────────────────────────────────────
+  setTemplate: (t) => {
+    const { doc, templates, activeTemplate } = get();
+    // stash the current doc into the bag before switching
+    const bag: TemplateBag = { ...templates };
+    if (activeTemplate.type === 'index') {
+      bag.index = doc;
+    } else if (activeTemplate.customId) {
+      const list = bag[activeTemplate.type].custom;
+      bag[activeTemplate.type] = {
+        ...bag[activeTemplate.type],
+        custom: list.map((c) => (c.id === activeTemplate.customId ? { ...c, doc } : c)),
+      };
+    } else {
+      bag[activeTemplate.type] = { ...bag[activeTemplate.type], default: doc };
+    }
+    // load the target template
+    let nextDoc = doc;
+    if (t.type === 'index') nextDoc = bag.index || { template: 'index', header: [], body: [], footer: [] };
+    else if (t.customId) {
+      const c = bag[t.type].custom.find((x) => x.id === t.customId);
+      nextDoc = c ? c.doc : bag[t.type].default;
+    } else nextDoc = bag[t.type].default;
+    set({
+      templates: bag,
+      activeTemplate: t,
+      doc: nextDoc,
+      selectedId: null,
+      addSectionFor: null,
+      addBlockFor: null,
+      expanded: {},
+    });
+  },
+
+  addCustomTemplate: (type, name) => {
+    const { templates, doc, activeTemplate } = get();
+    const bag: TemplateBag = { ...templates };
+    if (activeTemplate.type === type && !activeTemplate.customId) {
+      // duplicate the current default as the seed
+      bag[type] = { ...bag[type], custom: [...bag[type].custom, { id: `ct_${Date.now().toString(36)}`, name, doc: cloneDoc(doc) }] };
+    } else {
+      bag[type] = { ...bag[type], custom: [...bag[type].custom, { id: `ct_${Date.now().toString(36)}`, name, doc: cloneDoc(bag[type].default) }] };
+    }
+    const newId = bag[type].custom[bag[type].custom.length - 1].id;
+    set({ templates: bag });
+    get().setTemplate({ type, customId: newId });
+  },
+
+  renameCustomTemplate: (type, id, name) => {
+    const { templates } = get();
+    const bag: TemplateBag = { ...templates };
+    bag[type] = {
+      ...bag[type],
+      custom: bag[type].custom.map((c) => (c.id === id ? { ...c, name } : c)),
+    };
+    set({ templates: bag });
+  },
+
+  deleteCustomTemplate: (type, id) => {
+    const { templates, activeTemplate } = get();
+    const bag: TemplateBag = { ...templates };
+    bag[type] = { ...bag[type], custom: bag[type].custom.filter((c) => c.id !== id) };
+    set({ templates: bag });
+    if (activeTemplate.type === type && activeTemplate.customId === id) {
+      get().setTemplate({ type });
+    }
+  },
+
+  applyPreset: (presetId) => {
+    const patch = applyPreset(presetId);
+    if (!patch) return;
+    get().setTheme(patch, `Applied preset: ${presetId}`);
   },
 
   undo: () => {

@@ -584,3 +584,215 @@ S({
     { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 24 },
   ],
 });
+
+/* ══ PRODUCT PAGE (Shopify OS 2.0 — sections on the product template) ══════ */
+
+S({
+  type: 'product_buy_box', name: 'Product buy box', icon: 'Package', category: 'Products',
+  description: 'Gallery, title, price, variants, quantity, add-to-cart and trust blocks — the whole purchase surface.',
+  blocks: [
+    {
+      type: 'buy_gallery', name: 'Image gallery', icon: 'Image',
+      settings: [
+        { type: 'checkbox', id: 'thumbs', label: 'Show thumbnails', default: true },
+        { type: 'checkbox', id: 'zoom', label: 'Hover zoom', default: true },
+        { type: 'range', id: 'aspect', label: 'Image shape', min: 80, max: 150, step: 5, unit: '%', default: 125 },
+      ],
+    },
+    {
+      type: 'buy_title', name: 'Title', icon: 'Heading',
+      settings: [
+        { type: 'select', id: 'tag', label: 'HTML tag', default: 'h1', options: [{ value: 'h1', label: 'H1' }, { value: 'h2', label: 'H2' }, { value: 'h3', label: 'H3' }] },
+        { type: 'checkbox', id: 'showVendor', label: 'Show vendor / tier', default: true },
+        { type: 'checkbox', id: 'showRating', label: 'Show rating stars', default: true },
+      ],
+    },
+    {
+      type: 'buy_price', name: 'Price', icon: 'Tag',
+      settings: [
+        { type: 'checkbox', id: 'showCompareAt', label: 'Show compare-at price', default: true },
+        { type: 'checkbox', id: 'showTaxNote', label: 'Show tax note', default: true },
+      ],
+    },
+    {
+      type: 'buy_variants', name: 'Size & colour', icon: 'Palette',
+      settings: [
+        { type: 'text', id: 'sizeLabel', label: 'Size label', default: 'Size' },
+        { type: 'text', id: 'colorLabel', label: 'Colour label', default: 'Colour' },
+        { type: 'checkbox', id: 'swatches', label: 'Colour swatches', default: true },
+      ],
+    },
+    {
+      type: 'buy_qty', name: 'Quantity', icon: 'Plus',
+      settings: [
+        { type: 'range', id: 'max', label: 'Max quantity', min: 5, max: 20, step: 1, default: 10 },
+      ],
+    },
+    {
+      type: 'buy_buttons', name: 'Buttons', icon: 'MousePointerClick',
+      settings: [
+        { type: 'checkbox', id: 'showBuyNow', label: 'Show Buy now', default: true },
+        { type: 'checkbox', id: 'fullWidth', label: 'Full-width buttons', default: true },
+      ],
+    },
+    {
+      type: 'buy_meta', name: 'Meta', icon: 'Info',
+      settings: [
+        { type: 'checkbox', id: 'showSKU', label: 'Show SKU', default: true },
+        { type: 'checkbox', id: 'showCategory', label: 'Show category link', default: true },
+      ],
+    },
+    {
+      type: 'buy_trust', name: 'Trust icons', icon: 'BadgeCheck',
+      settings: [{ type: 'paragraph', label: 'Add one block per trust item.' }],
+      blocks: [
+        {
+          type: 'buy_trust_item', name: 'Trust item', icon: 'BadgeCheck',
+          settings: [
+            { type: 'icon_picker', id: 'icon', label: 'Icon', default: 'Truck' },
+            { type: 'text', id: 'text', label: 'Text', default: 'Nationwide delivery' },
+          ],
+        },
+      ],
+      preset: [
+        { type: 'buy_trust_item', settings: { icon: 'Truck', text: 'Nationwide delivery' } },
+        { type: 'buy_trust_item', settings: { icon: 'BadgeCheck', text: 'COD available' } },
+        { type: 'buy_trust_item', settings: { icon: 'RefreshCw', text: '14-day easy exchange' } },
+      ],
+    },
+    {
+      type: 'buy_accordion', name: 'Accordion', icon: 'ListCollapse',
+      settings: [{ type: 'paragraph', label: 'Description, shipping, returns…' }],
+      blocks: [
+        {
+          type: 'buy_accordion_item', name: 'Accordion item', icon: 'ListCollapse',
+          settings: [
+            { type: 'text', id: 'title', label: 'Title', default: 'Description' },
+            { type: 'richtext', id: 'body', label: 'Content', rows: 5, default: '<p>Details about this piece.</p>' },
+            { type: 'checkbox', id: 'open', label: 'Open by default', default: true },
+          ],
+        },
+      ],
+      preset: [
+        { type: 'buy_accordion_item', settings: { title: 'Description', open: true, body: '<p>Details about this piece.</p>' } },
+        { type: 'buy_accordion_item', settings: { title: 'Shipping & returns', body: '<p>COD available nationwide. 14-day easy exchange.</p>' } },
+      ],
+    },
+  ],
+  preset: [
+    { type: 'buy_gallery' },
+    { type: 'buy_title' },
+    { type: 'buy_price' },
+    { type: 'buy_variants' },
+    { type: 'buy_qty' },
+    { type: 'buy_buttons' },
+    { type: 'buy_trust' },
+    { type: 'buy_accordion' },
+    { type: 'buy_meta' },
+  ],
+  settings: [
+    { type: 'segment', id: 'layout', label: 'Layout', default: 'split', options: [{ value: 'split', label: 'Split' }, { value: 'stacked', label: 'Stacked' }] },
+    { type: 'checkbox', id: 'stickyInfo', label: 'Sticky info column', default: true },
+    { type: 'checkbox', id: 'showBreadcrumb', label: 'Show breadcrumb', default: true },
+    { type: 'range', id: 'gap', label: 'Column gap', min: 0, max: 96, step: 4, unit: 'px', default: 56 },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 160, step: 4, unit: 'px', default: 32 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 56 },
+  ],
+});
+
+S({
+  type: 'related_products', name: 'Related products', icon: 'Layers', category: 'Products',
+  description: 'Auto-filled product strip — same category or bestsellers.',
+  blocks: [
+    { type: 'section_header', name: 'Header', icon: 'PanelTop', settings: [
+      { type: 'text', id: 'eyebrow', label: 'Eyebrow', default: 'Keep exploring' },
+      { type: 'text', id: 'heading', label: 'Heading', default: 'You may also like' },
+    ] },
+  ],
+  preset: [{ type: 'section_header', settings: { eyebrow: 'Keep exploring', heading: 'You may also like' } }],
+  settings: [
+    { type: 'select', id: 'source', label: 'Source', default: 'category', options: [{ value: 'category', label: 'Same category' }, { value: 'bestsellers', label: 'Best sellers' }] },
+    { type: 'range', id: 'count', label: 'Products shown', min: 2, max: 12, step: 1, default: 4 },
+    { type: 'range', id: 'columns', label: 'Columns', min: 2, max: 6, step: 1, default: 4 },
+    { type: 'segment', id: 'layout', label: 'Layout', default: 'grid', options: [{ value: 'grid', label: 'Grid' }, { value: 'carousel', label: 'Carousel' }] },
+    { type: 'checkbox', id: 'showPrice', label: 'Show price', default: true },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 160, step: 4, unit: 'px', default: 56 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 56 },
+  ],
+});
+
+S({
+  type: 'product_reviews', name: 'Product reviews', icon: 'Quote', category: 'Products',
+  description: 'Live approved reviews for this product, pulled from the reviews engine.',
+  settings: [
+    { type: 'text', id: 'heading', label: 'Heading', default: 'Customer reviews' },
+    { type: 'range', id: 'limit', label: 'Reviews shown', min: 2, max: 24, step: 1, default: 6 },
+    { type: 'checkbox', id: 'showSummary', label: 'Show rating summary', default: true },
+    { type: 'checkbox', id: 'showVerified', label: 'Verified badge', default: true },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 160, step: 4, unit: 'px', default: 56 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 56 },
+  ],
+});
+
+/* ══ COLLECTION PAGE (sections on the collection template) ═════════════════ */
+
+S({
+  type: 'collection_hero', name: 'Collection hero', icon: 'Image', category: 'Banners',
+  description: 'Title, description and banner image of the current collection.',
+  settings: [
+    { type: 'checkbox', id: 'showTitle', label: 'Show title', default: true },
+    { type: 'checkbox', id: 'showDescription', label: 'Show description', default: true },
+    { type: 'checkbox', id: 'showCount', label: 'Show product count', default: true },
+    { type: 'range', id: 'height', label: 'Height', min: 120, max: 520, step: 20, unit: 'px', default: 260 },
+    { type: 'color_background', id: 'overlay', label: 'Overlay colour', default: 'rgba(0,0,0,.18)' },
+    { type: 'segment', id: 'align', label: 'Alignment', default: 'left', options: [{ value: 'left', label: 'Left' }, { value: 'center', label: 'Center' }] },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 160, step: 4, unit: 'px', default: 0 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 24 },
+  ],
+});
+
+S({
+  type: 'collection_filters', name: 'Collection filters', icon: 'SlidersHorizontal', category: 'Products',
+  description: 'Sorting + availability bar above the product grid.',
+  settings: [
+    { type: 'text', id: 'label', label: 'Label', default: 'Sort by' },
+    { type: 'checkbox', id: 'showPriceSort', label: 'Price sort', default: true },
+    { type: 'checkbox', id: 'showAvailability', label: 'Availability filter', default: true },
+    { type: 'checkbox', id: 'showCount', label: 'Show result count', default: true },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 120, step: 4, unit: 'px', default: 0 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 120, step: 4, unit: 'px', default: 12 },
+  ],
+});
+
+S({
+  type: 'blog_list', name: 'Blog listing', icon: 'Newspaper', category: 'Content',
+  description: 'Featured post + full blog grid for the blog template.',
+  blocks: [
+    { type: 'section_header', name: 'Header', icon: 'Heading' },
+  ],
+  settings: [
+    { type: 'checkbox', id: 'showFeatured', label: 'Show featured post', default: true },
+    { type: 'range', id: 'columns', label: 'Columns', min: 1, max: 4, step: 1, default: 3 },
+    { type: 'range', id: 'count', label: 'Posts shown', min: 3, max: 24, step: 3, default: 9 },
+    { type: 'checkbox', id: 'showDate', label: 'Show date', default: true },
+    { type: 'checkbox', id: 'showExcerpt', label: 'Show excerpt', default: true },
+    { type: 'checkbox', id: 'showReadMore', label: 'Show read more', default: true },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 160, step: 4, unit: 'px', default: 48 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 64 },
+  ],
+});
+
+S({
+  type: 'cart_page', name: 'Cart page', icon: 'ShoppingCart', category: 'Cart',
+  description: 'Line items + order summary for the cart template.',
+  settings: [
+    { type: 'text', id: 'heading', label: 'Heading', default: 'Your bag' },
+    { type: 'checkbox', id: 'showShippingNote', label: 'Free-shipping progress note', default: true },
+    { type: 'checkbox', id: 'showTrustBadges', label: 'Trust badges under checkout', default: true },
+    { type: 'text', id: 'emptyTitle', label: 'Empty state title', default: 'Your bag is empty' },
+    { type: 'text', id: 'emptyText', label: 'Empty state text', default: 'Looks like you have not added anything yet — start shopping!' },
+    { type: 'text', id: 'checkoutLabel', label: 'Checkout button', default: 'Proceed to checkout' },
+    { type: 'range', id: 'paddingTop', label: 'Padding top', min: 0, max: 160, step: 4, unit: 'px', default: 40 },
+    { type: 'range', id: 'paddingBottom', label: 'Padding bottom', min: 0, max: 160, step: 4, unit: 'px', default: 64 },
+  ],
+});

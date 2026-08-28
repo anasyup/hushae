@@ -1,11 +1,19 @@
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  BadgeCheck, ChevronDown, ChevronLeft, ChevronRight, Lock, Minus, Plus, RefreshCw,
+  ShoppingBag, ShieldCheck, Star, Trash2, Truck, X, Zap,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { BlockNode, SectionNode } from '../core/types';
 import { BlockRenderer, Icon } from './BlockRenderer';
 import { useRenderCtx } from './RenderContext';
 import { resolveIcon } from '../ui/iconRegistry';
 import { api as apiFetch } from '../../api/client';
+import { useApp, lineKey } from '../../store/AppContext';
+import { useCartPricing } from '../../pages/cart/useCartPricing';
+import { cartConfig } from '../../lib/cartConfig';
+import { pkr, fmtDate } from '../../lib/format';
 import {
   alignClass, animationProps, bool, buttonStyle, containerClass, num,
   RATIO, sectionStyle, str, visibilityClass,
@@ -48,6 +56,7 @@ export const SectionRenderer = memo(function SectionRenderer({ section }: { sect
     id: str(s.anchorId) || undefined,
     className: cls,
     style,
+    'data-type': section.type,
     ...wrapperProps,
     ...anim,
   } as Record<string, unknown>;
@@ -93,6 +102,17 @@ function SectionBody({ section }: { section: SectionNode }) {
     case 'cta_banner': return <CtaBanner section={section} />;
     case 'featured_product': return <FeaturedProduct section={section} />;
     case 'collection_list': return <CollectionList section={section} />;
+
+    // ══ PRODUCT / COLLECTION TEMPLATE (Shopify OS 2.0 sections) ════════════
+    case 'product_buy_box': return <ProductBuyBox section={section} />;
+    case 'related_products': return <RelatedProducts section={section} />;
+    case 'product_reviews': return <ProductReviews section={section} />;
+    case 'collection_hero': return <CollectionHero section={section} />;
+    case 'collection_filters': return <CollectionFilters section={section} />;
+
+    // ══ BLOG / CART TEMPLATE ═══════════════════════════════════════════════
+    case 'blog_list': return <BlogList section={section} />;
+    case 'cart_page': return <CartPage section={section} />;
 
     // ══ CONTENT ═════════════════════════════════════════════════════════════
     case 'rich_text':
@@ -622,8 +642,24 @@ function buildQuery(s: SectionNode['settings']) {
 
 function ProductSection({ section }: { section: SectionNode }) {
   const s = section.settings || {};
-  const { getProducts, requestProducts } = useRenderCtx();
-  const query = useMemo(() => buildQuery(s), [s.source, s.count, s.sort, s.gender, s.collection, s.products]);
+  const { getProducts, requestProducts, data } = useRenderCtx();
+  const sort = data.collectionSort;
+  const query = useMemo(() => {
+    const base = buildQuery(s);
+    // Collection template: a grid with source 'collection' and no explicit
+    // category binds to the current collection, and honours the sort chosen
+    // by the collection_filters section.
+    if (str(s.source, 'featured') === 'collection' && !s.collection && data.collectionSlug) {
+      const p = new URLSearchParams();
+      p.set('category', String(data.collectionSlug));
+      p.set('count', String(num(s.count, 12)));
+      p.set('sort', String(sort || s.sort || 'newest'));
+      if (s.gender) p.set('gender', str(s.gender));
+      return `/products?${p.toString()}`;
+    }
+    if (sort && base.includes('sort=')) return base.replace(/sort=[^&]*/, `sort=${sort}`);
+    return base;
+  }, [s.source, s.count, s.sort, s.gender, s.collection, s.products, sort, data.collectionSlug]);
   useEffect(() => { requestProducts(query, query); }, [query, requestProducts]);
   const products = getProducts(query);
 
@@ -1137,4 +1173,775 @@ function hexA(hex: string, a: number) {
   const f = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
   const n = parseInt(f || '0D0D0D', 16);
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+/* ═══ PRODUCT TEMPLATE — buy box ══════════════════════════════════════════ */
+
+const imgUrl = (p: any, i = 0) => {
+  const imgs = p?.images || [];
+  const src = imgs[i];
+  if (!src) return heroPlaceholder;
+  return typeof src === 'string' ? src : src.url || '';
+};
+const pkr2 = (n: number) => `PKR ${Number(n || 0).toLocaleString('en-PK')}`;
+const ratingStars = (r: number) => (Array.from({ length: 5 }).map((_, i) => (
+  <Star key={i} size={12} strokeWidth={1.6} fill={i < Math.round(r || 0) ? 'currentColor' : 'none'} />
+)));
+
+function ProductBuyBox({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { data, theme } = useRenderCtx();
+  const { addToCart, toast } = useApp();
+  const navigate = useNavigate();
+  const p = data.product;
+  const [img, setImg] = useState(0);
+  const [size, setSize] = useState('');
+  const [color, setColor] = useState('');
+  const [qty, setQty] = useState(1);
+
+  const t = (k: string, fb: string) => String((theme as any)[k] || fb);
+
+  if (p === undefined) {
+    // Loading — keep the page stable with a skeleton instead of a flash.
+    return (
+      <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 32), paddingBottom: num(s.paddingBottom, 56) }}>
+        <div className="grid items-start gap-10 md:grid-cols-2" style={{ gap: num(s.gap, 56) }}>
+          <div className="aspect-[5/4] animate-pulse rounded-[var(--t-radius)]" style={{ background: 'var(--t-muted)' }} />
+          <div className="flex flex-col gap-4">
+            <div className="h-4 w-24 animate-pulse rounded" style={{ background: 'var(--t-muted)' }} />
+            <div className="h-9 w-3/4 animate-pulse rounded" style={{ background: 'var(--t-muted)' }} />
+            <div className="h-6 w-28 animate-pulse rounded" style={{ background: 'var(--t-muted)' }} />
+            <div className="mt-2 h-12 w-full animate-pulse rounded-full" style={{ background: 'var(--t-muted)' }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (!p) {
+    return (
+      <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 32), paddingBottom: num(s.paddingBottom, 56) }}>
+        <div className="rounded-[var(--t-radius)] border p-12 text-center" style={{ borderColor: 'var(--t-border)' }}>
+          <p className="text-[15px]" style={{ color: 'var(--t-text-muted)' }}>Product not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const sizes: string[] = Array.isArray(p.sizes) ? p.sizes : [];
+  const colors: Array<{ name?: string; value?: string } | string> = Array.isArray(p.colors) ? p.colors : [];
+  const price = Number(p.price || 0);
+  const compare = Number(p.compareAtPrice || 0);
+  const onSale = price < compare;
+  const count = (p.images || []).length;
+  const imgs = Array.from({ length: Math.max(1, count) });
+
+  const add = (buyNow = false) => {
+    if (sizes.length && !size) { toast?.('Please select a size'); return; }
+    addToCart(p, { size: size || p.sizes?.[0] || '', color: (typeof (colors[0] || '') === 'string' ? String(colors[0] || '') : String((colors[0] as any)?.name || '')), quantity: qty });
+    toast?.(t('t_added', 'Added to cart'));
+    if (buyNow) navigate('/checkout');
+  };
+
+  const blockFor = (type: string) => (section.blocks || []).filter((b) => b.type === type);
+  const childrenOf = (b: any) => b?.blocks || [];
+
+  return (
+    <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 32), paddingBottom: num(s.paddingBottom, 56) }}>
+      {bool(s.showBreadcrumb, true) && (
+        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-[12px]" style={{ color: 'var(--t-text-muted)' }}>
+          <Link to="/" style={{ color: 'inherit' }} className="hover:opacity-70">Home</Link>
+          <span>/</span>
+          <Link to="/shop" style={{ color: 'inherit' }} className="hover:opacity-70">Shop</Link>
+          <span>/</span>
+          <span style={{ color: 'var(--t-text)' }}>{p.name}</span>
+        </nav>
+      )}
+
+      <div className={str(s.layout, 'split') === 'stacked' ? 'flex flex-col gap-10' : 'grid items-start gap-10 md:grid-cols-2'}
+        style={{ gap: num(s.gap, 56) }}>
+
+        {/* ── Gallery ── */}
+        {blockFor('buy_gallery').length > 0 && (() => {
+          const g = blockFor('buy_gallery')[0].settings || {};
+          return (
+            <div className="min-w-0">
+              <div className="te-buy-zoom group relative overflow-hidden rounded-[var(--t-radius)]"
+                style={{ background: 'var(--t-muted)', aspectRatio: `${num(g.aspect, 125)}/100` }}>
+                <img src={imgUrl(p, img)} alt={p.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  style={{ aspectRatio: `${num(g.aspect, 125)}/100` }} loading="eager" />
+                {onSale && <span className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
+                  style={{ background: 'var(--t-sale)' }}>Sale</span>}
+              </div>
+              {bool(g.thumbs, true) && imgs.length > 1 && (
+                <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                  {imgs.map((_, i) => (
+                    <button key={i} type="button" onClick={() => setImg(i)} aria-label={`Image ${i + 1}`}
+                      className="h-16 w-14 shrink-0 overflow-hidden rounded-lg border transition"
+                      style={{ borderColor: i === img ? 'var(--t-text)' : 'var(--t-border)', opacity: i === img ? 1 : 0.6 }}>
+                      <img src={imgUrl(p, i)} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* ── Info column ── */}
+        <div className="flex min-w-0 flex-col gap-4" style={bool(s.stickyInfo, true) ? { position: 'sticky', top: 24 } : undefined}>
+          {blockFor('buy_title').map((b) => {
+            const bs = b.settings || {};
+            const Tag = bs.tag || 'h1';
+            return (
+              <div key={b.id} className="flex flex-col gap-2">
+                {bool(bs.showVendor, true) && p.tier && (
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--t-accent)' }}>{p.tier}</p>
+                )}
+                <Tag style={{ fontFamily: 'var(--t-font-heading)', fontSize: 30, lineHeight: 1.12, letterSpacing: 'var(--t-heading-tracking)', margin: 0 }}>{p.name}</Tag>
+                {bool(bs.showRating, true) && (p.rating || 0) > 0 && (
+                  <div className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--t-text-muted)' }}>
+                    <span className="flex" style={{ color: 'var(--t-accent)' }}>{ratingStars(p.rating)}</span>
+                    <span>{Number(p.rating || 0).toFixed(1)} · {p.ratingCount || 0} reviews</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {blockFor('buy_price').map((b) => {
+            const bs = b.settings || {};
+            return (
+              <div key={b.id} className="flex items-baseline gap-3">
+                <span className="text-2xl font-semibold tabular-nums" style={{ fontFamily: 'var(--t-font-heading)' }}>{pkr2(price)}</span>
+                {bool(bs.showCompareAt, true) && onSale && (
+                  <span className="text-[15px] line-through" style={{ color: 'var(--t-text-muted)' }}>{pkr2(compare)}</span>
+                )}
+                {bool(bs.showTaxNote, true) && (
+                  <span className="text-[11px]" style={{ color: 'var(--t-text-muted)' }}>incl. tax</span>
+                )}
+              </div>
+            );
+          })}
+
+          {blockFor('buy_variants').map((b) => {
+            const bs = b.settings || {};
+            return (
+              <div key={b.id} className="flex flex-col gap-4">
+                {sizes.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-[12px] font-semibold">{String(bs.sizeLabel || 'Size')}{!size && <span style={{ color: 'var(--t-sale)' }}> — select</span>}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {sizes.map((z) => (
+                        <button key={z} type="button" onClick={() => setSize(z)}
+                          className="min-w-11 rounded-lg border px-3 py-2 text-[13px] font-medium transition"
+                          style={{
+                            borderColor: size === z ? 'var(--t-text)' : 'var(--t-border)',
+                            background: size === z ? 'var(--t-text)' : 'transparent',
+                            color: size === z ? 'var(--t-bg)' : 'var(--t-text)',
+                          }}>{z}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {colors.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-[12px] font-semibold">{String(bs.colorLabel || 'Colour')}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {colors.map((c, i) => {
+                        const name = typeof c === 'string' ? c : String(c?.name || '');
+                        const val = typeof c === 'string' ? '' : String(c?.value || '');
+                        return (
+                          <button key={i} type="button" onClick={() => setColor(name)} aria-label={name}
+                            title={name}
+                            className="h-8 w-8 rounded-full border-2 transition"
+                            style={{
+                              borderColor: color === name ? 'var(--t-text)' : 'var(--t-border)',
+                              background: val || 'var(--t-muted)',
+                            }} />
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {blockFor('buy_qty').map((b) => {
+            const bs = b.settings || {};
+            const max = num(bs.max, 10);
+            return (
+              <div key={b.id} className="flex items-center gap-3">
+                <span className="text-[12px] font-semibold">Quantity</span>
+                <div className="flex items-center rounded-full border" style={{ borderColor: 'var(--t-border)' }}>
+                  <button type="button" aria-label="Decrease" onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    className="grid h-10 w-10 place-items-center rounded-full transition hover:opacity-60"><Minus size={14} /></button>
+                  <span className="w-8 text-center text-[14px] font-semibold tabular-nums">{qty}</span>
+                  <button type="button" aria-label="Increase" onClick={() => setQty((q) => Math.min(max, q + 1))}
+                    className="grid h-10 w-10 place-items-center rounded-full transition hover:opacity-60"><Plus size={14} /></button>
+                </div>
+              </div>
+            );
+          })}
+
+          {blockFor('buy_buttons').map((b) => {
+            const bs = b.settings || {};
+            const btn = { ...buttonStyle({ style: 'solid', size: 'lg' }), width: bool(bs.fullWidth, true) ? '100%' : 'auto' };
+            return (
+              <div key={b.id} className="flex flex-col gap-2.5" style={bool(bs.fullWidth, true) ? { width: '100%' } : { display: 'inline-flex' }}>
+                <button type="button" onClick={() => add(false)} style={btn} className="te-btn-shine">
+                  <ShoppingBag size={15} /> {t('t_addToCart', 'Add to cart')}
+                </button>
+                {bool(bs.showBuyNow, true) && (
+                  <button type="button" onClick={() => add(true)}
+                    style={{ ...buttonStyle({ style: 'outline', size: 'lg' }), width: bool(bs.fullWidth, true) ? '100%' : 'auto' }}>
+                    <Zap size={15} /> {t('t_buyNow', 'Buy now')}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {blockFor('buy_trust').map((b) => (
+            <div key={b.id} className="mt-1 flex flex-wrap gap-x-5 gap-y-2 rounded-xl border px-4 py-3"
+              style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)' }}>
+              {childrenOf(b).map((it: any) => {
+                const ic = (it.settings || {}).icon || 'Truck';
+                const C = resolveIcon(ic);
+                return (
+                  <span key={it.id} className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--t-text-muted)' }}>
+                    <C size={13} style={{ stroke: 'var(--t-accent)' }} /> {String((it.settings || {}).text || '')}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
+
+          {blockFor('buy_accordion').map((b) => (
+            <div key={b.id} className="mt-1 divide-y rounded-xl border" style={{ borderColor: 'var(--t-border)' }}>
+              {childrenOf(b).map((it: any) => {
+                const it2 = it.settings || {};
+                return (
+                  <details key={it.id} open={bool(it2.open, false)} className="group px-4 py-3">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[13.5px] font-semibold [&::-webkit-details-marker]:hidden">
+                      {String(it2.title || '')}
+                      <ChevronDown size={14} className="shrink-0 transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="pt-2 text-[13px] leading-relaxed" style={{ color: 'var(--t-text-muted)' }}
+                      dangerouslySetInnerHTML={{ __html: String(it2.body || '') }} />
+                  </details>
+                );
+              })}
+            </div>
+          ))}
+
+          {blockFor('buy_meta').map((b) => {
+            const bs = b.settings || {};
+            return (
+              <div key={b.id} className="flex flex-col gap-1 text-[12px]" style={{ color: 'var(--t-text-muted)' }}>
+                {bool(bs.showSKU, true) && p.sku && <p>SKU: <span className="font-mono">{p.sku}</span></p>}
+                {bool(bs.showCategory, true) && p.category && (
+                  <p>Category: <Link to={`/collection/${p.category}`} style={{ color: 'var(--t-text)' }} className="underline-offset-2 hover:underline">{p.category}</Link></p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ PRODUCT TEMPLATE — related products ═════════════════════════════════ */
+
+function RelatedProducts({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { data, getProducts, requestProducts } = useRenderCtx();
+  const p = data.product;
+  const count = num(s.count, 4);
+  const cat = p?.category || '';
+  const q = str(s.source, 'category') === 'category' && cat
+    ? `/products?category=${encodeURIComponent(cat)}&limit=${count + 1}`
+    : `/products?bestSeller=true&limit=${count}`;
+  useEffect(() => { if (p) requestProducts(q, q); }, [q, p, requestProducts]);
+  const list = (getProducts(q) || []).filter((x: any) => x._id !== p?._id).slice(0, count);
+
+  return (
+    <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 56), paddingBottom: num(s.paddingBottom, 56) }}>
+      {(section.blocks || []).map((b) => <BlockRenderer key={b.id} block={b} />)}
+      <div className="te-grid" style={{ '--cols': num(s.columns, 4), '--mcols': 2, gap: 16 } as CSSProperties}>
+        {list.map((x: any) => (
+          <Link key={x._id} to={`/product/${x.slug}`} className="group flex flex-col gap-2.5">
+            <div className="relative overflow-hidden rounded-[var(--t-card-radius)]" style={{ background: 'var(--t-muted)', aspectRatio: '3/4' }}>
+              <img src={imgUrl(x)} alt={x.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              {bool(s.showPrice, true) && Number(x.compareAtPrice || 0) > Number(x.price || 0) && (
+                <span className="absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase text-white" style={{ background: 'var(--t-sale)' }}>Sale</span>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[13px] font-medium leading-snug">{x.name}</p>
+              {bool(s.showPrice, true) && (
+                <p className="text-[13px] font-semibold tabular-nums">
+                  {pkr2(x.price)}
+                  {Number(x.compareAtPrice || 0) > Number(x.price || 0) && (
+                    <span className="ml-2 text-[12px] font-normal line-through" style={{ color: 'var(--t-text-muted)' }}>{pkr2(x.compareAtPrice)}</span>
+                  )}
+                </p>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+      {!list.length && (
+        <p className="text-[13px]" style={{ color: 'var(--t-text-muted)' }}>More pieces coming soon.</p>
+      )}
+    </div>
+  );
+}
+
+/* ═══ PRODUCT TEMPLATE — reviews ══════════════════════════════════════════ */
+
+function ProductReviews({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { data } = useRenderCtx();
+  const p = data.product;
+  const [rev, setRev] = useState<{ reviews?: any[]; average?: number; total?: number } | null>(null);
+  useEffect(() => {
+    if (!p?._id) return;
+    let alive = true;
+    apiFetch(`/reviews/product/${p._id}?limit=${num(s.limit, 6)}`)
+      .then((d: any) => { if (alive) setRev(d); })
+      .catch(() => { if (alive) setRev({ reviews: [] }); });
+    return () => { alive = false; };
+  }, [p?._id, num(s.limit, 6)]); // eslint-disable-line
+
+  const reviews = rev?.reviews || [];
+  const avg = Number(rev?.average ?? p?.rating ?? 0);
+  const total = Number(rev?.total ?? p?.ratingCount ?? reviews.length);
+
+  return (
+    <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 56), paddingBottom: num(s.paddingBottom, 56) }}>
+      <div className="mx-auto max-w-3xl">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <h3 style={{ fontFamily: 'var(--t-font-heading)', fontSize: 26 }}>{String(s.heading || 'Customer reviews')}</h3>
+          {bool(s.showSummary, true) && total > 0 && (
+            <div className="flex items-center gap-2 rounded-full border px-4 py-2" style={{ borderColor: 'var(--t-border)' }}>
+              <span className="flex" style={{ color: 'var(--t-accent)' }}>{ratingStars(avg)}</span>
+              <span className="text-[13px] font-semibold">{Number(avg).toFixed(1)}</span>
+              <span className="text-[12px]" style={{ color: 'var(--t-text-muted)' }}>· {total} review{total === 1 ? '' : 's'}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-4">
+          {reviews.map((r: any) => (
+            <div key={r._id} className="rounded-2xl border p-5" style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)' }}>
+              <div className="mb-2 flex flex-wrap items-center gap-2.5">
+                <span className="flex" style={{ color: 'var(--t-accent)' }}>{ratingStars(Number(r.rating || 0))}</span>
+                <b className="text-[13.5px]">{r.name || 'Verified buyer'}</b>
+                {bool(s.showVerified, true) && r.verified && (
+                  <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                    style={{ color: 'var(--t-success)', background: 'var(--t-muted)' }}>
+                    <BadgeCheck size={10} /> Verified
+                  </span>
+                )}
+                {r.createdAt && <span className="text-[11px]" style={{ color: 'var(--t-text-muted)' }}>{new Date(r.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+              </div>
+              {r.comment && <p className="text-[13.5px] leading-relaxed">{r.comment}</p>}
+            </div>
+          ))}
+          {!reviews.length && (
+            <p className="rounded-2xl border border-dashed p-8 text-center text-[13px]" style={{ borderColor: 'var(--t-border)', color: 'var(--t-text-muted)' }}>
+              No reviews yet — be the first to review this piece.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ COLLECTION TEMPLATE — hero ══════════════════════════════════════════ */
+
+function CollectionHero({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { data } = useRenderCtx();
+  const cat = data.categories.find((c) => c.slug === data.collectionSlug);
+  const img = cat?.image || heroPlaceholder;
+  return (
+    <div className="relative flex items-end overflow-hidden" style={{ height: num(s.height, 260), paddingTop: num(s.paddingTop, 0), paddingBottom: num(s.paddingBottom, 24) }}>
+      <img src={img} alt={cat?.name || 'Collection'} className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0" style={{ background: String(s.overlay || 'rgba(0,0,0,.18)') }} />
+      <div className={containerClass(s.width)} style={{ position: 'relative', zIndex: 1 }}>
+        <div className={`flex flex-col gap-2 text-white ${str(s.align, 'left') === 'center' ? 'mx-auto items-center text-center' : ''} max-w-2xl`}>
+          {bool(s.showTitle, true) && (
+            <h1 style={{ fontFamily: 'var(--t-font-heading)', fontSize: 40, lineHeight: 1.08, letterSpacing: 'var(--t-heading-tracking)', margin: 0 }}>
+              {cat?.name || 'Shop'}
+            </h1>
+          )}
+          {bool(s.showDescription, true) && cat?.description && <p className="text-[14px] text-white/85">{cat.description}</p>}
+          {bool(s.showCount, true) && <p className="text-[12px] uppercase tracking-[0.18em] text-white/70">{cat?.productCount ?? ''}{cat?.productCount ? ' products' : ''}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ COLLECTION TEMPLATE — filters / sort bar ════════════════════════════ */
+
+function CollectionFilters({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { data, setCollectionSort } = useRenderCtx();
+  const [avail, setAvail] = useState(false);
+  const cat = data.categories.find((c) => c.slug === data.collectionSlug);
+  return (
+    <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 0), paddingBottom: num(s.paddingBottom, 12) }}>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style={{ borderColor: 'var(--t-border)' }}>
+        <div className="flex flex-wrap items-center gap-3">
+          {bool(s.showCount, true) && (
+            <span className="text-[12px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--t-text-muted)' }}>
+              {cat?.productCount ?? ''}{cat?.productCount ? ' items' : ''}
+            </span>
+          )}
+          {bool(s.showAvailability, true) && (
+            <label className="flex cursor-pointer items-center gap-2 text-[12.5px]">
+              <span className="relative inline-block h-4.5 w-8">
+                <input type="checkbox" className="peer sr-only" checked={avail} onChange={(e) => setAvail(e.target.checked)} />
+                <span className="absolute inset-0 rounded-full transition" style={{ background: avail ? 'var(--t-accent)' : 'var(--t-border)' }} />
+                <span className="absolute left-0.5 top-0.5 h-3.5 w-3.5 rounded-full bg-white shadow transition peer-checked:translate-x-3.5" />
+              </span>
+              In stock only
+            </label>
+          )}
+        </div>
+        <label className="flex items-center gap-2 text-[12.5px]">
+          <span style={{ color: 'var(--t-text-muted)' }}>{String(s.label || 'Sort by')}</span>
+          <select
+            defaultValue="newest"
+            onChange={(e) => setCollectionSort?.(e.target.value)}
+            className="rounded-lg border bg-transparent px-3 py-1.5 text-[13px] outline-none transition focus:ring-2"
+            style={{ borderColor: 'var(--t-border)', color: 'var(--t-text)' }}
+          >
+            <option value="newest">Newest</option>
+            <option value="popular">Most popular</option>
+            {bool(s.showPriceSort, true) && <option value="price-asc">Price: low → high</option>}
+            {bool(s.showPriceSort, true) && <option value="price-desc">Price: high → low</option>}
+          </select>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ * BLOG LIST — blog template body section.
+ * Fetches the published journal from /api/blog and renders the section
+ * header block plus a featured post + responsive grid of cards.
+ * ════════════════════════════════════════════════════════════════════════ */
+function BlogList({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { theme } = useRenderCtx();
+  const [posts, setPosts] = useState<any[] | undefined>(undefined);
+
+  useEffect(() => {
+    let alive = true;
+    apiFetch('/blog')
+      .then((d) => { if (alive) setPosts(d?.posts || []); })
+      .catch(() => { if (alive) setPosts([]); });
+    return () => { alive = false; };
+  }, []);
+
+  const showFeatured = bool(s.showFeatured, true);
+  const cols = Math.min(4, Math.max(1, num(s.columns, 3)));
+  const count = num(s.count, 9);
+  const rest = posts ? (showFeatured ? posts.slice(0, count) : posts.slice(0, count)) : [];
+  const featured = showFeatured ? rest[0] : null;
+  const grid = showFeatured ? rest.slice(1) : rest;
+
+  const card = (p: any) => (
+    <Link key={p._id} to={`/blog/${p.slug}`} className="group block overflow-hidden rounded-[var(--t-radius)]"
+      style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
+      <div className="overflow-hidden" style={{ aspectRatio: '4/3', background: 'var(--t-muted)' }}>
+        {p.coverImage ? (
+          <img src={p.coverImage} alt={p.coverAlt || p.title} loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700"
+            style={{ transform: 'scale(1)', transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')} />
+        ) : (
+          <div className="grid h-full w-full place-items-center text-[11px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: 'var(--t-text-muted)' }}>HUSHAE</div>
+        )}
+      </div>
+      <div className="p-5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium uppercase tracking-[0.14em]"
+          style={{ color: 'var(--t-text-muted)' }}>
+          {p.author && <span>{p.author}</span>}
+          {bool(s.showDate, true) && <span>{fmtDate(p.publishAt || p.createdAt)}</span>}
+        </div>
+        <h3 className="mt-3 text-[19px] font-semibold leading-snug" style={{ color: 'var(--t-text)' }}>
+          {p.title}
+        </h3>
+        {bool(s.showExcerpt, true) && p.excerpt && (
+          <p className="mt-2 text-[13.5px] leading-relaxed" style={{ color: 'var(--t-text-muted)' }}>{p.excerpt}</p>
+        )}
+        {bool(s.showReadMore, true) && (
+          <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.1em]"
+            style={{ color: 'var(--t-accent)' }}>
+            Read <ChevronRight size={13} />
+          </span>
+        )}
+      </div>
+    </Link>
+  );
+
+  return (
+    <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 48), paddingBottom: num(s.paddingBottom, 64) }}>
+      {(section.blocks || []).map((b) => <BlockRenderer key={b.id} block={b} />)}
+
+      {posts === undefined ? (
+        <div className="grid gap-5 md:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="animate-pulse rounded-[var(--t-radius)]" style={{ background: 'var(--t-muted)', aspectRatio: '3/4' }} />
+          ))}
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="rounded-[var(--t-radius)] border py-16 text-center" style={{ borderColor: 'var(--t-border)' }}>
+          <p className="text-[15px]" style={{ color: 'var(--t-text-muted)' }}>Nothing published yet — the first story is on its way.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          {featured && (
+            <Link to={`/blog/${featured.slug}`} className="group grid overflow-hidden rounded-[var(--t-radius)] border md:grid-cols-2"
+              style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+              <div className="overflow-hidden" style={{ aspectRatio: '16/10', background: 'var(--t-muted)' }}>
+                {featured.coverImage ? (
+                  <img src={featured.coverImage} alt={featured.coverAlt || featured.title} loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700"
+                    style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')} />
+                ) : (
+                  <div className="grid h-full w-full place-items-center text-[11px] font-semibold uppercase tracking-[0.18em]"
+                    style={{ color: 'var(--t-text-muted)' }}>HUSHAE</div>
+                )}
+              </div>
+              <div className="flex flex-col justify-center gap-3 p-6 md:p-10">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--t-accent)' }}>Featured story</span>
+                <h3 className="text-[26px] font-semibold leading-tight md:text-[34px]" style={{ color: 'var(--t-text)' }}>{featured.title}</h3>
+                {featured.excerpt && <p className="text-[14.5px] leading-relaxed" style={{ color: 'var(--t-text-muted)' }}>{featured.excerpt}</p>}
+                <div className="flex flex-wrap items-center gap-x-3 text-[11.5px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--t-text-muted)' }}>
+                  {featured.author && <span>{featured.author}</span>}
+                  {bool(s.showDate, true) && <span>{fmtDate(featured.publishAt || featured.createdAt)}</span>}
+                </div>
+              </div>
+            </Link>
+          )}
+          {grid.length > 0 && (
+            <div className="grid gap-5" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+              {grid.map(card)}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ * CART PAGE — cart template body section.
+ * Real bag: stock-aware pricing from useCartPricing, line editing with the
+ * same rules as the hand-coded Cart page, COD/trust badges, checkout CTA.
+ * ════════════════════════════════════════════════════════════════════════ */
+const BLOCKING = new Set(['oos', 'unavailable', 'size-gone']);
+
+function CartPage({ section }: { section: SectionNode }) {
+  const s = section.settings || {};
+  const { theme } = useRenderCtx();
+  const { cart, updateQty, removeLine, clearCart, settings } = useApp();
+  const [stockMap, setStockMap] = useState<Record<string, any>>({});
+
+  const idKey = useMemo(
+    () => Array.from(new Set(cart.map((l) => l.id).filter(Boolean))).sort().join(','),
+    [cart],
+  );
+
+  useEffect(() => {
+    if (!idKey) { setStockMap({}); return; }
+    let alive = true;
+    apiFetch(`/products?ids=${idKey}&limit=50`)
+      .then((d) => {
+        if (!alive) return;
+        const map: Record<string, any> = {};
+        (d?.products || []).forEach((p) => {
+          map[String(p._id)] = {
+            stock: p.stock ?? 0,
+            sizes: p.sizes || [],
+            isActive: p.isActive !== false,
+            compareAtPrice: p.compareAtPrice || null,
+            onSale: p.onSale === true,
+            saleStart: p.saleStart || null,
+            saleEnd: p.saleEnd || null,
+          };
+        });
+        setStockMap(map);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [idKey]);
+
+  const cfg = useMemo(() => cartConfig(settings), [settings]);
+
+  const lines = useMemo(() => cart.map((line, index) => {
+    const m = stockMap[String(line.id)];
+    const withCompare = m ? { ...line } : { ...line, compareAtPrice: null, onSale: false };
+    if (!m) return { line: withCompare, index, status: 'ok', available: null };
+    if (!m.isActive) return { line: withCompare, index, status: 'unavailable', available: 0 };
+    if (m.stock <= 0) return { line: withCompare, index, status: 'oos', available: 0 };
+    if (line.size && m.sizes.length && !m.sizes.includes(line.size)) return { line: withCompare, index, status: 'size-gone', available: m.stock };
+    if (line.qty > m.stock) return { line: withCompare, index, status: 'low', available: m.stock };
+    return { line: withCompare, index, status: 'ok', available: m.stock };
+  }), [cart, stockMap]);
+
+  const pricing = useCartPricing(lines, settings, cfg, null);
+  const ordered = useMemo(
+    () => [...lines].sort((a, b) => (BLOCKING.has(b.status) ? 1 : 0) - (BLOCKING.has(a.status) ? 1 : 0)),
+    [lines],
+  );
+
+  const heading = String(s.heading || 'Your bag');
+  const emptyTitle = String(s.emptyTitle || 'Your bag is empty');
+  const emptyText = String(s.emptyText || 'Looks like you have not added anything yet — start shopping!');
+  const checkoutLabel = String(s.checkoutLabel || 'Proceed to checkout');
+
+  return (
+    <div className={containerClass(s.width)} style={{ paddingTop: num(s.paddingTop, 40), paddingBottom: num(s.paddingBottom, 64) }}>
+      <h1 className="text-[28px] font-semibold md:text-[34px]" style={{ color: 'var(--t-text)' }}>{heading}</h1>
+
+      {cart.length === 0 ? (
+        <div className="mt-10 rounded-[var(--t-radius)] border py-20 text-center" style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)' }}>
+          <ShoppingBag size={40} strokeWidth={1.4} className="mx-auto" style={{ color: 'var(--t-text-muted)' }} />
+          <h2 className="mt-4 text-[20px] font-semibold" style={{ color: 'var(--t-text)' }}>{emptyTitle}</h2>
+          <p className="mx-auto mt-2 max-w-sm text-[14px]" style={{ color: 'var(--t-text-muted)' }}>{emptyText}</p>
+          <Link to="/shop" className="mt-7 inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-[13px] font-semibold uppercase tracking-[0.08em]"
+            style={{ background: 'var(--t-text)', color: 'var(--t-bg)' }}>
+            Start shopping <ChevronRight size={14} />
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[1fr_360px]">
+          {/* Line items */}
+          <div className="flex flex-col gap-4">
+            {ordered.map(({ line, index, status, available }) => {
+              const key = lineKey(line);
+              const blocked = BLOCKING.has(status);
+              const img = Array.isArray(line.images) ? (typeof line.images[0] === 'string' ? line.images[0] : line.images[0]?.url) : null;
+              return (
+                <div key={key} className="flex gap-4 rounded-[var(--t-radius)] border p-4"
+                  style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)', opacity: blocked ? 0.62 : 1 }}>
+                  {img ? (
+                    <img src={img} alt={line.name || 'Product'} loading="lazy"
+                      className="h-28 w-24 shrink-0 rounded-[calc(var(--t-radius)*0.7)] object-cover" />
+                  ) : (
+                    <div className="grid h-28 w-24 shrink-0 place-items-center rounded-[calc(var(--t-radius)*0.7)] text-[10px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ background: 'var(--t-muted)', color: 'var(--t-text-muted)' }}>HUSHAE</div>
+                  )}
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <Link to={`/product/${line.slug || line.id}`} className="block truncate text-[15px] font-semibold hover:opacity-70"
+                          style={{ color: 'var(--t-text)' }}>{line.name || 'Product'}</Link>
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[var(--t-text-muted)]">
+                          {line.size && <span>Size: <b style={{ color: 'var(--t-text)' }}>{line.size}</b></span>}
+                          {line.color && <span>Colour: <b style={{ color: 'var(--t-text)' }}>{line.color}</b></span>}
+                        </div>
+                        {blocked && (
+                          <span className="mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide"
+                            style={{ background: 'var(--t-muted)', color: 'var(--t-text-muted)' }}>
+                            {status === 'oos' ? 'Sold out' : status === 'unavailable' ? 'No longer available' : 'Size no longer available'}
+                          </span>
+                        )}
+                      </div>
+                      <button type="button" onClick={() => removeLine(key)} aria-label="Remove"
+                        className="rounded-full p-1.5 transition hover:rotate-90 hover:opacity-70"
+                        style={{ color: 'var(--t-text-muted)' }}>
+                        <X size={15} />
+                      </button>
+                    </div>
+                    <div className="mt-auto flex items-center justify-between pt-3">
+                      <div className="inline-flex items-center rounded-full border" style={{ borderColor: 'var(--t-border)' }}>
+                        <button type="button" className="px-3 py-1.5 disabled:opacity-40" disabled={line.qty <= 1 || blocked}
+                          onClick={() => updateQty(key, line.qty - 1)} aria-label="Decrease"><Minus size={12} /></button>
+                        <span className="min-w-7 text-center text-[13.5px] font-semibold" style={{ color: 'var(--t-text)' }}>{line.qty}</span>
+                        <button type="button" className="px-3 py-1.5 disabled:opacity-40" disabled={blocked || (available != null && line.qty >= available)}
+                          onClick={() => updateQty(key, line.qty + 1)} aria-label="Increase"><Plus size={12} /></button>
+                      </div>
+                      <span className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>{pkr(line.price * (status === 'low' && available != null ? Math.min(line.qty, available) : line.qty))}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="flex items-center justify-between pt-1">
+              <button type="button" onClick={clearCart} className="text-[12px] font-medium uppercase tracking-[0.1em] underline-offset-4 hover:underline"
+                style={{ color: 'var(--t-text-muted)' }}>
+                Clear bag
+              </button>
+              <Link to="/shop" className="text-[12px] font-medium uppercase tracking-[0.1em] underline-offset-4 hover:underline"
+                style={{ color: 'var(--t-accent)' }}>
+                Continue shopping
+              </Link>
+            </div>
+          </div>
+
+          {/* Order summary */}
+          <aside className="rounded-[var(--t-radius)] border p-6 lg:sticky lg:top-28"
+            style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)' }}>
+            <h2 className="text-[17px] font-semibold" style={{ color: 'var(--t-text)' }}>Order summary</h2>
+            <dl className="mt-4 flex flex-col gap-2.5 text-[13.5px]">
+              <div className="flex justify-between" style={{ color: 'var(--t-text-muted)' }}>
+                <dt>Subtotal</dt><dd style={{ color: 'var(--t-text)' }}>{pkr(pricing.subtotal)}</dd>
+              </div>
+              {pricing.discount > 0 && (
+                <div className="flex justify-between" style={{ color: 'var(--t-text-muted)' }}>
+                  <dt>Discount</dt><dd style={{ color: 'var(--t-sale, #B3261E)' }}>−{pkr(pricing.discount)}</dd>
+                </div>
+              )}
+              <div className="flex justify-between" style={{ color: 'var(--t-text-muted)' }}>
+                <dt>Delivery</dt>
+                <dd>{pricing.freeShip ? 'Complimentary' : pkr(pricing.shipping)}</dd>
+              </div>
+              {pricing.tax > 0 && (
+                <div className="flex justify-between" style={{ color: 'var(--t-text-muted)' }}>
+                  <dt>Tax</dt><dd style={{ color: 'var(--t-text)' }}>{pkr(pricing.tax)}</dd>
+                </div>
+              )}
+              <div className="my-1 border-t" style={{ borderColor: 'var(--t-border)' }} />
+              <div className="flex justify-between text-[16px] font-semibold" style={{ color: 'var(--t-text)' }}>
+                <dt>Total</dt><dd>{pkr(pricing.total)}</dd>
+              </div>
+            </dl>
+
+            {bool(s.showShippingNote, true) && pricing.count > 0 && !pricing.freeShip && (
+              <p className="mt-4 rounded-lg px-3.5 py-2.5 text-[12.5px] leading-relaxed" style={{ background: 'var(--t-muted)', color: 'var(--t-text-muted)' }}>
+                You are <b style={{ color: 'var(--t-text)' }}>{pkr(pricing.remaining)}</b> away from complimentary delivery.
+              </p>
+            )}
+
+            <Link to="/checkout" className="te-btn-shine mt-5 flex w-full items-center justify-center gap-2 rounded-full py-4 text-[13px] font-bold uppercase tracking-[0.1em] transition hover:opacity-90"
+              style={{ background: 'var(--t-text)', color: 'var(--t-bg)' }}>
+              <Lock size={13} /> {checkoutLabel}
+            </Link>
+
+            {bool(s.showTrustBadges, true) && (
+              <div className="mt-5 flex flex-col gap-2 text-[12px]" style={{ color: 'var(--t-text-muted)' }}>
+                <span className="inline-flex items-center gap-2"><ShieldCheck size={14} style={{ color: 'var(--t-accent)' }} /> Cash on delivery available nationwide</span>
+                <span className="inline-flex items-center gap-2"><Truck size={14} style={{ color: 'var(--t-accent)' }} /> 3–5 day delivery across Pakistan</span>
+                <span className="inline-flex items-center gap-2"><BadgeCheck size={14} style={{ color: 'var(--t-accent)' }} /> 14-day easy exchange</span>
+              </div>
+            )}
+          </aside>
+        </div>
+      )}
+    </div>
+  );
 }

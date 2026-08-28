@@ -14,7 +14,76 @@ export interface ThemeGroup {
   fields: Field[];
 }
 
+/* ── One-click looks (premium) ──────────────────────────────────────────────
+   Presets are curated colour + typography combos. Selecting one patches the
+   relevant theme keys, and the merchant keeps full control afterwards. */
+export const THEME_PRESETS: Record<string, { label: string; swatch: [string, string, string]; patch: SettingsBag }> = {
+  noir: {
+    label: 'Noir',
+    swatch: ['#0D0D0D', '#FBFAF8', '#7C8B72'],
+    patch: {
+      colorPrimary: '#0D0D0D', colorAccent: '#7C8B72', colorBg: '#FBFAF8', colorSurface: '#FFFFFF',
+      colorMuted: '#F1EEE9', colorText: '#0D0D0D', colorTextMuted: '#6B6B6B', colorBorder: '#E4E0DA',
+      colorSale: '#B4453C', colorSuccess: '#4F7A52', fontHeading: 'Jost', fontBody: 'Jost',
+      btnRadius: 999, btnUppercase: true, cardRadius: 16,
+    },
+  },
+  ivory: {
+    label: 'Ivory',
+    swatch: ['#F5EFE6', '#FFFFFF', '#A88B6C'],
+    patch: {
+      colorPrimary: '#2E2419', colorAccent: '#A88B6C', colorBg: '#F5EFE6', colorSurface: '#FFFFFF',
+      colorMuted: '#EFE6D8', colorText: '#2E2419', colorTextMuted: '#8A7A66', colorBorder: '#E3D8C6',
+      colorSale: '#B4453C', colorSuccess: '#4F7A52', fontHeading: 'Cormorant Garamond', fontBody: 'Jost',
+      btnRadius: 4, btnUppercase: true, cardRadius: 4,
+    },
+  },
+  emerald: {
+    label: 'Emerald',
+    swatch: ['#10302A', '#F4F7F5', '#2E8B6E'],
+    patch: {
+      colorPrimary: '#10302A', colorAccent: '#2E8B6E', colorBg: '#F4F7F5', colorSurface: '#FFFFFF',
+      colorMuted: '#E8EFEC', colorText: '#10302A', colorTextMuted: '#5E7269', colorBorder: '#D8E4DE',
+      colorSale: '#C2410C', colorSuccess: '#2E8B6E', fontHeading: 'Jost', fontBody: 'Jost',
+      btnRadius: 999, btnUppercase: false, cardRadius: 12,
+    },
+  },
+  terracotta: {
+    label: 'Terracotta',
+    swatch: ['#3B1F14', '#FAF6F3', '#C05B32'],
+    patch: {
+      colorPrimary: '#3B1F14', colorAccent: '#C05B32', colorBg: '#FAF6F3', colorSurface: '#FFFFFF',
+      colorMuted: '#F3E8E1', colorText: '#3B1F14', colorTextMuted: '#8A7264', colorBorder: '#EADCD2',
+      colorSale: '#B4453C', colorSuccess: '#4F7A52', fontHeading: 'Jost', fontBody: 'Jost',
+      btnRadius: 2, btnUppercase: true, cardRadius: 8,
+    },
+  },
+  slate: {
+    label: 'Slate',
+    swatch: ['#1E293B', '#F8FAFC', '#64748B'],
+    patch: {
+      colorPrimary: '#1E293B', colorAccent: '#64748B', colorBg: '#F8FAFC', colorSurface: '#FFFFFF',
+      colorMuted: '#EEF2F7', colorText: '#1E293B', colorTextMuted: '#64748B', colorBorder: '#E2E8F0',
+      colorSale: '#DC2626', colorSuccess: '#16A34A', fontHeading: 'Jost', fontBody: 'Jost',
+      btnRadius: 6, btnUppercase: false, cardRadius: 10,
+    },
+  },
+};
+
+/** Apply a preset → returns the theme patch (no-op when unknown). */
+export function applyPreset(id: string): SettingsBag | null {
+  const p = THEME_PRESETS[id];
+  return p ? { ...p.patch, preset: id } : null;
+}
+
 export const THEME_GROUPS: ThemeGroup[] = [
+  {
+    id: 'presets', label: 'Looks (presets)', icon: 'Palette',
+    fields: [
+      { type: 'paragraph', label: 'One-click curated colour + typography looks. Pick one to start — every value stays fully editable afterwards.' },
+      { type: 'preset_picker', id: 'preset', label: 'Theme look' },
+    ],
+  },
   {
     id: 'colors', label: 'Colours', icon: 'Palette',
     fields: [
@@ -107,6 +176,35 @@ export const THEME_GROUPS: ThemeGroup[] = [
     fields: [
       { type: 'paragraph', label: 'Applies to every page of the storefront.' },
       { type: 'textarea', id: 'customCss', label: 'CSS', rows: 14, placeholder: ':root { --x: 1 }' },
+    ],
+  },
+  {
+    id: 'embeds', label: 'App embeds & scripts', icon: 'Puzzle',
+    fields: [
+      { type: 'paragraph', label: 'Premium storefront chrome — preloader, back-to-top, smooth scrolling, Ken Burns hero motion and custom scripts injected on every themed page.' },
+      { type: 'checkbox', id: 'preloader', label: 'Preloader animation', default: true },
+      { type: 'checkbox', id: 'backToTop', label: 'Back-to-top button', default: true },
+      { type: 'checkbox', id: 'smoothScroll', label: 'Smooth scrolling', default: true },
+      { type: 'checkbox', id: 'kenBurns', label: 'Ken Burns hero motion', default: true },
+      { type: 'checkbox', id: 'grain', label: 'Subtle film grain overlay', default: false },
+      { type: 'header', label: 'Custom scripts' },
+      { type: 'textarea', id: 'customJs', label: 'JavaScript', rows: 8, placeholder: 'console.log("hello storefront")' },
+      { type: 'textarea', id: 'headHtml', label: 'Head HTML', rows: 6, placeholder: '<meta name="theme-color" content="#0D0D0D">' },
+      { type: 'textarea', id: 'bodyHtml', label: 'Body HTML (before footer)', rows: 6, placeholder: '<div class="custom-ribbon">Free shipping</div>' },
+    ],
+  },
+  {
+    id: 'text', label: 'Theme text', icon: 'Languages',
+    fields: [
+      { type: 'paragraph', label: 'Rename default storefront strings (the language editor) — used by product and form sections.' },
+      { type: 'text', id: 't_addToCart', label: 'Add to cart button', default: 'Add to cart' },
+      { type: 'text', id: 't_buyNow', label: 'Buy now button', default: 'Buy now' },
+      { type: 'text', id: 't_soldOut', label: 'Sold out', default: 'Sold out' },
+      { type: 'text', id: 't_shopNow', label: 'Shop now', default: 'Shop now' },
+      { type: 'text', id: 't_viewAll', label: 'View all', default: 'View all' },
+      { type: 'text', id: 't_newsletterTitle', label: 'Newsletter title', default: 'Join the list' },
+      { type: 'text', id: 't_newsletterPlaceholder', label: 'Newsletter placeholder', default: 'Your email address' },
+      { type: 'text', id: 't_added', label: 'Added-to-cart toast', default: 'Added to cart' },
     ],
   },
 ];

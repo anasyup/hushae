@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Check, Cloud, ExternalLink, History, Loader2, Monitor, Redo2, Settings2,
-  Smartphone, Tablet, Undo2,
+  ArrowLeft, Check, Cloud, ExternalLink, FilePlus2, History, Loader2, Monitor, Redo2, Settings2,
+  Smartphone, Tablet, Trash2, Undo2,
 } from 'lucide-react';
 import { useEditor } from '../core/store';
+import type { TemplateType } from '../core/types';
 
-/* Top bar — device switcher, undo/redo, autosave status, publish. */
+/* Top bar — template switcher, device switcher, undo/redo, autosave, publish. */
+
+const TYPE_LABEL: Record<string, string> = { index: 'Home', product: 'Product', collection: 'Collection', blog: 'Blog', cart: 'Cart', page: 'Page' };
 
 export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onPublish: () => void }) {
   const device = useEditor((s) => s.device);
@@ -24,6 +27,13 @@ export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onP
   const showVersions = useEditor((s) => s.showVersions);
   const setShowTheme = useEditor((s) => s.setShowThemeSettings);
   const showTheme = useEditor((s) => s.showThemeSettings);
+  const templates = useEditor((s) => s.templates);
+  const activeTemplate = useEditor((s) => s.activeTemplate);
+  const setTemplate = useEditor((s) => s.setTemplate);
+  const addCustomTemplate = useEditor((s) => s.addCustomTemplate);
+  const deleteCustomTemplate = useEditor((s) => s.deleteCustomTemplate);
+
+  const activeValue = activeTemplate.type === 'index' ? 'index' : `${activeTemplate.type}__${activeTemplate.customId || ''}`;
 
   const [, tick] = useState(0);
   useEffect(() => {
@@ -63,6 +73,70 @@ export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onP
           <span className="text-[10px] uppercase tracking-[0.16em] text-[#777777]">
             {dirty ? '● DRAFT' : '● LIVE'}
           </span>
+        </div>
+
+        {/* ── Template switcher (Shopify-style: one design per page type) ── */}
+        <div className="ml-1 flex items-center gap-1 rounded-[6px] border border-[#E8E8E8] bg-[#FAFAFA] p-0.5">
+          <select
+            value={activeValue}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v.startsWith('ct|')) {
+                const [type, id] = v.slice(3).split('__');
+                setTemplate({ type: type as TemplateType, customId: id || undefined });
+              } else {
+                setTemplate({ type: v as TemplateType });
+              }
+            }}
+            title="Which page type you are designing"
+            className="h-7 rounded-[4px] border-0 bg-transparent px-1.5 pr-6 text-[11.5px] font-semibold text-black outline-none transition focus:ring-2 focus:ring-black/10"
+          >
+            {(['index', 'product', 'collection', 'blog', 'cart', 'page'] as const).map((t) => (
+              <option key={t} value={t}>{TYPE_LABEL[t]} template</option>
+            ))}
+            {(templates.product.custom || []).map((c) => (
+              <option key={c.id} value={`ct|product__${c.id}`}>Product · {c.name}</option>
+            ))}
+            {(templates.collection.custom || []).map((c) => (
+              <option key={c.id} value={`ct|collection__${c.id}`}>Collection · {c.name}</option>
+            ))}
+            {(templates.page.custom || []).map((c) => (
+              <option key={c.id} value={`ct|page__${c.id}`}>Page · {c.name}</option>
+            ))}
+            {(templates.blog.custom || []).map((c) => (
+              <option key={c.id} value={`ct|blog__${c.id}`}>Blog · {c.name}</option>
+            ))}
+            {(templates.cart.custom || []).map((c) => (
+              <option key={c.id} value={`ct|cart__${c.id}`}>Cart · {c.name}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => {
+              if (activeTemplate.type === 'index') return;
+              const name = window.prompt('Name for the new template', 'Variant 1');
+              if (!name?.trim()) return;
+              addCustomTemplate(activeTemplate.type as 'product' | 'collection' | 'page' | 'blog' | 'cart', name.trim());
+            }}
+            title={activeTemplate.type === 'index' ? 'Switch to a page template first' : `New ${TYPE_LABEL[activeTemplate.type]} template`}
+            disabled={activeTemplate.type === 'index'}
+            className="grid h-7 w-7 place-items-center rounded-[4px] text-[#777777] transition hover:bg-[#EFEFEF] hover:text-black disabled:opacity-30"
+          >
+            <FilePlus2 size={13} />
+          </button>
+          {activeTemplate.customId && (
+            <button
+              type="button"
+              onClick={() => {
+                if (!window.confirm('Delete this template? The default template stays.')) return;
+                deleteCustomTemplate(activeTemplate.type as 'product' | 'collection' | 'page' | 'blog' | 'cart', activeTemplate.customId);
+              }}
+              title="Delete this template"
+              className="grid h-7 w-7 place-items-center rounded-[4px] text-[#777777] transition hover:bg-[#FDECEC] hover:text-[#C0392B]"
+            >
+              <Trash2 size={12.5} />
+            </button>
+          )}
         </div>
       </div>
 

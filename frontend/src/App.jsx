@@ -39,6 +39,13 @@ import AdminLogin from './admin/AdminLogin';
 const ThemeEditorApp = lazy(() => import('./theme-editor/ThemeEditorApp'));
 const PreviewApp = lazy(() => import('./theme-editor/ui/PreviewApp'));
 const ThemedHome = lazy(() => import('./theme-editor/ThemedHome'));
+const ThemedProduct = lazy(() => import('./theme-editor/ThemedProduct'));
+const ThemedCollection = lazy(() => import('./theme-editor/ThemedCollection'));
+const ThemedPage = lazy(() => import('./theme-editor/ThemedPage'));
+const ThemedBlog = lazy(() => import('./theme-editor/ThemedBlog'));
+const ThemedCart = lazy(() => import('./theme-editor/ThemedCart'));
+import ThemeChrome from './theme-editor/ThemeChrome';
+import './theme-editor/storefront.css';
 /* CMS storefront page — EAGER, deliberately.
    MEASURED: as a lazy() route it is mounted by the /:cmsSlug catch-all, so EVERY
    unknown URL waited a chunk round trip before it could paint its 404. That
@@ -323,7 +330,7 @@ function AdminLegacyRedirect() {
 export default function App() {
   const { pathname } = useLocation();
   const isAdmin = pathname.startsWith('/admin');
-  const { themed } = useThemeDoc();
+  const { themed, theme: themeDocSettings } = useThemeDoc();
   // A published theme document renders its own header and footer on the home
   // page, so the legacy chrome is suppressed there to avoid duplicates.
   const themedHome = themed && pathname === '/';
@@ -339,6 +346,7 @@ export default function App() {
       <ScrollToTop />
       <AdminThemeSync />
       <Tracker />
+      {!isAdmin && themed && <ThemeChrome theme={themeDocSettings} />}
       {!isAdmin && (
         <a href="#main-content" className="skip-link">Skip to content</a>
       )}
@@ -364,8 +372,8 @@ export default function App() {
           <Route path="/best" element={<Shop preset={{ key: 'best', bestSeller: true }} />} />
           <Route path="/sale" element={<Shop preset={{ key: 'sale' }} />} />
           <Route path="/category/:slug" element={<ShopWithCategory />} />
-          <Route path="/product/:slug" element={<Product />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/product/:slug" element={<ThemedProduct fallback={Product} />} />
+          <Route path="/cart" element={<ThemedCart fallback={Cart} />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order/:orderNumber" element={<OrderConfirm />} />
           <Route path="/track" element={<Track />} />
@@ -389,9 +397,9 @@ export default function App() {
           <Route path="/terms" element={<Legal kind="terms" />} />
           <Route path="/returns" element={<Legal kind="returns" />} />
           <Route path="/shipping-policy" element={<Legal kind="shipping" />} />
-          <Route path="/collection/:slug" element={<Collection />} />
+          <Route path="/collection/:slug" element={<ThemedCollection fallback={Collection} />} />
           {/* BLOG — journal / fit guides. /blog lists, /blog/:slug reads. */}
-          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog" element={<ThemedBlog fallback={Blog} />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           {/* Journal — the editorial voice (CDLP-style nav item) */}
           <Route path="/journal" element={<Blog />} />
@@ -585,7 +593,7 @@ export default function App() {
               A single segment only: /:cmsSlug does not match /a/b, which keeps
               product and category URLs out of reach.                        */}
           <Route path="/admin/*" element={<AdminLegacyRedirect />} />
-          <Route path="/:cmsSlug" element={<CmsPage />} />
+          <Route path="/:cmsSlug" element={<ThemedPage fallback={CmsPage} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>

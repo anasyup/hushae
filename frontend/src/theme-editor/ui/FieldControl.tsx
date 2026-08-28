@@ -5,6 +5,8 @@ import MediaPicker from '../../components/MediaPicker';
 import { ResourcePicker } from './ResourcePicker';
 import { ListField } from './ListField';
 import { PICKER_ICONS, resolveIcon } from './iconRegistry';
+import { THEME_PRESETS } from '../schemas/theme';
+import { useEditor } from '../core/store';
 
 /* ============================================================================
  * Renders one schema field. Every supported FieldType lands here, so a new
@@ -149,6 +151,27 @@ function Input({ field, v, settings, onChange }: { field: Field; v: SettingValue
 
     case 'font_picker':
       return <FontPicker value={String(v ?? '')} onChange={onChange} />;
+
+    case 'preset_picker':
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(THEME_PRESETS).map(([id, p]) => (
+            <button key={id} type="button"
+              onClick={() => useEditor.getState().applyPreset(id)}
+              title={`Apply ${p.label} look`}
+              className={`flex flex-col gap-1.5 rounded-xl border p-2.5 text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                String(v ?? '') === id ? 'border-black ring-2 ring-black/10' : 'border-neutral-200'
+              }`}>
+              <span className="flex gap-1">
+                {p.swatch.map((c, i) => (
+                  <span key={i} className="h-5 w-5 rounded-full border border-black/10" style={{ background: c }} />
+                ))}
+              </span>
+              <span className="text-[12px] font-semibold text-neutral-800">{p.label}</span>
+            </button>
+          ))}
+        </div>
+      );
 
     case 'image_picker':
       return <MediaPicker value={String(v ?? '')} onChange={(u: string) => onChange(u)} onAdd={(u: string) => onChange(u)} accept="image" hideUrl />;
