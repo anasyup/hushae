@@ -66,56 +66,54 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
     } catch { /* noop */ }
   };
 
-  const tabCls = (on) =>
-    `text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
-      on ? 'text-white' : 'text-white/35 hover:text-white/75'
-    }`;
-
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+    <div className="od-views" role="group" aria-label="Saved views">
+      <span className="od-views-label">Views</span>
       {PRESETS.map((p) => {
         const on = active === p.key;
         return (
-          <button key={p.key} title={p.hint} aria-pressed={on}
+          <button key={p.key} type="button" title={p.hint} aria-pressed={on}
             onClick={() => setFilter({ preset: on ? '' : p.key })}
-            className={tabCls(on)}>
+            className={`od-chip ${on ? 'active' : ''}`}>
             {p.label}
           </button>
         );
       })}
 
-      {views.length > 0 && <span className="h-3 w-px bg-white/15" />}
-
       {views.map((v) => (
-        <span key={v._id} className="group inline-flex items-center gap-1">
-          <button onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
-            className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/40 hover:text-white">
+        <span key={v._id} className="od-chipwrap">
+          <button type="button" onClick={() => applyView(v)}
+            title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
+            className="od-chip saved">
             {v.name}
           </button>
-          <button onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`}
-            className="hidden text-white/25 hover:text-white group-hover:inline">
+          <button type="button" onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`} className="od-chip-x">
             <X size={10} />
           </button>
         </span>
       ))}
 
       {naming ? (
-        <span className="inline-flex items-center gap-1.5 border-b border-white/30 py-0.5">
-          <input autoFocus value={name} onChange={(e) => setName(e.target.value)}
+        <span className="od-chipwrap">
+          <input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') saveView(); if (e.key === 'Escape') { setNaming(false); setName(''); } }}
-            placeholder="Name this view" className="w-32 bg-transparent text-[12px] text-white outline-none placeholder:text-white/30" />
-          <button onClick={saveView} disabled={saving || !name.trim()}
-            className="text-[10px] font-medium uppercase tracking-[0.12em] text-white disabled:opacity-40">
-            {saving ? <Loader2 size={11} className="animate-spin" /> : 'Save'}
+            placeholder="View name"
+            aria-label="View name"
+            className="od-chip-input"
+          />
+          <button type="button" onClick={saveView} disabled={saving || !name.trim()} className="od-chip save">
+            {saving ? 'Saving…' : 'Save'}
           </button>
-          <button onClick={() => { setNaming(false); setName(''); }} aria-label="Cancel"
-            className="text-white/35 hover:text-white">
+          <button type="button" onClick={() => { setNaming(false); setName(''); }} aria-label="Cancel" className="od-chip-x">
             <X size={11} />
           </button>
         </span>
       ) : (
-        <button onClick={() => setNaming(true)} title="Save the current filters as a named view"
-          className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/30 hover:text-white/70">
+        <button type="button" onClick={() => setNaming(true)} className="od-chip ghost"
+          title="Save the current filters as a named view">
           + Save view
         </button>
       )}
