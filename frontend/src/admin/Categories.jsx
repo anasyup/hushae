@@ -30,6 +30,8 @@ export default function Categories() {
   const [err, setErr] = useState('');
   const [q, setQ] = useState('');
   const [view, setView] = useState('all'); // all | women | men | disabled
+  const [sort, setSort] = useState('order'); // order | name | updated
+  const [counts, setCounts] = useState({}); // categorySlug → product count
   const [editing, setEditing] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -40,6 +42,18 @@ export default function Categories() {
       .catch(() => { setCats([]); setErr('Something prevented the categories from loading.'); });
   };
   useEffect(() => { load(); }, []); // eslint-disable-line
+
+  /* Product count per category — one quiet extra read, aggregated client-side.
+     Purely additive: if it fails, the page simply shows no counts. */
+  useEffect(() => {
+    api('/products/admin/list', { token: auth.token })
+      .then((d) => {
+        const m = {};
+        (d.products || []).forEach((p) => { if (p.categorySlug) m[p.categorySlug] = (m[p.categorySlug] || 0) + 1; });
+        setCounts(m);
+      })
+      .catch(() => {});
+  }, []); // eslint-disable-line
 
   const summary = useMemo(() => {
     const s = { total: 0, women: 0, men: 0, disabled: 0 };
@@ -58,8 +72,11 @@ export default function Categories() {
     if (view === 'disabled') list = list.filter((c) => !c.isActive);
     const term = q.trim().toLowerCase();
     if (term) list = list.filter((c) => c.name?.toLowerCase().includes(term) || c.slug?.toLowerCase().includes(term));
+    if (sort === 'name') list = [...list].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    else if (sort === 'updated') list = [...list].sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+    else list = [...list].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || (a.name || '').localeCompare(b.name || ''));
     return list;
-  }, [cats, view, q]);
+  }, [cats, view, q, sort]);
 
   const stats = [
     { label: 'All categories', value: summary.total, key: 'all' },
@@ -119,7 +136,7 @@ export default function Categories() {
             ))}
           </div>
 
-          {/* ── Search ────────────────────────────────────────────────── */}
+          {/* ── Search + sort ──────────────────────────────────────────── */}
           <div className="pa-card pa-toolbar">
             <div className="pa-search">
               <Search size={13} strokeWidth={2} />
@@ -130,6 +147,11 @@ export default function Categories() {
                 aria-label="Search categories"
               />
             </div>
+            <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort categories" className="pa-select">
+              <option value="order">Sort · Store order</option>
+              <option value="name">Sort · Name A–Z</option>
+              <option value="updated">Sort · Recently updated</option>
+            </select>
             {(q || view !== 'all') && (
               <button type="button" onClick={() => { setQ(''); setView('all'); }} className="pa-btn-sm" style={{ marginLeft: 'auto' }}>
                 Clear
@@ -187,7 +209,7 @@ export default function Categories() {
                           <td><Img src={c.image} alt="" className="pa-thumb" /></td>
                           <td style={{ minWidth: 0 }}>
                             <span className="pa-name" style={{ cursor: 'default' }}>{c.name}</span>
-                            <span className="pa-sub">{c.slug}{c.description ? ` · ${c.description}` : ''}</span>
+                            <span className="pa-sub">{c.slug} · {counts[c.slug] || 0} product{counts[c.slug] === 1 ? '' : 's'}{c.description ? ` · ${c.description}` : ''}</span>
                           </td>
                           <td>
                             <span className={`pa-badge ${c.gender === 'women' ? 'pa-b-purple' : 'pa-b-blue'}`}>
@@ -230,7 +252,7 @@ export default function Categories() {
                     <Img src={c.image} alt="" className="pa-mcard-img" />
                     <div className="pa-mcard-main">
                       <span className="pa-name" style={{ cursor: 'default' }}>{c.name}</span>
-                      <span className="pa-sub">{c.slug}</span>
+                      <span className="pa-sub">{c.slug} · {counts[c.slug] || 0} product{counts[c.slug] === 1 ? '' : 's'}</span>
                       <div className="pa-mcard-row">
                         <span className={`pa-badge ${c.gender === 'women' ? 'pa-b-purple' : 'pa-b-blue'}`}>
                           <span className="pa-dot" aria-hidden />{c.gender === 'women' ? 'Women' : 'Men'}
