@@ -479,3 +479,22 @@
 .dark-admin .odt-life > div { background: rgba(255,255,255,.06); }
 .odt-life b { display: block; font-size: 13px; letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
 .odt-life span { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pa-muted2); }
+
+/* ════ ORDER DETAIL v4 — Shopify order-page structure ════
+ * Real items table with uppercase column heads; timeline with a
+ * connecting spine; payment card totals block. */
+.odt-tbl { width: 100%; border-collapse: collapse; }
+.odt-tbl th { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pa-muted2); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--pa-border); }
+.odt-tbl th.r, .odt-tbl td.r { text-align: right; }
+.odt-tbl td { padding: 12px 10px; border-bottom: 1px solid var(--pa-border-light); vertical-align: middle; font-size: 12.5px; }
+.odt-tbl tr:last-child td { border-bottom: 0; }
+.odt-tbl .prod { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.odt-tbl .prod img { width: 40px; height: 52px; object-fit: cover; border-radius: 9px; border: 1px solid var(--pa-border-light); background: #f5f5f4; flex-shrink: 0; }
+.odt-tl2 { position: relative; padding-left: 22px; }
+.odt-tl2::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: var(--pa-border-light); border-radius: 2px; }
+.odt-tl2 .odt-tl { position: relative; padding: 6px 0; }
+.odt-tl2 .odt-dot { position: absolute; left: -20px; top: 12px; margin: 0; }
+.odt-pay-total { display: flex; justify-content: space-between; align-items: baseline; background: rgba(17,17,17,.04); border-radius: 12px; padding: 10px 14px; margin-top: 10px; }
+.dark-admin .odt-pay-total { background: rgba(255,255,255,.06); }
+.odt-pay-total .k { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pa-muted2); }
+.odt-pay-total .v { font-size: 18px; font-weight: 800; letter-spacing: -0.4px; font-variant-numeric: tabular-nums; }

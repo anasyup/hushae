@@ -264,22 +264,40 @@ export default function OrderDetail() {
 
                 {tab === 'items' && (
                   <div>
-                    {!editing && o.items.map((it, i) => (
-                      <div key={i} className="odt-item">
-                        {it.slug
-                          ? <Link to={`/product/${it.slug}`} target="_blank" rel="noreferrer"><Img src={it.image} alt="" /></Link>
-                          : <Img src={it.image} alt="" />}
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <p className="nm">{it.name}</p>
-                          <p className="sb">
-                            {[it.size, it.color].filter(Boolean).join(' · ')}
-                            {(it.size || it.color) ? ' · ' : ''}
-                            {pkr(it.price)} × {it.quantity}
-                          </p>
-                        </div>
-                        <span className="pr">{pkr(it.lineTotal)}</span>
+                    {!editing && (
+                      <div style={{ overflowX: 'auto' }}>
+                        <table className="odt-tbl" aria-label="Order items">
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th className="r">Price</th>
+                              <th className="r">Quantity</th>
+                              <th className="r">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {o.items.map((it, i) => (
+                              <tr key={i}>
+                                <td>
+                                  <div className="prod">
+                                    {it.slug
+                                      ? <Link to={`/product/${it.slug}`} target="_blank" rel="noreferrer"><Img src={it.image} alt="" /></Link>
+                                      : <Img src={it.image} alt="" />}
+                                    <div style={{ minWidth: 0 }}>
+                                      <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.1px' }}>{it.name}</p>
+                                      <p style={{ fontSize: 11, color: 'var(--pa-muted)', marginTop: 2 }}>{[it.size, it.color].filter(Boolean).join(' · ')}</p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="r" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(it.price)}</td>
+                                <td className="r" style={{ fontVariantNumeric: 'tabular-nums' }}>{it.quantity}</td>
+                                <td className="r" style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{pkr(it.lineTotal)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    ))}
+                    )}
 
                     {editing && editItems.map((it, i) => (
                       <div key={i} className="odt-item">
@@ -345,7 +363,8 @@ export default function OrderDetail() {
                     {(o.statusHistory || []).length === 0 ? (
                       <p className="pa-picker-empty">No status history recorded.</p>
                     ) : (
-                      (o.statusHistory || []).slice().reverse().map((h, i) => (
+                      <div className="odt-tl2">
+                      {(o.statusHistory || []).slice().reverse().map((h, i) => (
                         <div key={i} className="odt-tl">
                           <span className={`odt-dot ${i === 0 ? 'now' : ''}`} />
                           <div>
@@ -354,7 +373,8 @@ export default function OrderDetail() {
                             {h.note && <p style={{ marginTop: 3, fontSize: 12, fontStyle: 'italic', color: 'var(--pa-muted)' }}>“{h.note}”</p>}
                           </div>
                         </div>
-                      ))
+                      ))}
+                      </div>
                     )}
                   </div>
                 )}
@@ -475,6 +495,7 @@ export default function OrderDetail() {
                 <div className="odt-row"><span className="k">Status</span><span className="v">{o.paymentStatus}</span></div>
                 {o.transactionId && <div className="odt-row"><span className="k">Txn ID</span><span className="v" style={{ fontSize: 11 }}>{o.transactionId}</span></div>}
                 <div className="odt-row"><span className="k">Packaging</span><span className="v">{o.discreetPackaging ? 'Discreet' : 'Standard'}</span></div>
+                <div className="odt-pay-total"><span className="k">Total</span><span className="v">{pkr(o.total)}</span></div>
               </div>
             </div>
 
