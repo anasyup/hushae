@@ -485,3 +485,105 @@
 .od-item-name { font-weight: 600; color: var(--od-text); }
 .od-item-meta { color: var(--od-muted); font-size: 10.5px; }
 .od-item-price { margin-left: auto; color: var(--od-muted); font-variant-numeric: tabular-nums; }
+
+/* ── organized filter bar ─────────────────────────────────────────────── */
+.od-fbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.od-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 420px;
+  border: 1px solid var(--od-border);
+  border-radius: 8px;
+  background: var(--od-card);
+  padding: 0 10px;
+  transition: 0.15s;
+}
+.od-search:focus-within {
+  border-color: var(--od-black);
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+.dark-admin .od-search:focus-within { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12); }
+.od-search-ico { color: var(--od-muted2); flex: none; }
+.od-search-input {
+  border: 0; outline: 0; background: transparent;
+  width: 100%; min-width: 0;
+  font-size: 12px; color: var(--od-text);
+}
+.od-search-input::placeholder { color: var(--od-muted2); }
+.od-search-x { border: 0; background: transparent; color: var(--od-muted2); cursor: pointer; display: grid; place-items: center; padding: 2px; }
+.od-search-x:hover { color: var(--od-text); }
+.od-suggest {
+  position: absolute; top: 36px; left: 0; right: 0; z-index: 40;
+  background: var(--od-card);
+  border: 1px solid var(--od-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  max-height: 280px; overflow-y: auto;
+}
+.od-suggest-row {
+  display: flex; width: 100%; align-items: center; gap: 8px;
+  padding: 7px 9px; border: 0; background: transparent; border-radius: 7px;
+  cursor: pointer; text-align: left;
+}
+.od-suggest-row:hover { background: var(--od-hover); }
+.od-suggest-type { flex: none; width: 52px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--od-muted2); }
+.od-suggest-val { flex: 1; min-width: 0; font-size: 12px; color: var(--od-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.od-suggest-hint { font-size: 11px; color: var(--od-muted2); }
+.od-suggest-head { display: flex; justify-content: space-between; padding: 6px 9px 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--od-muted2); }
+.od-suggest-clear { border: 0; background: transparent; color: var(--od-muted); cursor: pointer; font-size: 10px; text-transform: none; letter-spacing: 0; }
+.od-fctl {
+  height: 32px;
+  border: 1px solid var(--od-border);
+  border-radius: 8px;
+  background: var(--od-card);
+  color: var(--od-text);
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.od-fctl:focus { border-color: var(--od-black); outline: none; }
+.od-fbtn {
+  height: 32px;
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-text);
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+.od-fbtn:hover { border-color: var(--od-black); }
+.od-fbtn.active { background: var(--od-black); color: var(--od-on-black); border-color: var(--od-black); }
+.od-fmore {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  border-top: 1px solid var(--od-border-light);
+  padding-top: 12px;
+}
+@media (min-width: 900px) { .od-fmore { grid-template-columns: repeat(5, 1fr); } }
+.od-flabel { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--od-muted2); margin-bottom: 4px; }
+.od-fcount { margin-top: 8px; font-size: 11px; color: var(--od-muted); }
+.od-fcount-clear { border: 0; background: transparent; color: var(--od-text); text-decoration: underline; cursor: pointer; font-size: 11px; }
+.od-pop {
+  position: absolute;
+  left: 0;
+  top: 36px;
+  z-index: 40;
+  width: min(420px, 90vw);
+  background: var(--od-card);
+  border: 1px solid var(--od-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}

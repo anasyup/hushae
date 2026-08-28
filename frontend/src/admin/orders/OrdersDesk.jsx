@@ -44,6 +44,7 @@ export default function OrdersDesk() {
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [viewsPop, setViewsPop] = useState(false);
 
   const orders = data.orders || [];
   const ids = useMemo(() => orders.map((o) => o._id), [orders]);
@@ -259,18 +260,30 @@ export default function OrdersDesk() {
             </div>
           </div>
 
-          <div className="od-filters" style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 10 }}>
             <OrderFilters
               filters={filters} setFilter={setFilter} resetFilters={resetFilters}
               activeFilterCount={activeFilterCount} facets={facets} onExport={exportCsv}
               token={auth?.token}
-            />
-          </div>
-
-          <div className="od-views" style={{ marginBottom: 10 }}>
-            <QuickFilters
-              filters={filters} setFilter={setFilter} token={auth?.token}
-              currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
+              viewsSlot={(
+                <div style={{ position: 'relative' }}>
+                  <button type="button" className={`od-fbtn ${viewsPop ? 'active' : ''}`}
+                    aria-expanded={viewsPop} onClick={() => setViewsPop((v) => !v)}>
+                    Views
+                  </button>
+                  {viewsPop && (
+                    <>
+                      <div style={{ position: 'fixed', inset: 0, zIndex: 30 }} onClick={() => setViewsPop(false)} />
+                      <div className="od-pop">
+                        <QuickFilters
+                          filters={filters} setFilter={setFilter} token={auth?.token}
+                          currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             />
           </div>
 
