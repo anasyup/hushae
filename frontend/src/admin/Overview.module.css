@@ -263,3 +263,74 @@ html.dark-admin .alert-item:hover{background:#1a1a1e}
 html.dark-admin .alert-body b,html.dark-admin .alert-cta{color:#f4f4f5}
 html.dark-admin .ovw .stat-change.neg{color:#f87171}
 html.dark-admin .ovw .prod-img{border-color:#26262c;background:#17171a}
+
+/* ============================================================
+   POLISH LAYER — micro-interactions + motion (2026-08-28)
+   Keeps the ATELIER design language; adds premium feel without
+   noise. Every animation respects prefers-reduced-motion.
+   ============================================================ */
+
+/* ---- scroll reveal: sections glide in as they enter view ---- */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s cubic-bezier(.22,.61,.36,1),transform .55s cubic-bezier(.22,.61,.36,1)}
+.reveal-in{opacity:1;transform:translateY(0)}
+
+/* ---- stat card: icon micro-lift on hover -------------------- */
+.stat{cursor:pointer}
+.stat-head svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.stat:hover .stat-head svg{transform:translateY(-1px) scale(1.12)}
+.stat-val{transition:color .2s}
+.stat:hover .stat-val{color:var(--black)}
+
+/* ---- refresh button spin ------------------------------------ */
+.icon-btn.spin svg{animation:spinCw .7s cubic-bezier(.4,0,.2,1)}
+@keyframes spinCw{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* ---- live bars: staggered rise on mount --------------------- */
+.live-bars div{transform-origin:bottom;animation:barRise .55s cubic-bezier(.34,1.56,.64,1) backwards}
+.live-bars div:nth-child(3n){animation-delay:.05s}
+.live-bars div:nth-child(3n+1){animation-delay:.1s}
+.live-bars div:nth-child(3n+2){animation-delay:.15s}
+@keyframes barRise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+/* ---- quick actions: icon nudges right on hover -------------- */
+.q-btn svg{transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+.q-btn:hover svg{transform:translateX(2px) scale(1.08)}
+.q-btn span{transition:transform .22s}
+.q-btn:hover span{transform:translateX(1px)}
+
+/* ---- insight cards: arrow slides out on hover --------------- */
+.ins-card .ins-arrow{transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+.ins-card:hover .ins-arrow{transform:translateX(4px)}
+
+/* ---- glance items: soft lift + icon tint -------------------- */
+.g-item{transition:transform .2s,box-shadow .2s,border-color .2s}
+.g-item:hover{transform:translateY(-2px)}
+.g-item .g-ico svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.g-item:hover .g-ico svg{transform:scale(1.1)}
+
+/* ---- order list rows: chevron-less slide hint ---------------- */
+.ol-item{transition:transform .15s,background .15s}
+.ol-item:hover{transform:translateX(2px)}
+
+/* ---- table rows: left accent on hover ------------------------ */
+.tbl tbody tr{position:relative}
+.tbl tbody tr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--black);transform:scaleY(0);transition:transform .18s cubic-bezier(.22,.61,.36,1)}
+.tbl tbody tr:hover::before{transform:scaleY(1)}
+
+/* ---- buttons: tactile press ---------------------------------- */
+.btn-black:active,.btn-sm:active,.q-btn:active{transform:translateY(0) scale(.985)}
+
+/* ---- loading skeleton shimmer (crisper) ---------------------- */
+.skeleton{background:linear-gradient(90deg,#f1f1f0 25%,#e6e6e5 50%,#f1f1f0 75%);background-size:200% 100%;animation:shimmer 1.3s infinite}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* ---- dark-admin parity for the new layer --------------------- */
+html.dark-admin .ovw .tbl tbody tr::before{background:#f4f4f5}
+html.dark-admin .ovw .stat:hover .stat-val{color:#f4f4f5}
+html.dark-admin .ovw .skeleton{background:linear-gradient(90deg,#17171a 25%,#1d1d21 50%,#17171a 75%);background-size:200% 100%}
+
+/* ---- accessibility: honour reduced-motion -------------------- */
+@media (prefers-reduced-motion: reduce){
+  .ovw *,.ovw *::before,.ovw *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}

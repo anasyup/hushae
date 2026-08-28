@@ -243,9 +243,33 @@ export default function Overview() {
   const [error, setError] = useState(null);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifRead, setNotifRead] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [q, setQ] = useState('');
   const [revType, setRevType] = useState('revenue');
   const countedRef = useRef(false);
+
+  /* Scroll-reveal: lower sections glide in as they enter the viewport —
+     one-shot, respects the module classes, safe under reduced-motion. */
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+    const els = Array.from(document.querySelectorAll(`.${styles.reveal}`));
+    if (!els.length) return undefined;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add(styles['reveal-in']);
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.1, rootMargin: '0px 0px -32px 0px' });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [loading, data]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try { await load(true); } finally { setTimeout(() => setRefreshing(false), 650); }
+  };
 
   const load = useCallback(async (silent) => {
     if (!token) return;
@@ -567,10 +591,19 @@ export default function Overview() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="m20 20-3.5-3.5" /></svg>
                 <input id="searchInput" value={q} placeholder="Filter products & orders..." onChange={onSearchKey} onFocus={() => showToast('Type to filter products & orders')} />
               </div>
-              <div className={styles['icon-btn']} onClick={() => setNotifOpen(true)}>
+              <div className={styles['icon-btn']} onClick={() => setNotifOpen(true)} aria-label="Notifications">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 10H0s6-3 6-10" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
                 {alerts.length > 0 && !notifRead && <div className={styles.badge} id="notifBadge">{alerts.length}</div>}
               </div>
+              <button
+                type="button"
+                className={cx('icon-btn', refreshing && 'spin')}
+                onClick={onRefresh}
+                title="Refresh data"
+                aria-label="Refresh dashboard data"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" /></svg>
+              </button>
             </div>
           </div>
 
@@ -607,7 +640,7 @@ export default function Overview() {
           </div>
 
           {/* --------------------------- charts row 1 --------------------------- */}
-          <div className={styles.grid3}>
+          <div className={cx('grid3', 'reveal')}>
             <div className={styles.card}>
               <div className={styles['card-h']}>
                 <div className={styles['card-t']}>Sales Overview <span className={styles.info} onClick={() => showToast('Sales comparison: this period vs previous')}>i</span></div>
@@ -624,13 +657,13 @@ export default function Overview() {
                 <span><b style={{ background: '#111' }} /> This Period</span>
                 {compare !== 'off' && <span><b style={{ background: '#c8c8c8' }} /> Previous Period</span>}
               </div>
-              <div className={styles['chart-main']} title="Open analytics" onClick={() => nav('/admin/analytics')}><canvas id="salesOverview" /></div>
+              <div className={styles['chart-main']} title="Open analytics" onClick={() => nav('/admin/analytics')}><canvas id="salesOverview" role="img" aria-label="Sales overview chart — revenue over the selected period" /></div>
             </div>
             <div className={styles.card}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Revenue by Product</span></div>
               <div className={styles['donut-row']}>
                 <div className={styles.donut} title="Open reports" onClick={() => nav('/admin/reports')}>
-                  <canvas id="salesChannel" />
+                  <canvas id="salesChannel" role="img" aria-label="Revenue by product chart" />
                   <div className={styles['donut-center']}><b>{prodSlices.total ? money(prodSlices.total) : '—'}</b><span>Total Sales</span></div>
                 </div>
                 <div className={styles['ch-list']}>
@@ -668,7 +701,7 @@ export default function Overview() {
           </div>
 
           {/* --------------------------- tables row ----------------------------- */}
-          <div className={styles.grid4}>
+          <div className={cx('grid4', 'reveal')}>
             <div className={styles.card}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Today at a Glance</span></div>
               <div className={styles.glance}>
@@ -751,13 +784,13 @@ export default function Overview() {
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {changeLabel(revChange)}
                 </span>
               </div>
-              <div className={styles['rev-chart']} title="Open reports" onClick={() => nav('/admin/reports')}><canvas id="revChart" /></div>
+              <div className={styles['rev-chart']} title="Open reports" onClick={() => nav('/admin/reports')}><canvas id="revChart" role="img" aria-label="Revenue vs orders trend chart" /></div>
             </div>
             <div className={styles.card}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Orders Status</span></div>
               <div className={styles['orders-flex']}>
                 <div className={styles['orders-donut']}>
-                  <canvas id="ordersDonut" />
+                  <canvas id="ordersDonut" role="img" aria-label="Order status donut chart" />
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <b style={{ fontSize: 13 }}>{stats ? int(stats.totalOrders) : '—'}</b>
                     <span style={{ fontSize: 10, color: 'var(--muted)' }}>Total Orders</span>
@@ -789,7 +822,7 @@ export default function Overview() {
                   <div className={styles['cust-sub']}>{vsLabel}</div>
                 </div>
               </div>
-              <div className={styles['cust-line']}><canvas id="custChart" /></div>
+              <div className={styles['cust-line']}><canvas id="custChart" role="img" aria-label="Customer growth line chart" /></div>
               <div className={styles['cust-bottom']}>
                 <div className={styles['cust-b']}>
                   <div style={{ fontSize: 9, color: 'var(--muted)' }}>New Customers (all time)</div>
@@ -820,7 +853,7 @@ export default function Overview() {
           </div>
 
           {/* ---------------------------- quick actions ------------------------- */}
-          <div className={styles.card} style={{ marginBottom: 10 }}>
+          <div className={cx('card', 'reveal')} style={{ marginBottom: 10 }}>
             <div className={styles['card-h']}><span className={styles['card-t']}>Quick Actions</span></div>
             <div className={styles.quick}>
               {QUICK_ACTIONS.map((qa) => (
@@ -833,7 +866,7 @@ export default function Overview() {
           </div>
 
           {/* --------------------------- smart insights ------------------------- */}
-          <div className={styles.card}>
+          <div className={cx('card', 'reveal')}>
             <div className={styles['card-h']}><span className={styles['card-t']}>• Smart Insights</span></div>
             {insights.length === 0 ? (
               <div className={styles['ovw-empty']}>Not enough data yet for insights — they appear as your store gets orders.</div>
