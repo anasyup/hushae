@@ -292,6 +292,33 @@ router.post('/:id/duplicate', protect, adminOnly, asyncHandler(async (req, res) 
  *                     isFeatured, isBestSeller, status, stockDelta (add/subtract)
  * Returns: { updated: N, modifiedIds: [...] }
  */
+/* ── RESTOCK RADAR — velocity-based reorder suggestions (30d) ──────────────
+ * sold-per-day from delivered+processing orders in the last 30 days;
+ * suggested = ceil(velocity * 30 * safety(1.5)) - current stock, floored at 0. */
+router.get('/restock-radar', protect, adminOnly, asyncHandler(async (req, res) => {
+  const since = new Date(Date.now() - 30 * 86400000);
+  const Order = require('../models/Order');
+  const orders = await Order.find({ createdAt: { $gte: since }, status: { $nin: ['Cancelled', 'Refunded'] } })
+    .select('items').lean();
+  const sold = {};
+  for (const o of orders) for (const it of o.items || []) {
+    sold[it.product] = (sold[it.product] || 0) + (it.quantity || 0);
+  }
+  const ids = Object.keys(sold);
+  if (!ids.length) return res.json({ suggestions: [] });
+  const prods = await Product.find({ _id: { $in: ids } }).select('name slug stock').lean();
+  const suggestions = prods
+    .map((p) => {
+      const velocity = (sold[String(p._id)] || 0) / 30;
+      const need = Math.ceil(velocity * 30 * 1.5) - (p.stock || 0);
+      return { id: String(p._id), name: p.name, slug: p.slug, stock: p.stock || 0, sold30: sold[String(p._id)] || 0, velocity: +velocity.toFixed(2), suggest: Math.max(0, need) };
+    })
+    .filter((x) => x.suggest > 0)
+    .sort((a, b) => b.suggest - a.suggest)
+    .slice(0, 10);
+  res.json({ suggestions });
+}));
+
 router.patch('/bulk', protect, adminOnly, asyncHandler(async (req, res) => {
   const { ids = [], patch = {} } = req.body || {};
   if (!Array.isArray(ids) || ids.length === 0) {

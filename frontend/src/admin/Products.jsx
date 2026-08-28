@@ -31,6 +31,7 @@ export default function Products() {
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(new Set());
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [radar, setRadar] = useState(null);
   const [csvOpen, setCsvOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -120,6 +121,12 @@ export default function Products() {
       load();
     } catch (ex) { toast(ex.message); }
   };
+
+  useEffect(() => {
+    api('/products/restock-radar', { token: auth?.token })
+      .then((d) => setRadar(d.suggestions || []))
+      .catch(() => setRadar([]));
+  }, [auth?.token]);
 
   /* ── Selection + bulk ────────────────────────────────────────────────── */
   const toggleSel = (id) => {
@@ -286,6 +293,26 @@ export default function Products() {
           )}
 
           {/* ── Bulk selection bar ────────────────────────────────────── */}
+          {radar && radar.length > 0 && (
+            <div className="pa-card" style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                <h2 style={{ fontSize: 13, fontWeight: 700 }}>Restock radar</h2>
+                <span className="pa-muted" style={{ fontSize: 10.5 }}>30-day sales velocity × 1.5 safety − stock</span>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                {radar.map((r) => (
+                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: '1px solid var(--admin-border-subtle, #f1f1f1)' }}>
+                    <Link to={`/admin/products/${r.id}`} style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 600, color: 'var(--admin-text, #111)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {r.name}
+                    </Link>
+                    <span className="pa-muted" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>{r.sold30} sold · {r.stock} left</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#b45309', whiteSpace: 'nowrap' }}>+{r.suggest}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {selected.size > 0 && (
             <div className="pa-bulk">
               <span className="pa-bulk-count">{selected.size} selected</span>

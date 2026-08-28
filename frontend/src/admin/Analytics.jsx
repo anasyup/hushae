@@ -111,6 +111,33 @@ export default function Analytics() {
       </section>
 
       <section className="mb-10">
+        <p className="adm-index">01b — Online store conversion</p>
+        <div className="border-y border-white/10">
+          {[
+            ['Sessions', a.kpis.sessions, '100'],
+            ['Added to cart', a.kpis.carts, a.kpis.sessions ? Math.max(1, Math.round((a.kpis.carts / a.kpis.sessions) * 100)) : 0],
+            ['Reached checkout', a.kpis.checkouts, a.kpis.sessions ? Math.max(1, Math.round((a.kpis.checkouts / a.kpis.sessions) * 100)) : 0],
+            ['Purchased', a.kpis.orders, a.kpis.sessions ? Math.max(1, Math.round((a.kpis.orders / a.kpis.sessions) * 100)) : 0],
+          ].map(([label, val, pct], i, arr) => (
+            <div key={label} className={i < arr.length - 1 ? 'border-b border-white/5' : ''}>
+              <div className="flex items-center justify-between px-4 py-3 sm:px-5">
+                <p className="text-[12px] text-white/70">{label}</p>
+                <p className="text-[12px] tabular-nums text-white/70">
+                  <span className="text-white">{Number(val).toLocaleString()}</span> · {pct}%
+                </p>
+              </div>
+              <div className="h-1 w-full bg-white/5">
+                <div className="h-full bg-white/60" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
+          Shopify-style funnel — sessions to purchase, for the selected range.
+        </p>
+      </section>
+
+      <section className="mb-10">
         <p className="adm-index">02 — Sales</p>
         <div className="mb-8">
           <p className="adm-label mb-4">Revenue over time</p>
