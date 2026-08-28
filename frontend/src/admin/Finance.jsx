@@ -76,18 +76,7 @@ export default function Finance() {
         type="button"
         className="adm-chip"
         disabled={!c}
-        onClick={() => exportPnlReport({
-          summary: {
-            revenue: c.revenue, grossProfit: c.grossProfit, netProfit: c.netProfit,
-            margin: c.netMargin, grossMargin: c.grossMargin, aov: c.aov, orderCount: c.orders,
-            itemCount: 0, totalExpense: (c.costs?.total || 0) + (c.opexTotal || 0),
-            daily: c.daily, paymentMix: c.paymentMix, insights: [],
-            statement, memos,
-          },
-          rangeLabel: `${days} days`,
-          sinceDate: d.range.from,
-          until: d.range.to,
-        })}
+        onClick={() => exportPnlReport({ data: d, rangeLabel: `Last ${c.days} days` })}
       >
         <FileText size={13} /> P&amp;L
       </button>
