@@ -66,7 +66,7 @@ function NodePanel() {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {breadcrumb && (
-              <button onClick={() => select(section.id)} className="flex items-center gap-1 text-[13px] text-neutral-400 hover:text-[#FFFFFF]">
+              <button onClick={() => select(section.id)} className="flex items-center gap-1 text-[13px] text-neutral-400 hover:text-[#005BD3]">
                 <ChevronLeft size={11} /> {breadcrumb}
               </button>
             )}
@@ -78,7 +78,7 @@ function NodePanel() {
                 <button onClick={() => duplicate(node.id)} title="Duplicate"
                   className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-neutral-100"><Copy size={13} /></button>
                 <button onClick={() => { if (window.confirm(`Delete “${labelFor(node)}”? This cannot be undone.`)) remove(node.id); }} title="Delete"
-                  className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-white/5 hover:text-white"><Trash2 size={13} /></button>
+                  className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-[#FDECEC] hover:text-[#C0392B]"><Trash2 size={13} /></button>
               </>
             )}
             <button onClick={() => select(null)} title="Close"

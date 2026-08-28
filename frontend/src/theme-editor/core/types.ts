@@ -268,4 +268,6 @@ export type PreviewToEditor =
   /** Toolbar actions fired from the on-canvas chrome. */
   | { source: 'hushae-preview'; type: 'nudge'; id: string; delta: number }
   | { source: 'hushae-preview'; type: 'duplicate'; id: string }
-  | { source: 'hushae-preview'; type: 'delete'; id: string };
+  | { source: 'hushae-preview'; type: 'delete'; id: string }
+  /** Inline "+ Add section" button pressed in the preview (Shopify OS 2.0). */
+  | { source: 'hushae-preview'; type: 'add-section'; group: SectionGroup };

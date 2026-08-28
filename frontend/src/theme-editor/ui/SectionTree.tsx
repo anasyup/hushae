@@ -44,7 +44,7 @@ export default function SectionTree() {
     <div className="te-scroll flex-1 overflow-y-auto pb-6">
       {(['header', 'body', 'footer'] as SectionGroup[]).map((group) => (
         <div key={group} className="border-b border-neutral-100 py-1.5">
-          <p className="px-3 py-1.5 text-[15px] font-bold uppercase tracking-[0.12em] text-neutral-400">
+          <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
             {GROUP_LABEL[group]}
           </p>
           {doc[group]
@@ -55,7 +55,7 @@ export default function SectionTree() {
             ))}
           {group !== 'header' && (
             <button onClick={() => openAddSection(group)}
-              className="mx-1.5 mt-1 flex w-[calc(100%-12px)] items-center gap-2 rounded-md px-2 py-2 text-left text-[15px] font-medium text-[#FFFFFF] transition hover:bg-[#FFFFFF]/8">
+              className="te-add-zone mx-1.5 mt-2 flex w-[calc(100%-12px)] items-center justify-center gap-2 rounded-md border border-dashed border-neutral-300 px-2 py-2 text-left text-[13.5px] font-medium text-neutral-600 transition hover:border-[#005BD3] hover:bg-[#EAF3FB] hover:text-[#005BD3]">
               <Plus size={14} /> Add section
             </button>
           )}
@@ -142,28 +142,28 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
         onDoubleClick={() => { setDraft(labelFor(node)); setEditing(true); }}
         title={schema?.description || labelFor(node)}
         className={`group relative mx-1.5 flex items-center gap-1 rounded-md pr-1 transition ${
-          active ? 'bg-[#FFFFFF]/10' : 'hover:bg-neutral-100'
-        } ${dragOver === 'inside' ? 'ring-2 ring-inset ring-[#FFFFFF]' : ''}`}
+          active ? 'bg-[#EAF3FB]' : 'hover:bg-neutral-100'
+        } ${dragOver === 'inside' ? 'ring-2 ring-inset ring-[#005BD3]' : ''}`}
         style={{ paddingLeft: 4 + depth * 14 }}
       >
         {hasKids ? (
           <button onClick={(e) => { e.stopPropagation(); toggleExpanded(node.id); }}
-            className="grid h-7 w-5 shrink-0 place-items-center text-neutral-400 hover:text-neutral-900">
+            className="grid h-7 w-5 shrink-0 place-items-center text-neutral-400 hover:text-neutral-700">
             {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
         ) : <span className="w-5 shrink-0" />}
 
         <Icon name={(schema as any)?.icon || 'Square'} size={13}
-          className={`shrink-0 ${node.hidden ? 'text-neutral-300' : active ? 'text-[#FFFFFF]' : 'text-neutral-500'}`} />
+          className={`shrink-0 ${node.hidden ? 'text-neutral-300' : active ? 'text-[#005BD3]' : 'text-neutral-500'}`} />
 
         {editing ? (
           <input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)}
             onBlur={commitRename} onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setEditing(false); }}
             onClick={(e) => e.stopPropagation()}
-            className="min-w-0 flex-1 rounded border border-[#FFFFFF] px-1 py-0.5 text-[15px] outline-none" />
+            className="min-w-0 flex-1 rounded border border-[#005BD3] px-1 py-0.5 text-[15px] outline-none ring-2 ring-[#005BD3]/15" />
         ) : (
           <span className={`min-w-0 flex-1 truncate py-1.5 text-[15px] ${
-            node.hidden ? 'text-neutral-400 line-through' : active ? 'font-medium text-neutral-900' : 'text-neutral-700'
+            node.hidden ? 'text-neutral-400 line-through' : active ? 'font-semibold text-[#005BD3]' : 'text-neutral-700'
           }`}>
             {labelFor(node)}
           </span>
@@ -182,7 +182,7 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
 
       {expanded && canNest && (
         <button onClick={(e) => { e.stopPropagation(); openAddBlock(node.id); }}
-          className="mx-1.5 flex items-center gap-1.5 rounded-md py-1.5 text-left text-[13.5px] font-medium text-neutral-500 transition hover:text-[#FFFFFF]"
+          className="mx-1.5 flex items-center gap-1.5 rounded-md py-1.5 text-left text-[13.5px] font-medium text-neutral-500 transition hover:text-[#005BD3]"
           style={{ paddingLeft: 24 + depth * 14 }}>
           <Plus size={12} /> Add block
         </button>

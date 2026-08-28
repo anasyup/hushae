@@ -190,7 +190,7 @@ export default function ThemeEditorApp() {
         {mobilePanel === 'inspector' && (
           <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
         )}
-        <aside className={`z-40 w-[320px] shrink-0 border-l border-white/10 bg-[#0A0A0A] ${
+        <aside className={`z-40 w-[320px] shrink-0 border-l border-[#E1E3E5] bg-white ${
           mobilePanel === 'inspector' ? 'absolute inset-y-0 right-0 md:static' : 'hidden md:block'
         }`}>
           <Inspector />

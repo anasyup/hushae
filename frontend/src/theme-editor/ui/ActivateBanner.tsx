@@ -19,7 +19,7 @@ export default function ActivateBanner({ onActivate }: { onActivate: () => Promi
       <button
         onClick={async () => { setBusy(true); await onActivate(); setBusy(false); }}
         disabled={busy}
-        className="shrink-0 rounded-[4px] bg-black px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#FFFFFF] disabled:opacity-35"
+        className="shrink-0 rounded-[4px] bg-[#008060] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white disabled:opacity-35 hover:bg-[#007755]"
       >
         {busy ? 'Activating…' : 'Activate editor'}
       </button>

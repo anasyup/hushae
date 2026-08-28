@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PageDocument, SettingsBag } from '../core/types';
 import { SectionRenderer } from './SectionRenderer';
+import { Plus as PlusIcon } from 'lucide-react';
 import { RenderProvider, type StoreData } from './RenderContext';
+import type { SectionGroup } from '../core/types';
 import { themeToCssVars } from '../schemas/theme';
 import { api } from '../../api/client';
 
@@ -24,9 +26,11 @@ interface Props {
   onHover?: (id: string | null) => void;
   /** Route data: { product?, collectionSlug?, page? } */
   pageData?: { product?: any; collectionSlug?: string; page?: any };
+  /** Shopify-style inline "+ Add section" zones (editable preview only). */
+  onAddSection?: (group: SectionGroup) => void;
 }
 
-export default function PageRenderer({ doc, theme, editable = false, selectedId, hoveredId, onSelect, onHover, pageData }: Props) {
+export default function PageRenderer({ doc, theme, editable = false, selectedId, hoveredId, onSelect, onHover, pageData, onAddSection }: Props) {
   const [products, setProducts] = useState<Record<string, any[]>>({});
   const [collectionSort, setCollectionSort] = useState<string>('newest');
   const [data, setData] = useState<StoreData>({
@@ -109,9 +113,35 @@ export default function PageRenderer({ doc, theme, editable = false, selectedId,
         onClick={editable ? () => onSelect?.('') : undefined}>
         {theme.customCss ? <style>{String(theme.customCss)}</style> : null}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--t-section-gap)' }}>
-          {all.map((s) => <SectionRenderer key={s.id} section={s} />)}
+          {editable && onAddSection && (
+            <ZoneAdd label="Header" group="header" onAdd={onAddSection} />
+          )}
+          {doc.body.map((s) => <SectionRenderer key={s.id} section={s} />)}
+          {editable && onAddSection && (
+            <ZoneAdd label="Template" group="body" onAdd={onAddSection} />
+          )}
+          {doc.footer.map((s) => <SectionRenderer key={s.id} section={s} />)}
+          {editable && onAddSection && (
+            <ZoneAdd label="Footer" group="footer" onAdd={onAddSection} />
+          )}
         </div>
       </div>
     </RenderProvider>
+  );
+}
+
+/* Shopify-style inline zone add button — dashed ghost row that opens the
+   Add-section drawer for the header/body/footer zone it belongs to. */
+function ZoneAdd({ label, group, onAdd }: { label: string; group: SectionGroup; onAdd: (g: SectionGroup) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onAdd(group); }}
+      className="te-zone-add"
+      title={`Add section to ${label}`}
+    >
+      <PlusIcon size={15} /> Add section
+      <span className="te-zone-add-zone">{label}</span>
+    </button>
   );
 }

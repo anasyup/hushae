@@ -107,6 +107,7 @@ export default function PreviewApp() {
         hoveredId={hoveredId}
         onSelect={(id) => { setSelectedId(id || null); send({ type: 'select', id: id || '' } as any); }}
         onHover={(id) => { setHoveredId(id); send({ type: 'hover', id } as any); }}
+        onAddSection={(group) => send({ type: 'add-section', group } as any)}
       />
 
       <PreviewOverlay

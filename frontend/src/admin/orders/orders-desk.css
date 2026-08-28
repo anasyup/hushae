@@ -762,8 +762,8 @@
 
 /* Buttons inside analytics head get the luxury press */
 .od-head h2 { font-size: 24px; }
- * PREMIUM LUXURY PASS v2 — boss: "premium, luxury, modern; rounded cards,
- * soft shadows, subtle gradients, glass where it suits, micro-interactions".
+/* PREMIUM LUXURY PASS v2 — boss: 'premium, luxury, modern; rounded cards,
+ * soft shadows, subtle gradients, glass where it suits, micro-interactions'.
  * Additive override layer: same class names, elevated visuals. Dark admin
  * parity included. Zero JS cost — pure CSS, maintainable tokens.
  * ════════════════════════════════════════════════════════════════════════ */

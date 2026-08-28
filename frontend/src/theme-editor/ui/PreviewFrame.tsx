@@ -50,6 +50,7 @@ export default function PreviewFrame() {
       if (d.type === 'nudge') useEditor.getState().move(d.id, d.delta);
       if (d.type === 'duplicate') useEditor.getState().duplicate(d.id);
       if (d.type === 'delete') useEditor.getState().remove(d.id);
+      if (d.type === 'add-section') useEditor.getState().openAddSection(d.group);
     };
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
@@ -71,10 +72,10 @@ export default function PreviewFrame() {
   const width = FRAME_W[device];
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-auto bg-neutral-200/70 p-5">
+    <div className="te-canvas flex flex-1 items-start justify-center overflow-auto p-6">
       <div
-        className="overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-[width] duration-300"
-        style={{ width, maxWidth: '100%', height: 'calc(100vh - 96px)' }}
+        className="te-device-frame overflow-hidden bg-white transition-[width] duration-300"
+        style={{ width, maxWidth: '100%', height: 'calc(100vh - 100px)' }}
       >
         <iframe
           ref={ref}

@@ -91,7 +91,7 @@ export function AddSectionPanel() {
                 const atLimit = s.limit !== undefined && (counts.get(s.type) || 0) >= s.limit;
                 return (
                   <button key={s.type} disabled={atLimit} onClick={() => insert(s.type, group)}
-                    className="flex w-full items-start gap-3 rounded-lg px-2.5 py-2.5 text-left transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-40">
+                    className="group flex w-full items-start gap-3 rounded-lg px-2.5 py-2.5 text-left transition hover:bg-[#EAF3FB] disabled:cursor-not-allowed disabled:opacity-40">
                     <SectionThumb type={s.type} />
                     <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-md bg-neutral-100 text-neutral-600">
                       <Icon name={s.icon} size={15} />
