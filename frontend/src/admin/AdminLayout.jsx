@@ -127,7 +127,6 @@ const NAV_SECTIONS = [
         icon: Package,
         children: [
           { to: '/admin/products', label: 'Products', icon: Package },
-          { to: '/admin/products/inventory', label: 'Inventory', icon: Box },
           { to: '/admin/categories', label: 'Categories', icon: Tag },
           { to: '/admin/collections', label: 'Collections', icon: FolderOpen },
           { to: '/admin/reviews', label: 'Reviews & Questions', icon: Star },
