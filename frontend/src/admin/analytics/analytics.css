@@ -192,6 +192,33 @@
   margin-bottom: 8px;
 }
 
+/* ── chart placement ───────────────────────────────────────────────────── */
+/* a chart dropped inside a row-based section, separated from the table */
+.an-chart-block {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--od-border-light);
+}
+
+/* benchmark gauges: 3 across, wrapping */
+.an-gauges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 10px 16px;
+  align-items: end;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--od-border-light);
+}
+
+/* donut pairs side by side */
+.an-donuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px 28px;
+}
+.an-donut-cell { min-width: 0; }
+
 /* ── chips & pills ─────────────────────────────────────────────────────── */
 .an-chip {
   display: inline-flex;

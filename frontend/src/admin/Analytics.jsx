@@ -11,6 +11,9 @@ import {
 import {
   COUPON_COLS, CUSTOM_COLS, CUSTOMER_COLS, PRODUCT_COLS, QUALITY_COLS, VARIANT_COLS, WINBACK_COLS,
 } from './analytics/columns';
+import {
+  BubbleScatter, CandleChart, DonutChart, GaugeChart, ParetoChart, toCandles,
+} from './analytics/svgcharts';
 
 /* ============================================================================
  * ANALYTICS = INTELLIGENCE (reports), NOT a second dashboard.
@@ -209,6 +212,26 @@ export default function Analytics() {
   const maxVarRev = Math.max(...vars_.map((v) => v.revenue || 0), 1);
   const totOrders = (adv?.custom || []).reduce((s, r) => s + (r.orders || 0), 0);
   const totRev = (adv?.custom || []).reduce((s, r) => s + (r.revenue || 0), 0);
+  const { candles: revCandles } = toCandles(bench?.series || [], 6);
+  const candleTrend = revCandles.length >= 2 && revCandles[0].total > 0
+    ? Math.round(((revCandles[revCandles.length - 1].total - revCandles[0].total) / revCandles[0].total) * 100)
+    : 0;
+
+  /* benchmark scorecard — computed once, drawn as gauges AND as rows */
+  const refundRate = bench?.kpis?.orders
+    ? +(((adv?.quality || a?.quality || []).reduce((t, q) => t + q.returns, 0) / bench.kpis.orders) * 100).toFixed(1)
+    : 0;
+  const benchmarks = [
+    { label: 'Conversion rate', value: +(bench?.kpis?.conversion || 0).toFixed(1), lo: 1.5, hi: 2.5 },
+    { label: 'Repeat purchase rate', value: adv?.repeatRate ?? a?.repeatRate ?? 0, lo: 15, hi: 25 },
+    { label: 'Refund rate', value: refundRate, lo: 0, hi: 5, lower: true },
+  ].map((m) => {
+    const good = m.lower ? m.value <= m.hi : m.value >= m.lo;
+    const note = m.lower
+      ? (good ? 'healthy' : 'above target — check quality')
+      : (m.value < m.lo ? 'below benchmark' : m.value > m.hi * 1.6 ? 'above benchmark' : 'in range');
+    return { ...m, good, note };
+  });
 
   return (
     <AdminLayout title="Analytics">
@@ -349,7 +372,7 @@ export default function Analytics() {
             * Order = how a owner reads the store: score → conversion →
             * customers → marketing → product depth → retention → quality →
             * build-your-own. */}
-          <div className="an-grid">
+          <div className="an-grid an-charts">
 
             {/* ── 1 · scorecard vs industry ─────────────────────────────── */}
             {bench?.kpis && (
@@ -358,29 +381,35 @@ export default function Analytics() {
                 title="You vs industry benchmarks"
                 subtitle={`${rangeLabel} · where the store sits against typical fashion e-commerce`}
               >
-                {[
-                  { label: 'Conversion rate', value: +(bench.kpis.conversion || 0).toFixed(1), lo: 1.5, hi: 2.5 },
-                  { label: 'Repeat purchase rate', value: adv?.repeatRate ?? a?.repeatRate ?? 0, lo: 15, hi: 25 },
-                  {
-                    label: 'Refund rate',
-                    value: bench.kpis.orders
-                      ? +(((adv?.quality || a?.quality || []).reduce((s, q) => s + q.returns, 0) / bench.kpis.orders) * 100).toFixed(1)
-                      : 0,
-                    lo: 0, hi: 5, lower: true,
-                  },
-                ].map((m) => {
-                  const good = m.lower ? m.value <= m.hi : m.value >= m.lo;
-                  const note = m.lower
-                    ? (good ? 'healthy' : 'above target — check quality')
-                    : (m.value < m.lo ? 'below benchmark' : m.value > m.hi * 1.6 ? 'above benchmark' : 'in range');
-                  return (
-                    <BenchRow key={m.label} label={m.label} value={m.value} lo={m.lo} hi={m.hi} note={note} good={good} />
-                  );
-                })}
+                <div className="an-gauges">
+                  {benchmarks.map((m) => (
+                    <GaugeChart key={m.label} value={m.value} lo={m.lo} hi={m.hi} label={m.label} />
+                  ))}
+                </div>
+                {benchmarks.map((m) => (
+                  <BenchRow key={m.label} label={m.label} value={m.value} lo={m.lo} hi={m.hi} note={m.note} good={m.good} />
+                ))}
               </Section>
             )}
 
-            {/* ── 2 · product conversion ────────────────────────────────── */}
+            {/* ── 2 · revenue candles ─────────────────────────────────────── */}
+            {bench?.series?.length > 1 && (
+              <Section
+                className="an-c12"
+                delay={40}
+                title="Revenue candles"
+                subtitle="Each candle is a period of real daily sales — open, high, low, close. Green = the period ended higher than it started."
+                actions={
+                  <Chip tone={candleTrend >= 0 ? 'good' : 'bad'}>
+                    {candleTrend >= 0 ? '▲' : '▼'} {Math.abs(candleTrend)}% first → last period
+                  </Chip>
+                }
+              >
+                <CandleChart series={bench.series} fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`} />
+              </Section>
+            )}
+
+            {/* ── 3 · product conversion ────────────────────────────────── */}
             {a && (
               <Section
                 className="an-c12"
@@ -396,6 +425,12 @@ export default function Analytics() {
                       <b>{burners.length} product{burners.length === 1 ? '' : 's'}</b> pulling traffic but converting under 1% —
                       check price, photos or stock: {burners.slice(0, 3).map((b) => b.name).join(', ')}.
                     </span>
+                  </div>
+                )}
+                {a.productIntel.length > 0 && (
+                  <div className="an-chart-block">
+                    <p className="an-sub-h">Views vs conversion</p>
+                    <BubbleScatter points={a.productIntel} target={1.5} />
                   </div>
                 )}
                 {a.productIntel.length === 0 ? (
@@ -433,7 +468,7 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 3 · customer value ────────────────────────────────────── */}
+            {/* ── 4 · customer value ────────────────────────────────────── */}
             {a && (
               <Section
                 className="an-c7"
@@ -476,7 +511,51 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 4 · marketing ROI ─────────────────────────────────────── */}
+            {/* ── 5 · revenue mix ─────────────────────────────────────────── */}
+            {(bench?.byCategory?.length > 0 || bench?.byPayment?.length > 0) && (
+              <Section
+                className="an-c12"
+                delay={210}
+                title="Where the money comes from"
+                subtitle={`Revenue split, ${rangeLabel.toLowerCase()} — hover a slice or a legend row for its share`}
+              >
+                <div className="an-donuts">
+                  <div className="an-donut-cell">
+                    <p className="an-sub-h">By category</p>
+                    <DonutChart
+                      label="Categories"
+                      data={(bench.byCategory || []).map((c) => ({ label: c.cat, value: c.revenue }))}
+                      fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`}
+                    />
+                  </div>
+                  <div className="an-donut-cell">
+                    <p className="an-sub-h">By payment method</p>
+                    <DonutChart
+                      label="Payments"
+                      data={(bench.byPayment || []).map((p) => ({ label: p.method || 'Unspecified', value: p.revenue }))}
+                      fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`}
+                    />
+                  </div>
+                </div>
+              </Section>
+            )}
+
+            {/* ── 6 · revenue concentration ─────────────────────────────────── */}
+            {bench?.topProducts?.length > 0 && (
+              <Section
+                className="an-c12"
+                delay={240}
+                title="Revenue concentration"
+                subtitle="Top products with the running share of total revenue — shows how much rides on how few lines"
+              >
+                <ParetoChart
+                  rows={bench.topProducts}
+                  fmt={(v) => `Rs ${Math.round(v).toLocaleString('en-US')}`}
+                />
+              </Section>
+            )}
+
+            {/* ── 7 · marketing ROI ─────────────────────────────────────── */}
             {a && (
               <Section className="an-c5" delay={180} title="Marketing ROI" subtitle="Coupons & cart recovery, same window">
                 <p className="an-sub-h">Cart recovery</p>
@@ -519,7 +598,7 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 5 · variant depth ─────────────────────────────────────── */}
+            {/* ── 8 · variant depth ─────────────────────────────────────── */}
             {adv?.variants?.length > 0 && (
               <Section
                 className="an-c12"
@@ -543,7 +622,7 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 6 · retention ─────────────────────────────────────────── */}
+            {/* ── 9 · retention ─────────────────────────────────────────── */}
             {adv && (
               <Section className="an-c7" delay={300} title="Cohort retention" subtitle="Repeat purchase % by month after first order">
                 {adv.cohorts.length === 0 ? (
@@ -554,7 +633,7 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 7 · win-back list ─────────────────────────────────────── */}
+            {/* ── 10 · win-back list ─────────────────────────────────────── */}
             {adv && (
               <Section className="an-c5" delay={360} title="Win-back list" subtitle="Repeat buyers silent for 60+ days">
                 {adv.atRisk.length === 0 ? (
@@ -594,7 +673,7 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 8 · quality ───────────────────────────────────────────── */}
+            {/* ── 11 · quality ───────────────────────────────────────────── */}
             {a && (
               <Section className="an-c4" delay={420} title="Product quality" subtitle="Returns by product, this window">
                 {a.quality.length === 0 ? (
@@ -619,7 +698,7 @@ export default function Analytics() {
               </Section>
             )}
 
-            {/* ── 9 · build-your-own report ─────────────────────────────── */}
+            {/* ── 12 · build-your-own report ─────────────────────────────── */}
             {adv && (
               <Section
                 className="an-c8"
