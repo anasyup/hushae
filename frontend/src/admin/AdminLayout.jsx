@@ -172,6 +172,7 @@ const NAV_SECTIONS = [
       { to: '/admin/settings/payments', label: 'Payments', icon: CreditCard },
       { to: '/admin/settings/taxes', label: 'Taxes & Duties', icon: Calculator },
       { to: '/admin/finance', label: 'Finance', icon: DollarSign },
+      { to: '/admin/finance/transactions', label: 'Transactions', icon: CreditCard },
     ],
   },
   {

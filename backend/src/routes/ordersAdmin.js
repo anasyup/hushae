@@ -516,6 +516,30 @@ router.get('/cancellation-reasons', protect, adminOnly, asyncHandler(async (req,
 }));
 
 /* ── SINGLE ORDER (with timeline, payments, issues, prints) ───────────────── */
+/* ── TRANSACTIONS LEDGER — every payment across methods, filterable ─────── */
+router.get('/transactions', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { method = 'all', state = 'all', limit = 200 } = req.query;
+  const f = {};
+  if (method !== 'all') f.paymentMethod = method;
+  if (state !== 'all') f.paymentState = state;
+  const rows = await Order.find(f)
+    .sort({ createdAt: -1 })
+    .limit(Math.min(500, Number(limit) || 200))
+    .select('orderNumber customerInfo.name paymentMethod paymentState paymentStatus transactionId total createdAt')
+    .lean();
+  res.json({
+    transactions: rows.map((o) => ({
+      id: o.orderNumber,
+      customer: o.customerInfo?.name || '',
+      method: o.paymentMethod,
+      state: o.paymentState || (o.paymentStatus === 'Paid' ? 'Confirmed' : 'Pending'),
+      ref: o.transactionId || '',
+      total: o.total || 0,
+      at: o.createdAt,
+    })),
+  });
+}));
+
 /* ── COD RECONCILIATION — expected vs collected, per courier ────────────── */
 router.get('/cod-recon', protect, adminOnly, asyncHandler(async (req, res) => {
   const SHIP = ['Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Completed'];

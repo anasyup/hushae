@@ -108,6 +108,7 @@ const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'))
 const Inbox = lazy(() => import('./admin/Inbox'));
 const CODRecon = lazy(() => import('./admin/CODRecon'));
 const SettingsTeam = lazy(() => import('./admin/SettingsTeam'));
+const Transactions = lazy(() => import('./admin/Transactions'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -268,7 +269,7 @@ const ADMIN_REDIRECTS = {
   '/admin/shipping/settings': '/admin/settings/shipping',
   '/admin/payments/methods': '/admin/settings/payments',
   '/admin/payments/providers': '/admin/settings/payments',
-  '/admin/payments/transactions': '/admin/finance',
+  '/admin/payments/transactions': '/admin/finance/transactions',
   '/admin/payments/payouts': '/admin/finance',
   '/admin/payments/invoices': '/admin/finance',
   '/admin/payments/refunds': '/admin/finance',
@@ -538,6 +539,7 @@ export default function App() {
           <Route path="/admin/analytics" element={<Suspense fallback={<EditorFallback />}><Analytics /></Suspense>} />
           <Route path="/admin/insights" element={<Suspense fallback={<EditorFallback />}><Insights /></Suspense>} />
           <Route path="/admin/finance" element={<Suspense fallback={<EditorFallback />}><Finance /></Suspense>} />
+          <Route path="/admin/finance/transactions" element={<Suspense fallback={<EditorFallback />}><Transactions /></Suspense>} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
           <Route path="/admin/abandoned-carts/:id" element={<Suspense fallback={<EditorFallback />}><AbandonedCartDetail /></Suspense>} />
           <Route path="/admin/reviews" element={<Reviews />} />
