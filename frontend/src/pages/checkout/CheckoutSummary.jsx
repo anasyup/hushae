@@ -6,13 +6,10 @@ import CouponBox from '../cart/CouponBox';
 
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 
-import { money, useFx, fxNote } from '../../lib/fx';
-
 export default function CheckoutSummary({
   cart, pricing, cartCfg, checkoutCfg, applied, onApply, onRemoveCoupon,
   onSubmit, busy, disabled, onQty
 }) {
-  useFx();
   return (
     <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-xs font-sans">
       {/* Header */}
@@ -73,7 +70,7 @@ export default function CheckoutSummary({
               )}
             </div>
 
-            <span className="shrink-0 text-xs font-medium text-[#000000]">{money(l.price * l.qty)}</span>
+            <span className="shrink-0 text-xs font-medium text-[#000000]">{pkr(l.price * l.qty)}</span>
           </li>
         ))}
       </ul>
@@ -87,27 +84,27 @@ export default function CheckoutSummary({
       <div className="border-t border-[#EAEAEA] pt-4 space-y-2.5 text-xs">
         <div className="flex justify-between text-[#555555] font-light">
           <span>Subtotal</span>
-          <span className="text-[#000000] font-normal">{money(pricing.subtotal)}</span>
+          <span className="text-[#000000] font-normal">{pkr(pricing.subtotal)}</span>
         </div>
 
         {pricing.discount > 0 && (
           <div className="flex justify-between text-[#000000] font-medium">
             <span>Discount ({applied?.code})</span>
-            <span>− {money(pricing.discount)}</span>
+            <span>− {pkr(pricing.discount)}</span>
           </div>
         )}
 
         <div className="flex justify-between text-[#555555] font-light">
           <span>Delivery</span>
           <span className="text-[#000000] font-normal">
-            {pricing.shipping === 0 ? 'Free' : money(pricing.shipping)}
+            {pricing.shipping === 0 ? 'Free' : pkr(pricing.shipping)}
           </span>
         </div>
 
         <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-3.5 text-sm">
           <span className="font-medium text-[#000000]">Total</span>
-          <span className="font-sans text-xl font-medium text-[#000000]">{money(pricing.total)}</span>
-        {fxNote() && <p className="mt-1 text-right text-[10px] text-[#6b7280]">{fxNote()}</p>}</div>
+          <span className="font-sans text-xl font-medium text-[#000000]">{pkr(pricing.total)}</span>
+        </div>
       </div>
 
       {/* 1-Tap Place Order Button (Smooth Oval Pill) */}

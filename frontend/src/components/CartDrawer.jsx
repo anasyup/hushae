@@ -34,10 +34,7 @@ import { useCartPricing } from '../pages/cart/useCartPricing';
 
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 
-import { money, useFx } from '../lib/fx';
-
 export default function CartDrawer() {
-  useFx();
   const {
     drawerOpen, setDrawerOpen, cart, updateQty, removeLine, settings,
   } = useApp();
@@ -302,7 +299,7 @@ export default function CartDrawer() {
                           {/* Unit Price (Bold Dark Text) */}
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-[16px] sm:text-[17px] font-bold text-[#111827] tracking-tight tabular-nums">
-                              {money(l.price)}
+                              {pkr(l.price)}
                             </span>
 
                             {/* Subtle Delete Trigger */}
@@ -335,7 +332,7 @@ export default function CartDrawer() {
                             Estimate Total
                           </span>
                           <span className="text-[17px] sm:text-[18px] font-bold text-[#111827] tabular-nums tracking-tight">
-                            {money(l.price * l.qty)}
+                            {pkr(l.price * l.qty)}
                           </span>
                         </div>
 
@@ -412,7 +409,7 @@ export default function CartDrawer() {
                               <div className="flex items-center justify-between rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2 text-xs text-emerald-800">
                                 <span className="flex items-center gap-1.5">
                                   <Check size={13} />
-                                  Voucher <strong>{applied.code}</strong> applied (−{money(applied.discount)})
+                                  Voucher <strong>{applied.code}</strong> applied (−{pkr(applied.discount)})
                                 </span>
                                 <button
                                   type="button"
@@ -439,13 +436,13 @@ export default function CartDrawer() {
                 <div className="space-y-1">
                   <div className="flex items-baseline justify-between text-xs uppercase tracking-wider">
                     <span className="text-[#000000] font-normal">Subtotal</span>
-                    <span className="font-semibold text-[#000000] tabular-nums text-sm">{money(pricing.subtotal)}</span>
+                    <span className="font-semibold text-[#000000] tabular-nums text-sm">{pkr(pricing.subtotal)}</span>
                   </div>
 
                   {applied && (
                     <div className="flex items-baseline justify-between text-xs text-emerald-700">
                       <span>Discount ({applied.code})</span>
-                      <span className="tabular-nums">− {money(applied.discount)}</span>
+                      <span className="tabular-nums">− {pkr(applied.discount)}</span>
                     </div>
                   )}
 
@@ -458,7 +455,7 @@ export default function CartDrawer() {
                 {/* Grand Total */}
                 <div className="flex items-baseline justify-between text-xs uppercase tracking-wider border-t border-neutral-100 pt-3 font-semibold text-[#000000]">
                   <span>Total Due</span>
-                  <span className="text-lg font-bold tabular-nums text-[#111827]">{money(pricing.total)}</span>
+                  <span className="text-lg font-bold tabular-nums text-[#111827]">{pkr(pricing.total)}</span>
                 </div>
 
                 {/* Dual "GOL" Action Pills */}

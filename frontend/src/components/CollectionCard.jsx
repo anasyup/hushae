@@ -29,10 +29,7 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-import { money, useFx } from '../lib/fx';
-
 export default function CollectionCard({ product: p, priority = false, rank = null, flush = false }) {
-  useFx();
   const { addToCart, inWishlist, toggleWish } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -267,11 +264,11 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
             ) : (
               <>
                 <span className="font-medium text-[#000000] tabular-nums">
-                  {money(p.price)}
+                  {pkr(p.price)}
                 </span>
                 {onSaleP && p.compareAtPrice > p.price && (
                   <span className="text-[11px] text-neutral-400 line-through font-light tabular-nums">
-                    {money(p.compareAtPrice)}
+                    {pkr(p.compareAtPrice)}
                   </span>
                 )}
               </>

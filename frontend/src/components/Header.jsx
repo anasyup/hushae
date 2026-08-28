@@ -9,7 +9,6 @@ import MegaMenu from './header/MegaMenu';
 import MegaPanel from './header/MegaPanel';
 import MobileDrawer from './header/MobileDrawer';
 import { useCmsNav } from '../lib/useCmsNav';
-import { useFx, setCurrency, getCurrency } from '../lib/fx';
 import SearchPanel from './search/SearchPanel';
 
 /* ============================================================================
@@ -35,7 +34,6 @@ export default function Header() {
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const fx = useFx();
   const [searchCfg, setSearchCfg] = useState(null);
   const [mega, setMega] = useState(null);
   const loc = useLocation();
@@ -202,23 +200,10 @@ export default function Header() {
               </button>
             )}
             {showWishlist && (
-              <>
-              <label className="hidden items-center gap-1 md:flex" title="Display currency (approximate)">
-            <select
-              value={fx}
-              onChange={(e) => setCurrency(e.target.value)}
-              aria-label="Display currency"
-              className="h-9 border-0 bg-transparent text-[11px] font-medium uppercase tracking-[0.12em] text-[#000000] outline-none"
-            >
-              {['PKR', 'USD', 'EUR', 'GBP', 'AED'].map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </label>
-
-          <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
+              <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                 className="hit-44 hidden p-1 text-[#000000] transition-opacity duration-200 hover:opacity-60 sm:block">
                 <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
-              </>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
