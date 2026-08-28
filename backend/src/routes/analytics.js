@@ -234,4 +234,115 @@ router.get('/intelligence', asyncHandler(async (req, res) => {
   });
 }));
 
+/* ── ADVANCED INTELLIGENCE — the $399-plan features, free ──────────────────
+ * cohorts, at-risk customers, variant performance and a custom report
+ * builder (dimension x metric), all from existing data. */
+router.get('/advanced', asyncHandler(async (req, res) => {
+  const Order = require('../models/Order');
+  const { dim = 'category', metric = 'revenue' } = req.query;
+  const rangeKey = RANGES[req.query.range] ? req.query.range : '30d';
+  const days = RANGES[rangeKey] || 30;
+  const start = new Date(Date.now() - days * 86400000);
+  const orders = await Order.find({ createdAt: { $gte: start }, status: { $nin: ['Cancelled', 'Refunded'] } })
+    .select('customerInfo.phone customerInfo.name customerInfo.city items total paymentMethod discountCode createdAt').lean();
+
+  /* cohorts: first-purchase month x repeat in following months (0..5) */
+  const all = await Order.find({ status: { $nin: ['Cancelled', 'Refunded'] } })
+    .select('customerInfo.phone createdAt').lean();
+  const byCust = {};
+  all.forEach((o) => {
+    const k = String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10) || o.customerInfo?.email || o._id;
+    (byCust[k] = byCust[k] || []).push(new Date(o.createdAt));
+  });
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const cohortMap = {};
+  Object.values(byCust).forEach((dates) => {
+    dates.sort((a, b) => a - b);
+    const first = dates[0];
+    const ck = monthKey(first);
+    const c = cohortMap[ck] || (cohortMap[ck] = { cohort: ck, customers: 0, m: [0, 0, 0, 0, 0, 0] });
+    c.customers += 1;
+    dates.slice(1).forEach((d) => {
+      const diff = (d.getFullYear() - first.getFullYear()) * 12 + (d.getMonth() - first.getMonth());
+      if (diff >= 1 && diff <= 6) c.m[diff - 1] += 1;
+    });
+  });
+  const cohorts = Object.values(cohortMap).sort((a, b) => (a.cohort < b.cohort ? 1 : -1)).slice(0, 6)
+    .map((c) => ({ ...c, rates: c.m.map((n) => (c.customers ? +((n / c.customers) * 100).toFixed(0) : 0)) }));
+
+  /* at-risk: repeat buyers silent 60+ days */
+  const now = Date.now();
+  const atRisk = Object.entries(byCust)
+    .map(([k, dates]) => ({ k, n: dates.length, last: Math.max(...dates.map((d) => +d)) }))
+    .filter((c) => c.n >= 2 && now - c.last > 60 * 86400000)
+    .sort((a, b) => a.last - b.last)
+    .slice(0, 10)
+    .map((c) => {
+      const o = all.find((o) => (String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10) === c.k));
+      return { name: o?.customerInfo?.name || 'Customer', phone: o?.customerInfo?.phone || '', orders: c.n, days: Math.round((now - c.last) / 86400000) };
+    });
+
+  /* variant performance */
+  const varMap = {};
+  orders.forEach((o) => (o.items || []).forEach((it) => {
+    const key = `${it.name || it.product} · ${it.size || '—'}${it.color ? ' / ' + it.color : ''}`;
+    const v = varMap[key] || (varMap[key] = { variant: key, qty: 0, revenue: 0 });
+    v.qty += it.quantity || 0; v.revenue += (it.price || 0) * (it.quantity || 0);
+  }));
+  const variants = Object.values(varMap).sort((a, b) => b.qty - a.qty).slice(0, 12);
+
+  /* custom report: dimension x metric */
+  const cust = {};
+  const push = (key, o) => {
+    if (!key) return;
+    const c = cust[key] || (cust[key] = { name: key, revenue: 0, orders: 0 });
+    c.orders += 1; c.revenue += o.total || 0;
+  };
+  orders.forEach((o) => {
+    if (dim === 'product') (o.items || []).forEach((it) => push(it.name || String(it.product), { total: (it.price || 0) * (it.quantity || 0) }));
+    else if (dim === 'category') push((it => it && it.categorySlug)(o.items?.[0]) || o.items?.[0]?.slug?.split('-')[0] || 'Uncategorised', o);
+    else if (dim === 'city') push(o.customerInfo?.city || 'Unknown', o);
+    else if (dim === 'payment') push(o.paymentMethod || 'Unknown', o);
+    else if (dim === 'coupon') push(o.discountCode || '(none)', o);
+    else push('All', o);
+  });
+  let custom = Object.values(cust).sort((a, b) => (metric === 'orders' ? b.orders - a.orders : b.revenue - a.revenue)).slice(0, 12);
+
+  res.json({ cohorts, atRisk, variants, custom, dim, metric });
+}));
+
+/* ── WEEKLY DIGEST — lazy cron: fires when the owner opens Overview after 7d ── */
+router.post('/weekly-digest', protect, adminOnly, asyncHandler(async (req, res) => {
+  const Settings = require('../models/Settings');
+  const s = await Settings.findOne({ key: 'store' });
+  const last = s?.digestLastSent ? new Date(s.digestLastSent) : null;
+  if (last && Date.now() - last < 6 * 86400000) return res.json({ sent: false, reason: 'too soon' });
+  const Order = require('../models/Order');
+  const PageView = require('../models/PageView') || PageView;
+  const start = new Date(Date.now() - 7 * 86400000);
+  const [orders, sessions, carts] = await Promise.all([
+    Order.find({ createdAt: { $gte: start }, status: { $nin: ['Cancelled', 'Refunded'] } }).select('total items customerInfo.phone').lean(),
+    PageView.distinct('sid', { createdAt: { $gte: start } }),
+    require('../models/AbandonedCart').find({ createdAt: { $gte: start }, recoveredOrderId: { $ne: null } }).countDocuments(),
+  ]);
+  const revenue = orders.reduce((a, o) => a + (o.total || 0), 0);
+  const top = {};
+  orders.forEach((o) => (o.items || []).forEach((it) => { top[it.name] = (top[it.name] || 0) + (it.quantity || 0); }));
+  const topProduct = Object.entries(top).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+  const newCust = new Set(orders.map((o) => String(o.customerInfo?.phone || '').slice(-10))).size;
+  const mailer = require('../utils/mailer');
+  const result = await mailer.sendWeeklyDigest({
+    revenue: `Rs ${Math.round(revenue).toLocaleString()}`,
+    orders: String(orders.length),
+    sessions: String(sessions.length),
+    conversion: sessions.length ? `${((orders.length / sessions.length) * 100).toFixed(1)}%` : '0%',
+    newCustomers: String(newCust),
+    recovered: String(carts),
+    pendingCalls: 'see COD Command',
+    topProduct,
+  }, s || {});
+  if (s) { s.digestLastSent = new Date(); await s.save(); }
+  res.json({ sent: !!result?.ok !== false, result });
+}));
+
 module.exports = router;

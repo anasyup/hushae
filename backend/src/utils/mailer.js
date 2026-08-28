@@ -525,7 +525,28 @@ async function sendReviewRequest(order, storeInfo = {}) {
   });
 }
 
+async function sendWeeklyDigest(stats, storeInfo = {}) {
+  const name = storeInfo.storeName || 'HUSHAE';
+  const to = storeInfo.contactEmail;
+  if (!to) return { ok: false, reason: 'no contact email' };
+  const row = (l, v) => `<tr><td style="padding:6px 0;color:#666">${l}</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111">${v}</td></tr>`;
+  const html = `
+  <div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px">
+    <p style="letter-spacing:.3em;font-size:12px;color:#111">${name}</p>
+    <h1 style="font-size:20px;margin:8px 0 4px">Weekly digest</h1>
+    <p style="color:#666;font-size:13px">Last 7 days at a glance — ${new Date().toDateString()}</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:16px">
+      ${row('Revenue', stats.revenue)}${row('Orders', stats.orders)}${row('Sessions', stats.sessions)}
+      ${row('Conversion', stats.conversion)}${row('New customers', stats.newCustomers)}${row('Recovered carts', stats.recovered)}
+      ${row('Awaiting COD calls', stats.pendingCalls)}${row('Top product', stats.topProduct || '—')}
+    </table>
+    <p style="color:#999;font-size:11px;margin-top:18px">Sent automatically every week. Open your admin for the full intelligence reports.</p>
+  </div>`;
+  return sendMail({ to, subject: `${name} — weekly digest`, html, text: `Weekly digest: ${stats.orders} orders, ${stats.revenue} revenue.` });
+}
+
 module.exports = {
+  sendWeeklyDigest,
   sendMail,
   sendOrderConfirmation,
   sendNewOrderAlert,

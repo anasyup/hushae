@@ -32,6 +32,7 @@ import {
   Settings, ShieldCheck, UserCog, DollarSign, HelpCircle, LogOut, Banknote
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { api } from '../api/client';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import CommandPalette from './CommandPalette';
 import SettingsRail from './settings/SettingsRail';
@@ -756,6 +757,15 @@ export default function AdminLayout({ children, title }) {
     applyAdminTheme();
     return () => clearAdminTheme();
   }, []);
+
+  /* Lazy weekly cron: when the owner opens the admin after 6+ days, the
+     backend sends the weekly digest email once (it guards the window). */
+  const digestFired = useRef(false);
+  useEffect(() => {
+    if (!auth?.token || digestFired.current) return;
+    digestFired.current = true;
+    api('/analytics/weekly-digest', { method: 'POST', token: auth.token }).catch(() => {});
+  }, [auth?.token]);
 
   // Cmd+K opens the palette from anywhere in the admin; Esc closes it.
   useEffect(() => {

@@ -35,6 +35,10 @@ export default function Analytics() {
   const [range, setRange] = useState('30d');
   const [a, setA] = useState(null);
   const [err, setErr] = useState('');
+  const [adv, setAdv] = useState(null);
+  const [bench, setBench] = useState(null);
+  const [dim, setDim] = useState('category');
+  const [metric, setMetric] = useState('revenue');
 
   const load = useCallback(async () => {
     setErr('');
@@ -48,6 +52,15 @@ export default function Analytics() {
   }, [auth?.token, range]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    api(`/analytics/advanced?range=${range}&dim=${dim}&metric=${metric}`, { token: auth?.token })
+      .then(setAdv).catch(() => setAdv(null));
+  }, [auth?.token, range, dim, metric]);
+
+  useEffect(() => {
+    api(`/analytics/overview?range=${range}`, { token: auth?.token }).then(setBench).catch(() => setBench(null));
+  }, [auth?.token, range]);
 
   const burners = (a?.productIntel || []).filter((p) => p.views >= 40 && p.conv !== null && p.conv < 1);
 
@@ -200,6 +213,125 @@ export default function Analytics() {
               ))}
             </section>
           </div>
+        </>
+      )}
+
+      {adv && (
+        <>
+          {/* R0 — benchmarks vs industry */}
+          {bench?.kpis && (
+            <section className="od-card" style={{ marginBottom: 12 }}>
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">R0 — You vs industry benchmarks</p></div>
+              {[
+                ['Conversion rate', bench.kpis.conversion, 1.5, 2.5, '%'],
+                ['Repeat purchase rate', adv.repeatRate ?? 0, 15, 25, '%'],
+                ['Refund rate', bench.kpis.orders ? +(((adv?.quality || []).reduce((a, q) => a + q.returns, 0)) / bench.kpis.orders * 100).toFixed(1) : 0, 0, 5, '%', true],
+              ].map(([label, val, lo, hi, unit, lower]) => {
+                const v = Number(val) || 0;
+                const good = lower ? v <= hi : v >= lo && v <= hi * 1.6;
+                const note = lower ? (v <= hi ? 'healthy' : 'above target — check quality') : v < lo ? 'below benchmark' : v > hi ? 'above benchmark' : 'in range';
+                return (
+                  <div key={label} className="od-bar-row">
+                    <div className="od-bar-meta">
+                      <span className="od-bar-label">{label}: <b>{v}{unit}</b> <span style={{ color: good ? '#10b981' : '#f59e0b' }}>({note})</span></span>
+                      <span className="od-bar-val">industry {lo}–{hi}{unit}</span>
+                    </div>
+                    <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.min(100, (v / (hi || 1)) * 50)}%`, background: good ? '#10b981' : '#f59e0b' }} /></div>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+
+          {/* R5 — cohorts */}
+          <section className="od-card" style={{ marginBottom: 12 }}>
+            <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R5 — Cohort retention (repeat % by month)</p></div>
+            <div className="od-table-wrap">
+              <table className="od-tbl" style={{ minWidth: 560 }}>
+                <thead><tr><th style={th}>Cohort</th><th style={th}>Buyers</th>{[1,2,3,4,5,6].map((m) => <th key={m} style={th}>M{m}</th>)}</tr></thead>
+                <tbody>
+                  {adv.cohorts.map((c) => (
+                    <tr key={c.cohort}>
+                      <td style={{ ...td, fontWeight: 700 }}>{c.cohort}</td>
+                      <td style={num}>{c.customers}</td>
+                      {c.rates.map((r, i) => (
+                        <td key={i} style={{ ...num, color: r >= 25 ? '#10b981' : r >= 10 ? 'var(--admin-text)' : 'var(--adm-label)', fontWeight: r >= 25 ? 700 : 400 }}>{r}%</td>
+                      ))}
+                    </tr>
+                  ))}
+                  {adv.cohorts.length === 0 && <tr><td colSpan={8} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>Not enough history yet — cohorts build as customers repeat.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* R6 + R7 */}
+          <div className="od-charts" style={{ marginBottom: 12 }}>
+            <section className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R6 — At-risk customers (60+ days silent)</p></div>
+              {adv.atRisk.length === 0 && <p className="od-bar-val" style={{ padding: 12 }}>No repeat buyers gone quiet — retention is holding.</p>}
+              {adv.atRisk.map((c) => (
+                <div key={c.name + c.phone} className="od-bar-row">
+                  <div className="od-bar-meta">
+                    <span className="od-bar-label">{c.name} <span style={{ color: 'var(--adm-label)' }}>· {c.orders} orders · {c.days}d silent</span></span>
+                    <a className="od-chip" style={{ height: 24, fontSize: 10 }} target="_blank" rel="noreferrer"
+                      href={`https://wa.me/${String(c.phone).replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent('Hi ' + c.name + ', we miss you at HUSHAE — here is 10% off your next order: WELCOME10')}`}>
+                      Win back
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </section>
+            <section className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R7 — Variant performance</p></div>
+              <div className="od-table-wrap">
+                <table className="od-tbl" style={{ minWidth: 380 }}>
+                  <thead><tr><th style={th}>Variant</th><th style={th}>Qty</th><th style={th}>Revenue</th></tr></thead>
+                  <tbody>
+                    {adv.variants.map((v) => (
+                      <tr key={v.variant}>
+                        <td style={{ ...td, maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.variant}</td>
+                        <td style={num}>{v.qty}</td>
+                        <td style={num}>{pkr(v.revenue)}</td>
+                      </tr>
+                    ))}
+                    {adv.variants.length === 0 && <tr><td colSpan={3} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No sales in range.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          {/* R8 — custom report builder */}
+          <section className="od-card">
+            <div className="od-card-h" style={{ marginBottom: 8 }}>
+              <p className="od-card-t">R8 — Custom report</p>
+              <span style={{ display: 'flex', gap: 6 }}>
+                <select className="adm-chip" style={{ height: 30 }} value={dim} onChange={(e) => setDim(e.target.value)} aria-label="Dimension">
+                  {['category', 'product', 'city', 'payment', 'coupon'].map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <select className="adm-chip" style={{ height: 30 }} value={metric} onChange={(e) => setMetric(e.target.value)} aria-label="Metric">
+                  <option value="revenue">revenue</option>
+                  <option value="orders">orders</option>
+                </select>
+              </span>
+            </div>
+            <div className="od-table-wrap">
+              <table className="od-tbl" style={{ minWidth: 380 }}>
+                <thead><tr><th style={th}>{dim}</th><th style={th}>Orders</th><th style={th}>Revenue</th></tr></thead>
+                <tbody>
+                  {adv.custom.map((r) => (
+                    <tr key={r.name}>
+                      <td style={{ ...td, fontWeight: 600 }}>{r.name}</td>
+                      <td style={num}>{r.orders}</td>
+                      <td style={num}>{pkr(r.revenue)}</td>
+                    </tr>
+                  ))}
+                  {adv.custom.length === 0 && <tr><td colSpan={3} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No data for this combination.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </>
       )}
     </AdminLayout>

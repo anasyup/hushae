@@ -139,7 +139,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
     'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'customerExperience', 'reviews', 'loyalty', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer', 'cms',
     'monthlyRevenueGoal', 'marginThresholdPercent', 'automation',
     'includeTestOrders', 'reorderTargetStock',
-    'businessAddress', 'currency', 'timezone',
+    'businessAddress', 'currency', 'timezone', 'digestLastSent',
     'metafields',
     'search', 'discovery',
     'marketing'].forEach((f) => {
