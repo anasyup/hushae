@@ -27,10 +27,40 @@ Har admin UI change us checklist ke against judge hoga.
 (R0–R8) "organized nahi lag rahe" thay — random order, same-weight stacked tables, misaligned
 numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par hain.
 
-**STATUS: DONE.** Boss ne green light diya ("inhay be sahi karoo") aur ye kaam live hai.
-Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao — wahi acceptance
-criteria hai. Naya row/table-based admin section banate waqt
-`src/admin/analytics/sections.jsx` + `columns.js` reuse karo, dobara mat banao.
+**STATUS: DONE (3 rounds, sab live verified).**
+1. `2640143` — report sections ek hi card + 12-column row system par (boss: "organized nahi
+   lag rahay, paragraph jaisay").
+2. `ee052e3` — un sections me charts add hue (boss: "charts jaisa candlestick jaisa doo").
+3. `822da1e` — **chart redesign: monochrome system** (boss: "notebook par diagrams ban rahe
+   hain, Shopify se inspiration lo"). Diagnosis Polaris data-viz guidelines se: v1 ne 4
+   documented rules tori thin — 6-hue rainbow palette, full-bleed grid + dashed overlays,
+   gauge needle (speedometer), aur "Rs 12,600" jaise lambe axis labels.
+
+**CHART DESIGN RULES (ye dobara na torna):**
+- **Ek ink colour** saara data carry karta hai. Green/red SIRF direction (up/down) aur status
+  (in band / out of band) ke liye. Rank = **opacity**, naya hue nahi.
+- **No full-bleed grid**, no dashed overlays, no needle/arc. Axis lines "unobtrusive".
+- Axis labels **compact**: `compact()` helper → `Rs 12.6k` (max ~3 numeric chars + 1 decimal).
+- **Value on the mark** — point bina colour ke bhi samajh aa jaye (accessibility rule).
+- **Chart restraint** — har chart ek sawal ka jawab de. Pie/donut 6 slices ke baad table ban
+  jata hai, isliye `SplitBar` (100% bar + ranked list) use hota hai.
+
+**REUSE KARO, DOBARA MAT BANAO:**
+- `src/admin/analytics/sections.jsx` — Section / HeadRow / Row / Metric / Chip / EmptyState
+  (BenchRow hata diya gaya — BandMeter ne replace kiya)
+- `src/admin/analytics/columns.js` — saare column spans (lead 4 + metrics 8 = 12 grid)
+- `src/admin/analytics/svgcharts.jsx` — CandleChart / TrafficScatter / SplitBar / BandMeter
+  + pure helpers `toCandles`, `bandPosition`, `compact`, `money`, `scale`
+  (DonutChart, ParetoChart, GaugeChart, BubbleScatter **hata diye gaye**)
+- `src/admin/analytics/charts.css` — `cx-*` namespace, `--cx-ink` + `--cx-up/--cx-down` only
+- Tests: `frontend/scripts/test-analytics-charts.mjs` (79 assertions, design rules bhi assert
+  karta hai), `frontend/scripts/test-analytics-sections.mjs` (33). Dono `react-dom/server` se
+  REAL components render karte hain — `node scripts/test-<name>.mjs`.
+
+**Chart.js note:** bundle me hai, par candlestick ke liye extra plugin chahiye aur styling
+brief tak nahi pohanchti — isliye charts hand-rolled SVG hain (koi nayi dependency nahi).
+
+Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao.
 
 ---
 
