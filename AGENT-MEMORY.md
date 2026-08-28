@@ -23,15 +23,14 @@ shadows, spacing, micro-interactions, page transitions, responsive, maintainable
 tech: advanced CSS + `@keyframes`, Tailwind utilities, GSAP **or** Framer Motion).
 Har admin UI change us checklist ke against judge hoga.
 
-**OPEN ISSUE (boss ne flag kiya):** Analytics ke lower sections **R0–R8 "organized nahi lag
-rahe"** — random order (R1, R2a, R2b, R3, R4, R0, R5…), same-weight stacked tables,
-numbers misaligned, inconsistent empty states. Full diagnosis + fix plan `DESIGN-BRIEF.md`
-§6 me hai.
+**RESOLVED (2026-08-28, commit `2640143`, live verified):** Analytics ke lower sections
+(R0–R8) "organized nahi lag rahe" thay — random order, same-weight stacked tables, misaligned
+numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par hain.
 
-**STATUS: KAAM SHURU NAHI KARNA.** Boss ka explicit order: *"kam koi start nahi karna abi,
-apni skills mind ma save karoo."* Jab tak boss "start karo" na kahe, sirf spec/plan update
-karo, code mat chhedo. Boss ne **next priority = "Analytics R0–R8 organize karo"** select kiya
-(2026-08-28) — wahi pehla kaam hoga jab green light mile.
+**STATUS: DONE.** Boss ne green light diya ("inhay be sahi karoo") aur ye kaam live hai.
+Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao — wahi acceptance
+criteria hai. Naya row/table-based admin section banate waqt
+`src/admin/analytics/sections.jsx` + `columns.js` reuse karo, dobara mat banao.
 
 ---
 

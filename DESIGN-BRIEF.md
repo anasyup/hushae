@@ -1,9 +1,7 @@
 # HUSHAE ADMIN — DESIGN BRIEF (Boss ki requirements, binding spec)
 
-> Status: **SAVED. Code abhi NAHI chheda gaya.** Boss ne 2026-08-28 ko next kaam
-> **fix R0–R8** select kiya, lekin usi saans me order bhi diya: *"kam koi start nahi karna
-> abi, apni skills mind ma save karoo."* Isliye ye spec + plan hai; implementation boss ke
-> "start karo" par hogi. Ye file har admin-panel kaam ka **acceptance criteria** hai.
+> Status: **§6 (Analytics R0–R8) DONE + LIVE — 2026-08-28, commit `2640143`.**
+> Baaki sections (§1–§5) har admin UI kaam ke liye **binding acceptance criteria** hain.
 
 ---
 
