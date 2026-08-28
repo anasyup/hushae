@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import Chart from 'chart.js/auto';
+import { useCallback, useEffect, useState } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -7,284 +6,199 @@ import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 
 /* ============================================================================
- * ANALYTICS — the business-intelligence page, rebuilt on the admin's od-
- * design system (light editorial + dark parity), richer than Shopify's
- * default analytics without adding gimmicks:
+ * ANALYTICS = INTELLIGENCE (reports), NOT a second dashboard.
  *
- *   KPI strip with period deltas
- *   Revenue line (previous period dashed) + sessions bars
- *   Conversion funnel · customer split · devices
- *   Top products · categories · payment mix
- *   Traffic: referrers · landing pages · order cities
+ * Overview answers "how is the store doing?" with KPI cards and charts.
+ * This page answers the questions the dashboard can't:
  *
- * All figures come from the existing /analytics/overview aggregate —
- * this page only presents, never mutates.
+ *   R1  Which products convert — and which burn traffic?
+ *   R2  Which coupons earn their keep? Is cart recovery paying?
+ *   R3  Who are my best customers, and how loyal is the base?
+ *   R4  Which products come back (quality radar)?
+ *
+ * Report aesthetic on purpose: dense tables, ranks, tabular numerals and
+ * hairlines — deliberately different from the Overview card grid.
  * ========================================================================== */
 
 const RANGES = [
-  { v: 'today', label: 'Today' },
   { v: '7d', label: 'Last 7 days' },
   { v: '30d', label: 'Last 30 days' },
   { v: '90d', label: 'Last 90 days' },
-  { v: 'all', label: 'All time' },
-  { v: 'custom', label: 'Custom range' },
 ];
 
-const PALETTES = {
-  light: { main: '#111', g2: '#8a8a8a', grid: '#f2f2f2', tick: '#9ca3af', mutedLine: '#c8c8c8', green: '#0e9f6e', red: '#dc2626', tooltip: '#111' },
-  dark: { main: '#f4f4f5', g2: '#71717a', grid: '#26262c', tick: '#71717a', mutedLine: '#52525b', green: '#34d399', red: '#f87171', tooltip: '#27272a' },
-};
-const P = () => (document.documentElement.classList.contains('dark-admin') ? PALETTES.dark : PALETTES.light);
-
-const compact = (v) => {
-  const n = Number(v) || 0;
-  if (n >= 1e6) return `₨${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
-  return `₨${Math.round(n)}`;
-};
+const th = { textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--adm-label)', padding: '8px 10px', borderBottom: '1px solid var(--admin-border)' };
+const td = { fontSize: 12, padding: '9px 10px', borderBottom: '1px solid var(--admin-border-subtle)', color: 'var(--admin-text)' };
+const num = { ...td, fontVariantNumeric: 'tabular-nums' };
 
 export default function Analytics() {
-  const { auth, logout } = useApp();
+  const { auth } = useApp();
   const [range, setRange] = useState('30d');
-  const [customFrom, setCustomFrom] = useState(new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10));
-  const [customTo, setCustomTo] = useState(new Date().toISOString().slice(0, 10));
   const [a, setA] = useState(null);
   const [err, setErr] = useState('');
-  const [tick, setTick] = useState(0);
-  const chartsRef = useRef([]);
 
-  useEffect(() => {
-    setA(null); setErr('');
-    const qs = range === 'custom' ? `range=custom&from=${customFrom}&to=${customTo}` : `range=${range}`;
-    api(`/analytics/overview?${qs}`, { token: auth.token })
-      .then(setA)
-      .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Failed to load analytics — please try again.'); });
-  }, [auth, range, tick]); // eslint-disable-line
+  const load = useCallback(async () => {
+    setErr('');
+    setA(null);
+    try {
+      const d = await api(`/analytics/intelligence?range=${range}`, { token: auth?.token });
+      setA(d);
+    } catch (e) {
+      setErr(e.message || 'Could not load intelligence');
+    }
+  }, [auth?.token, range]);
 
-  /* charts: rebuild on data + theme toggle */
-  useEffect(() => {
-    if (!a) return undefined;
-    const make = () => {
-      chartsRef.current.forEach((c) => c.destroy());
-      chartsRef.current = [];
-      const pal = P();
-      const add = (el, cfg) => { if (el) chartsRef.current.push(new Chart(el, cfg)); };
-      const axis = (fmt) => ({
-        x: { grid: { display: false }, ticks: { color: pal.tick, font: { size: 10 } } },
-        y: { grid: { color: pal.grid }, ticks: { color: pal.tick, font: { size: 10 }, callback: fmt } },
-      });
+  useEffect(() => { load(); }, [load]);
 
-      add(document.getElementById('anRev'), {
-        type: 'line',
-        data: {
-          labels: a.series.map((s) => s.date),
-          datasets: [
-            { label: 'Revenue', data: a.series.map((s) => s.revenue), borderColor: pal.main, backgroundColor: pal.main, tension: 0.35, pointRadius: 0, borderWidth: 2 },
-            ...(a.prev ? [{ label: 'Previous period', data: a.series.map((s) => s.prevRevenue ?? null), borderColor: pal.mutedLine, borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0 }] : []),
-          ],
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.dataset.label}: ${pkr(c.parsed.y)}` } } }, scales: axis((v) => compact(v)) },
-      });
-
-      add(document.getElementById('anSess'), {
-        type: 'bar',
-        data: { labels: a.traffic.sessionsSeries.map((s) => s.date), datasets: [{ label: 'Sessions', data: a.traffic.sessionsSeries.map((s) => s.sessions), backgroundColor: pal.g2, borderRadius: 3 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: axis() },
-      });
-
-      add(document.getElementById('anCust'), {
-        type: 'doughnut',
-        data: { labels: ['New', 'Returning'], datasets: [{ data: [a.customerSplit.fresh, a.customerSplit.returning], backgroundColor: [pal.main, pal.g2], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } } } },
-      });
-
-      add(document.getElementById('anDev'), {
-        type: 'doughnut',
-        data: { labels: a.traffic.byDevice.map((d) => d.device || 'Unknown'), datasets: [{ data: a.traffic.byDevice.map((d) => d.sessions), backgroundColor: [pal.main, pal.g2, pal.mutedLine, pal.grid], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } } } },
-      });
-
-      add(document.getElementById('anPay'), {
-        type: 'doughnut',
-        data: { labels: a.byPayment.map((p) => p.method), datasets: [{ data: a.byPayment.map((p) => p.revenue), backgroundColor: [pal.main, pal.g2, pal.mutedLine, pal.grid, pal.tick], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: (c) => ` ${c.label}: ${pkr(c.parsed)}` } } } },
-      });
-    };
-    make();
-    const mo = new MutationObserver(make);
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => { mo.disconnect(); chartsRef.current.forEach((c) => c.destroy()); chartsRef.current = []; };
-  }, [a]);
-
-  const k = a?.kpis;
-  const deltaPct = (v, p) => {
-    if (!a?.prev || p == null) return null;
-    if (p === 0) return v > 0 ? { txt: 'new', up: true } : null;
-    const pc = Math.round(((v - p) / p) * 100);
-    return { txt: `${pc >= 0 ? '+' : ''}${pc}%`, up: pc >= 0 };
-  };
-  const Delta = ({ d }) => d && (
-    <span className="od-delta" style={{ color: d.up ? '#10b981' : '#ef4444' }}>{d.up ? '↑' : '↓'} {d.txt}</span>
-  );
-
-  const bar = (rows, key, fmt) => {
-    const max = Math.max(...rows.map((r) => r[key]), 1);
-    return rows.map((r) => (
-      <div key={r.name || r.cat || r.method || r.city || r.ref || r.path} className="od-bar-row">
-        <div className="od-bar-meta">
-          <span className="od-bar-label">{r.name || r.cat || r.method || r.city || r.ref || r.path}</span>
-          <span className="od-bar-val">{fmt ? fmt(r[key]) : r[key]}</span>
-        </div>
-        <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, Math.round((r[key] / max) * 100))}%` }} /></div>
-      </div>
-    ));
-  };
-
-  const inputCls = { height: 34, border: '1px solid var(--admin-border)', borderRadius: 8, background: 'var(--admin-surface)', color: 'var(--admin-text)', padding: '0 10px', fontSize: 12 };
+  const burners = (a?.productIntel || []).filter((p) => p.views >= 40 && p.conv !== null && p.conv < 1);
 
   return (
     <AdminLayout title="Analytics">
-      {/* head */}
       <div className="od-head">
         <div>
-          <p className="adm-eyebrow" style={{ padding: 0 }}>Growth</p>
-          <h2 style={{ fontSize: 20, fontWeight: 700 }}>Analytics</h2>
+          <p className="adm-eyebrow" style={{ padding: 0 }}>Intelligence</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700 }}>Reports & Intelligence</h2>
           <p className="mt-1 text-[12px]" style={{ color: 'var(--adm-label)' }}>
-            Revenue, conversion and traffic — {RANGES.find((r) => r.v === range)?.label.toLowerCase()}.
-            {a?.prev && range !== 'custom' && range !== 'all' && ' Compared with the previous period.'}
+            The questions the dashboard doesn't answer — conversion, ROI, loyalty, quality.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-          <select value={range} onChange={(e) => setRange(e.target.value)} style={inputCls} aria-label="Date range">
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <select value={range} onChange={(e) => setRange(e.target.value)} className="adm-chip" style={{ height: 34 }} aria-label="Range">
             {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
           </select>
-          {range === 'custom' && (
-            <>
-              <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} style={inputCls} aria-label="From" />
-              <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} style={inputCls} aria-label="To" />
-            </>
-          )}
-          <button type="button" className="adm-chip" onClick={() => setTick((t) => t + 1)}><RefreshCcw size={13} /> Refresh</button>
+          <button type="button" className="adm-chip" onClick={load}><RefreshCcw size={13} /> Refresh</button>
         </div>
       </div>
 
       {err && (
         <div className="od-empty">
-          <p className="od-empty-t">Unable to load analytics</p>
+          <p className="od-empty-t">Unable to load reports</p>
           <p className="od-empty-b">{err}</p>
-          <button type="button" className="od-fbtn" onClick={() => setTick((t) => t + 1)} style={{ marginTop: 12 }}>Retry</button>
+          <button type="button" className="od-fbtn" style={{ marginTop: 12 }} onClick={load}>Retry</button>
         </div>
       )}
 
       {!a && !err && (
-        <div className="od-stats" aria-label="Loading analytics">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="od-stat"><div className="od-skel" style={{ height: 14, width: '60%' }} /><div className="od-skel" style={{ height: 26, marginTop: 10 }} /></div>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="od-card"><div className="od-skel" style={{ height: 16, width: '40%' }} /><div className="od-skel" style={{ height: 90, marginTop: 10 }} /></div>
           ))}
         </div>
       )}
 
-      {a && k && (
+      {a && (
         <>
-          {/* KPI strip */}
-          <div className="od-stats">
-            {[
-              ['Revenue', pkr(k.revenue), deltaPct(k.revenue, a.prev?.revenue)],
-              ['Orders', k.orders.toLocaleString(), deltaPct(k.orders, a.prev?.orders)],
-              ['Avg order value', pkr(k.aov), null],
-              ['Items sold', k.itemsSold.toLocaleString(), null],
-              ['Sessions', k.sessions.toLocaleString(), null],
-              ['Conversion', `${k.conversion}%`, null],
-            ].map(([label, value, d]) => (
-              <div key={label} className="od-stat">
-                <div className="od-stat-head">{label} <Delta d={d} /></div>
-                <div className="od-stat-val">{value}</div>
+          {/* R1 — product conversion */}
+          <section className="od-card" style={{ marginBottom: 12 }}>
+            <div className="od-card-h" style={{ marginBottom: 4 }}>
+              <p className="od-card-t">R1 — Product conversion</p>
+              <span className="od-bar-val">views → orders, {RANGES.find((r) => r.v === range)?.label.toLowerCase()}</span>
+            </div>
+            {burners.length > 0 && (
+              <p style={{ margin: '6px 0 10px', padding: '8px 10px', borderRadius: 8, background: 'var(--od-yellow-bg)', border: '1px solid var(--od-yellow-bd)', color: 'var(--od-yellow-tx)', fontSize: 11.5 }}>
+                {burners.length} product{burners.length === 1 ? '' : 's'} pulling traffic but converting under 1% — check price, photos or stock: {burners.slice(0, 3).map((b) => b.name).join(', ')}.
+              </p>
+            )}
+            <div className="od-table-wrap">
+              <table className="od-tbl" style={{ minWidth: 640 }}>
+                <thead><tr><th style={th}>#</th><th style={th}>Product</th><th style={th}>Views</th><th style={th}>Conv.</th><th style={th}>Orders</th><th style={th}>Revenue</th><th style={th}>Returns</th></tr></thead>
+                <tbody>
+                  {a.productIntel.map((p, i) => (
+                    <tr key={p.slug}>
+                      <td style={{ ...num, color: 'var(--adm-label)' }}>{i + 1}</td>
+                      <td style={{ ...td, fontWeight: 600, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</td>
+                      <td style={num}>{p.views.toLocaleString()}</td>
+                      <td style={num}>
+                        {p.conv === null ? '—' : (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            <span className="od-bar-track" style={{ width: 44 }}><span className="od-bar-fill" style={{ width: `${Math.min(100, p.conv * 10)}%`, display: 'block' }} /></span>
+                            {p.conv}%
+                          </span>
+                        )}
+                      </td>
+                      <td style={num}>{p.orders}</td>
+                      <td style={num}>{pkr(p.revenue)}</td>
+                      <td style={num}>{p.returns > 0 ? <span className="od-b od-b-red"><span className="dot" />{p.returns}</span> : <span style={{ color: 'var(--adm-label)' }}>0</span>}</td>
+                    </tr>
+                  ))}
+                  {a.productIntel.length === 0 && <tr><td colSpan={7} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No traffic or sales in this range yet.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* R2 — marketing ROI */}
+          <div className="od-charts" style={{ marginBottom: 12 }}>
+            <section className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R2a — Coupon ROI</p></div>
+              <div className="od-table-wrap">
+                <table className="od-tbl" style={{ minWidth: 420 }}>
+                  <thead><tr><th style={th}>Code</th><th style={th}>Uses</th><th style={th}>Revenue</th><th style={th}>Cost</th></tr></thead>
+                  <tbody>
+                    {a.coupons.map((c) => (
+                      <tr key={c.code}>
+                        <td style={{ ...td, fontWeight: 700, fontFamily: 'monospace', fontSize: 11 }}>{c.code}</td>
+                        <td style={num}>{c.uses}</td>
+                        <td style={num}>{pkr(c.revenue)}</td>
+                        <td style={{ ...num, color: c.cost > c.revenue * 0.3 ? '#ef4444' : 'var(--adm-label)' }}>−{pkr(c.cost)}</td>
+                      </tr>
+                    ))}
+                    {a.coupons.length === 0 && <tr><td colSpan={4} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No coupon usage in this range.</td></tr>}
+                  </tbody>
+                </table>
               </div>
-            ))}
+            </section>
+
+            <section className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">R2b — Cart recovery ROI</p></div>
+              <div className="od-stats" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: 8 }}>
+                <div className="od-stat"><div className="od-stat-head">Captured</div><div className="od-stat-val">{a.recovery.captured}</div></div>
+                <div className="od-stat"><div className="od-stat-head">Recovered</div><div className="od-stat-val">{a.recovery.recovered}</div></div>
+                <div className="od-stat"><div className="od-stat-head">Rate</div><div className="od-stat-val">{a.recovery.rate}%</div></div>
+              </div>
+              <p className="od-bar-val">Recovered revenue: <b style={{ color: 'var(--od-text)' }}>{pkr(a.recovery.revenue)}</b> — recovery emails are doing {a.recovery.rate >= 10 ? 'great' : a.recovery.rate >= 5 ? 'okay' : 'weak'} work this period.</p>
+            </section>
           </div>
 
-          {/* revenue + sessions */}
+          {/* R3 + R4 */}
           <div className="od-charts">
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Revenue over time</p></div>
-              <div style={{ height: 240 }}><canvas id="anRev" /></div>
-            </div>
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Sessions over time</p></div>
-              <div style={{ height: 240 }}><canvas id="anSess" /></div>
-            </div>
-          </div>
+            <section className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 4 }}>
+                <p className="od-card-t">R3 — Customer value</p>
+                <span className="od-bar-val">repeat rate {a.repeatRate}% · {a.totalCustomers} buyers</span>
+              </div>
+              <div className="od-table-wrap">
+                <table className="od-tbl" style={{ minWidth: 420 }}>
+                  <thead><tr><th style={th}>#</th><th style={th}>Customer</th><th style={th}>Orders</th><th style={th}>Lifetime spend</th></tr></thead>
+                  <tbody>
+                    {a.topCustomers.map((c, i) => (
+                      <tr key={c.name + i}>
+                        <td style={{ ...num, color: 'var(--adm-label)' }}>{i + 1}</td>
+                        <td style={{ ...td, fontWeight: 600 }}>{c.name} {c.orders > 1 && <span className="od-b od-b-green"><span className="dot" />repeat</span>}</td>
+                        <td style={num}>{c.orders}</td>
+                        <td style={num}>{pkr(c.revenue)}</td>
+                      </tr>
+                    ))}
+                    {a.topCustomers.length === 0 && <tr><td colSpan={4} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No customers in this range yet.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
-          {/* funnel + splits */}
-          <div className="od-charts-3">
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Online store conversion</p></div>
-              {[
-                ['Sessions', k.sessions, 100],
-                ['Added to cart', k.carts, k.sessions ? Math.round((k.carts / k.sessions) * 100) : 0],
-                ['Reached checkout', k.checkouts, k.sessions ? Math.round((k.checkouts / k.sessions) * 100) : 0],
-                ['Purchased', k.orders, k.sessions ? Math.round((k.orders / k.sessions) * 100) : 0],
-              ].map(([label, val, pct], i, arr) => (
-                <div key={label} style={{ padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--admin-border-subtle)' : 0 }}>
+            <section className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">R4 — Quality radar (returns)</p></div>
+              {a.quality.length === 0 && (
+                <p className="od-bar-val" style={{ padding: '12px 0' }}>Zero returns this period — quality is holding.</p>
+              )}
+              {a.quality.map((q) => (
+                <div key={q.name} className="od-bar-row">
                   <div className="od-bar-meta">
-                    <span className="od-bar-label">{label}</span>
-                    <span className="od-bar-val">{Number(val).toLocaleString()} · {pct}%</span>
+                    <span className="od-bar-label">{q.name}</span>
+                    <span className="od-bar-val" style={{ color: '#ef4444' }}>{q.returns} return{q.returns === 1 ? '' : 's'}</span>
                   </div>
-                  <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, pct)}%` }} /></div>
+                  <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.min(100, q.returns * 20)}%`, background: '#ef4444' }} /></div>
                 </div>
               ))}
-            </div>
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">New vs returning</p></div>
-              <div style={{ height: 190 }}><canvas id="anCust" /></div>
-            </div>
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Devices</p></div>
-              <div style={{ height: 190 }}><canvas id="anDev" /></div>
-            </div>
-          </div>
-
-          {/* sales intelligence */}
-          <div className="od-charts">
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Top products</p></div>
-              {a.topProducts.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No sales in this range yet.</p>}
-              {a.topProducts.slice(0, 8).map((p, i) => (
-                <div key={p.id || p.name} className="od-bar-row">
-                  <div className="od-bar-meta">
-                    <span className="od-bar-label">{i + 1}. {p.name}</span>
-                    <span className="od-bar-val">{p.orders} orders · {pkr(p.revenue)}</span>
-                  </div>
-                  <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, Math.round((p.revenue / Math.max(a.topProducts[0].revenue, 1)) * 100))}%` }} /></div>
-                </div>
-              ))}
-            </div>
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Revenue by category</p></div>
-              {a.byCategory.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No category sales yet.</p>}
-              {bar(a.byCategory.slice(0, 6), 'revenue', compact)}
-              <div className="od-card-h" style={{ margin: '16px 0 8px' }}><p className="od-card-t">Payment mix</p></div>
-              <div style={{ height: 170 }}><canvas id="anPay" /></div>
-            </div>
-          </div>
-
-          {/* traffic */}
-          <div className="od-charts-3">
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Top referrers</p></div>
-              {a.traffic.refs.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No referral traffic yet.</p>}
-              {bar(a.traffic.refs.slice(0, 6), 'views')}
-            </div>
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Landing pages</p></div>
-              {a.traffic.landing.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No traffic yet.</p>}
-              {bar(a.traffic.landing.slice(0, 6), 'views')}
-            </div>
-            <div className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Order cities</p></div>
-              {a.orderCities.length === 0 && <p className="od-empty-b" style={{ padding: 16 }}>No orders yet.</p>}
-              {bar(a.orderCities.slice(0, 6), 'orders')}
-            </div>
+            </section>
           </div>
         </>
       )}

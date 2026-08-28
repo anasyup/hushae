@@ -136,4 +136,102 @@ router.get('/overview', asyncHandler(async (req, res) => {
   });
 }));
 
+/* ── INTELLIGENCE — the answers Overview doesn't give ──────────────────────
+ * Product conversion, coupon ROI, recovery ROI, customer value and quality
+ * radar. One endpoint, aggregated server-side; the page only presents. */
+router.get('/intelligence', asyncHandler(async (req, res) => {
+  const days = RANGES[req.query.range] && req.query.range !== 'all' ? RANGES[req.query.range] : 30;
+  const start = new Date(Date.now() - days * 86400000);
+  const Order = require('../models/Order');
+  const Product = require('../models/Product');
+  const ReturnCase = require('../models/ReturnCase');
+  const AbandonedCart = require('../models/AbandonedCart');
+
+  const [orders, viewAgg, carts, returns, prods] = await Promise.all([
+    Order.find({ createdAt: { $gte: start } }).select('orderNumber customerInfo.name customerInfo.phone items total discount discountCode status').lean(),
+    PageView.aggregate([
+      { $match: { createdAt: { $gte: start }, path: { $regex: '^/product/' } } },
+      { $group: { _id: '$path', views: { $sum: 1 } } },
+    ]),
+    AbandonedCart.find({ createdAt: { $gte: start } }).select('email phone recoveredOrderId').lean(),
+    ReturnCase.find({ createdAt: { $gte: start } }).select('orderNumber items').lean(),
+    Product.find({}).select('slug name').lean(),
+  ]);
+
+  const live = orders.filter((o) => !['Cancelled', 'Refunded'].includes(o.status));
+  const slugOf = {}; const nameOf = {};
+  prods.forEach((p) => { slugOf[p.slug] = p.name; nameOf[p.slug] = p.name; });
+
+  /* product intel: views vs orders vs returns */
+  const bySlug = {};
+  viewAgg.forEach((v) => { bySlug[v._id.replace('/product/', '')] = { views: v.views, orders: 0, qty: 0, revenue: 0, returns: 0 }; });
+  const retByProduct = {};
+  returns.forEach((r) => (r.items || []).forEach((it) => {
+    const slug = it.slug || String(it.product);
+    retByProduct[slug] = (retByProduct[slug] || 0) + 1;
+  }));
+  live.forEach((o) => (o.items || []).forEach((it) => {
+    const slug = it.slug || String(it.product);
+    const e = bySlug[slug] || (bySlug[slug] = { views: 0, orders: 0, qty: 0, revenue: 0, returns: 0 });
+    e.orders += 1; e.qty += it.quantity || 0; e.revenue += (it.price || 0) * (it.quantity || 0);
+  }));
+  Object.keys(retByProduct).forEach((slug) => {
+    const e = bySlug[slug] || (bySlug[slug] = { views: 0, orders: 0, qty: 0, revenue: 0, returns: 0 });
+    e.returns = retByProduct[slug];
+  });
+  const productIntel = Object.entries(bySlug)
+    .map(([slug, e]) => ({
+      name: nameOf[slug] || slug, slug,
+      views: e.views, orders: e.orders, revenue: e.revenue, returns: e.returns,
+      conv: e.views ? +((e.orders / e.views) * 100).toFixed(1) : null,
+    }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 12);
+
+  /* coupon ROI */
+  const couponMap = {};
+  live.forEach((o) => {
+    const code = String(o.discountCode || '').trim();
+    if (!code) return;
+    const c = couponMap[code] || (couponMap[code] = { code, uses: 0, revenue: 0, cost: 0 });
+    c.uses += 1; c.revenue += o.total || 0; c.cost += o.discount || 0;
+  });
+  const coupons = Object.values(couponMap).sort((a, b) => b.uses - a.uses).slice(0, 8);
+
+  /* customer value */
+  const custMap = {};
+  live.forEach((o) => {
+    const key = String(o.customerInfo?.phone || o.customerInfo?.email || '').replace(/\D/g, '').slice(-10) || o.orderNumber;
+    const c = custMap[key] || (custMap[key] = { name: o.customerInfo?.name || 'Guest', orders: 0, revenue: 0 });
+    c.orders += 1; c.revenue += o.total || 0;
+  });
+  const customers = Object.values(custMap);
+  const repeat = customers.filter((c) => c.orders > 1).length;
+  const topCustomers = customers.sort((a, b) => b.revenue - a.revenue).slice(0, 8);
+
+  /* recovery ROI */
+  const recoveredIds = carts.map((c) => c.recoveredOrderId).filter(Boolean);
+  const recOrders = recoveredIds.length
+    ? await Order.find({ _id: { $in: recoveredIds } }).select('total').lean()
+    : [];
+  const recovery = {
+    captured: carts.length,
+    recovered: recoveredIds.length,
+    revenue: recOrders.reduce((a, o) => a + (o.total || 0), 0),
+    rate: carts.length ? +((recoveredIds.length / carts.length) * 100).toFixed(1) : 0,
+  };
+
+  /* quality radar */
+  const quality = Object.entries(retByProduct)
+    .map(([slug, n]) => ({ name: nameOf[slug] || slug, returns: n }))
+    .sort((a, b) => b.returns - a.returns)
+    .slice(0, 6);
+
+  res.json({
+    productIntel, coupons, topCustomers, recovery, quality,
+    repeatRate: customers.length ? +((repeat / customers.length) * 100).toFixed(1) : 0,
+    totalCustomers: customers.length,
+  });
+}));
+
 module.exports = router;
