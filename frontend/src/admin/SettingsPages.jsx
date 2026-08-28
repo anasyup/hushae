@@ -128,8 +128,11 @@ export function SettingsPayments() {
   const setSP = (k, v) => setGW('safepay', { [k]: v });
   const setJZ = (k, v) => setGW('jazzcash', { [k]: v });
 
+  const ep = gw.easypaisa || {};
+  const setEP = (k, v) => setGW('easypaisa', { [k]: v });
   const spConfigured = !!(sp.apiKey && sp.secret);
   const jzConfigured = !!(jz.merchantId && jz.password && jz.integritySalt);
+  const epConfigured = !!(ep.storeId && ep.hashKey);
 
   const list = (s.checkout && s.checkout.paymentList) || [];
   const visaRow = list.find((m) => m.id === 'Visa');
@@ -211,6 +214,28 @@ export function SettingsPayments() {
               <EdText label="Secret key" type="password" value={sp.secret || ''} onChange={(v) => setSP('secret', v)} placeholder="••••••••" />
             </div>
             <p className="mt-2 text-[12px] text-white/30">{spConfigured ? 'Gateway is configured — cards will appear at checkout.' : 'Fill both keys to enable cards at checkout.'}</p>
+          </div>
+
+          <div className="border-t border-white/10 pt-8">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[13px] text-white">EasyPaisa (Easypay)</p>
+                <p className="mt-0.5 text-[12px] text-white/35">Wallet, cards & bank via Easypay hosted checkout. Merchant portal: easypaisa.com.pk business.</p>
+              </div>
+              <MonoStatus label={ep.enabled && epConfigured ? 'ENABLED' : 'DISABLED'} dim={!(ep.enabled && epConfigured)} />
+            </div>
+            <EdToggle label="Enable EasyPaisa online" checked={!!ep.enabled} onChange={(v) => setEP('enabled', v)} />
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <MonoStatus label={ep.sandbox ? 'SANDBOX' : 'LIVE'} dim={!!ep.sandbox} />
+              <button type="button" onClick={() => setEP('sandbox', !ep.sandbox)} className={btnGhost}>
+                Switch to {ep.sandbox ? 'live' : 'sandbox'}
+              </button>
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <EdText label="Store ID" value={ep.storeId || ''} onChange={(v) => setEP('storeId', v)} placeholder="EP-STORE-…" />
+              <EdText label="Hash key" type="password" value={ep.hashKey || ''} onChange={(v) => setEP('hashKey', v)} placeholder="••••••••" />
+            </div>
+            <p className="mt-2 text-[12px] text-white/30">{epConfigured ? 'Configured — EasyPaisa appears at checkout when enabled.' : 'Fill Store ID + Hash key to enable Easypay.'}</p>
           </div>
 
           <div className="border-t border-white/10 pt-8">

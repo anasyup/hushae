@@ -157,6 +157,19 @@ export default function Checkout() {
   const handlePlaceOrder = async (e) => {
     if (e) e.preventDefault();
     setTopErr('');
+    const postForm = (endpoint, fields) => {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = endpoint;
+      Object.entries(fields || {}).forEach(([k, v]) => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = k; inp.value = String(v ?? '');
+        form.appendChild(inp);
+      });
+      document.body.appendChild(form);
+      form.submit();
+    };
+
     const validationErrors = validate();
     setErrs(validationErrors);
 
@@ -188,7 +201,7 @@ export default function Checkout() {
             color: l.color || '',
             quantity: l.qty || 1,
           })),
-          paymentMethod: 'COD',
+          paymentMethod: payId || 'COD',
           shippingMethod: 'standard',
           discountCode: applied?.code || '',
           discreetPackaging: true,
@@ -197,6 +210,19 @@ export default function Checkout() {
 
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       clearCart();
+
+      const chosen = payMethods.find((m) => m.id === payId);
+      if (chosen?.kind === 'gateway') {
+        try {
+          const pay = await api(`/payments/initiate/${order._id}`, { method: 'POST', body: { method: payId } });
+          if (pay.type === 'redirect' && pay.url) { window.location.href = pay.url; return; }
+          if (pay.type === 'form' && pay.endpoint) { postForm(pay.endpoint, pay.fields); return; }
+        } catch (pe) {
+          setTopErr(pe?.message || 'Online payment could not start — please choose Cash on Delivery.');
+          setBusy(false);
+          return;
+        }
+      }
       nav(`/order/${order.orderNumber}`, { state: { order }, replace: true });
     } catch (ex) {
       setBusy(false);
@@ -440,32 +466,18 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Payment Method Card */}
+            {/* Payment Method Card — live list from /api/payments/methods */}
             <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-4 shadow-xs">
               <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000] border-b border-[#EAEAEA] pb-3">
                 Payment Method
               </h2>
-
-              <div className="rounded-2xl border-2 border-[#000000] p-4 bg-[#FFFFFF] shadow-xs flex items-start gap-3.5">
-                <input
-                  type="radio"
-                  name="payment"
-                  checked
-                  readOnly
-                  className="mt-1 text-black focus:ring-0"
-                />
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Banknote size={17} className="text-[#000000]" />
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#000000]">
-                      Cash on Delivery (COD)
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#666666] font-light leading-relaxed">
-                    Pay with cash at your doorstep when your courier delivers the parcel.
-                  </p>
-                </div>
-              </div>
+              <MethodPicker
+                name="payment"
+                legend="Payment method"
+                options={payMethods}
+                value={payId}
+                onChange={setPayId}
+              />
             </div>
 
             {/* Mobile Submit Button */}

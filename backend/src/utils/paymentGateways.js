@@ -141,4 +141,65 @@ const safepay = {
   },
 };
 
-module.exports = { jazzcash, safepay };
+/* -------------------- EasyPaisa (Easypay hosted checkout) -------------------- */
+/*
+ * Real documented flow (Easypay merchant integration):
+ *   1. Merchant gets storeId + hashKey from the EasyPaisa merchant portal
+ *   2. We auto-submit a signed form to Easypay Index.jsf (sandbox or live)
+ *   3. Customer pays on the Easypay hosted page (wallet / card / bank / OTC)
+ *   4. Easypay posts back to our postBackURL with an HMAC-SHA256 signature
+ *      over the documented field order; responseCode 0000 = paid
+ */
+const easypaisa = {
+  isConfigured(cfg) { return !!(cfg && cfg.storeId && cfg.hashKey); },
+
+  endpoint(cfg) {
+    return cfg.sandbox
+      ? 'https://easypaystg.easypaisa.com.pk/easypay/Index.jsf'
+      : 'https://easypay.easypaisa.com.pk/easypay/Index.jsf';
+  },
+
+  initiate(order, cfg) {
+    if (!this.isConfigured(cfg)) throw new Error('EasyPaisa is not configured');
+    const amount = Number(order.total || 0).toFixed(2);
+    const ref = (`EP${Date.now()}${String(order.orderNumber || '').replace(/\D/g, '')}`).slice(0, 20);
+    const fields = {
+      storeId: String(cfg.storeId),
+      orderRefNum: ref,
+      transactionAmount: amount,
+      postBackURL: String(cfg.postBackURL || ''),
+      emailAddr: String(order.customerInfo?.email || ''),
+      mobileAccountNo: '',
+      transactionType: 'MA',
+      tokenExpiry: '',
+      bankIdentificationNumber: '',
+      merchantPaymentMethod: '',
+    };
+    const str = `amount=${fields.transactionAmount}`
+      + `&postBackURL=${fields.postBackURL}`
+      + `&orderRefNum=${fields.orderRefNum}`
+      + `&storeId=${fields.storeId}`
+      + `&transactionType=${fields.transactionType}`;
+    fields.merchantHashedReq = crypto.createHmac('sha256', String(cfg.hashKey)).update(str).digest('base64');
+    return { type: 'form', fields, endpoint: this.endpoint(cfg), ref };
+  },
+
+  verify(payload, cfg) {
+    if (!this.isConfigured(cfg)) return { ok: false, reason: 'not configured' };
+    const ref = String(payload.orderRefNumber || payload.orderRefNum || '');
+    const code = String(payload.responseCode || '');
+    const desc = String(payload.responseDesc || '');
+    const str = `orderRefNumber=${ref}&responseCode=${code}&responseDesc=${desc}&storeId=${String(cfg.storeId)}`;
+    const expected = crypto.createHmac('sha256', String(cfg.hashKey)).update(str).digest('base64');
+    const got = String(payload.merchantHashedResp || '');
+    let sigOk = false;
+    try {
+      sigOk = expected.length === got.length
+        && crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(got));
+    } catch { sigOk = false; }
+    if (!sigOk) return { ok: false, reason: 'signature mismatch', ref };
+    return { ok: code === '0000', ref, code, desc };
+  },
+};
+
+module.exports = { jazzcash, safepay, easypaisa };
