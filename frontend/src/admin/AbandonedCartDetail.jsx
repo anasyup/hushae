@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, Calendar, Clock, Copy, ExternalLink, Link2, Mail, MessageCircle,
-  Package, Phone, Send, ShoppingBag, Trash2, User, CheckCircle2,
+  ArrowLeft, Calendar, CheckCircle2, Clock, Copy, ExternalLink, Flame, Link2,
+  Mail, MessageCircle, Package, Phone, Send, ShoppingBag, Sparkles, Trash2, User,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -11,13 +11,26 @@ import AdminLayout from './AdminLayout';
 import styles from './AbandonedCarts.module.css';
 
 /* ============================================================================
- * ABANDONED CART DETAIL — dedicated page for one cart.
- * Opens from the Abandoned Carts list ("View"). Full customer + item
- * workspace: contact copy, WhatsApp, recovery email, timeline, linked order
- * and customer profile. Same ATELIER design family as the list page.
+ * ABANDONED CART DETAIL — dedicated page for one cart (extreme polish pass).
+ *
+ * Premium layout in the ATELIER family:
+ *   - hero identity (initials avatar, status, contact chips)
+ *   - urgency meter — how much of the 2h prime window is gone
+ *   - "next best action" — a rule engine that tells the merchant what to do
+ *   - sticky action bar (email / WhatsApp / delete always in reach)
+ *   - stat cards, richer timeline, item rows with hover polish
+ *   - Esc returns to the list; reduced-motion respected
  * ========================================================================== */
 
-const cx = (...names) => names.map((n) => styles[n]).join(' ');
+const cx = (...names) => names.map((n) => styles[n]).filter(Boolean).join(' ');
+
+const initials = (name, email) => {
+  const src = (name || email || '?').trim();
+  const parts = src.split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 function Stat({ icon: Icon, label, value, sub, chip, chipTone, delay }) {
   return (
@@ -57,6 +70,13 @@ export default function AbandonedCartDetail() {
 
   useEffect(() => { load(); }, [load]);
 
+  /* Esc → back to the list (quick keyboard exit). */
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && !busy) navigate('/admin/abandoned-carts'); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [busy, navigate]);
+
   const copy = async (label, value) => {
     try {
       await navigator.clipboard.writeText(value || '');
@@ -88,6 +108,45 @@ export default function AbandonedCartDetail() {
     try { await api(`/abandoned-cart/admin/${cart._id}`, { method: 'DELETE', token: auth.token }); toast('Cart deleted'); navigate('/admin/abandoned-carts'); }
     catch (ex) { toast(ex.message); }
   };
+
+  const items = useMemo(() => cart?.items || [], [cart]);
+
+  const badge = cart
+    ? cart.recoveredOrderId
+      ? { cls: 'recovered', label: 'Recovered' }
+      : cart.recoveryEmailSentAt
+        ? { cls: 'emailed', label: 'Emailed' }
+        : { cls: 'open', label: 'Open' }
+    : { cls: 'open', label: 'Open' };
+
+  /* Urgency — how much of the 2h prime recovery window has passed. */
+  const urgency = useMemo(() => {
+    if (!cart?.lastSeenAt) return { tone: 'neutral', label: '—', pct: 0, note: '' };
+    const ageHrs = Math.max(0, (Date.now() - new Date(cart.lastSeenAt).getTime()) / 3600000);
+    if (cart.recoveredOrderId) return { tone: 'green', label: 'Recovered', pct: 100, note: 'This cart already converted.' };
+    if (ageHrs <= 2) return { tone: 'green', label: 'Prime window', pct: Math.round((ageHrs / 2) * 100), note: `Abandoned ${ago(cart.lastSeenAt)} — recovery peaks in the first 2 hours.` };
+    if (ageHrs <= 24) return { tone: 'amber', label: 'Warming up', pct: Math.round(20 + (ageHrs / 24) * 60), note: 'A friendly nudge now still converts well.' };
+    return { tone: 'red', label: 'Going cold', pct: 100, note: 'Older than a day — a discount code or WhatsApp message works best.' };
+  }, [cart]);
+
+  /* Next best action — a simple rule engine for the merchant. */
+  const nextAction = useMemo(() => {
+    if (!cart) return null;
+    if (cart.recoveredOrderId) {
+      return { icon: CheckCircle2, tone: 'done', title: 'Recovered — nothing to do', desc: 'This customer placed an order. The cart is closed.', cta: null };
+    }
+    if (cart.email && !cart.recoveryEmailSentAt) {
+      return { icon: Send, tone: 'hot', title: 'Send the recovery email', desc: 'No email sent yet — the first touch converts best.', cta: { label: 'Send now', onClick: sendEmail } };
+    }
+    if (cart.phone) {
+      const since = cart.recoveryEmailSentAt ? Date.now() - new Date(cart.recoveryEmailSentAt).getTime() : Infinity;
+      if (since < 48 * 3600000) {
+        return { icon: MessageCircle, tone: 'warm', title: 'Follow up on WhatsApp', desc: 'Email sent recently — a personal WhatsApp message roughly doubles the odds.', cta: { label: 'Open WhatsApp', onClick: sendWhatsApp } };
+      }
+      return { icon: Flame, tone: 'warm', title: 'Re-engage with a fresh angle', desc: 'The email is over 48h old. Try WhatsApp or a discount code to rekindle.', cta: { label: 'Open WhatsApp', onClick: sendWhatsApp } };
+    }
+    return { icon: User, tone: 'warm', title: 'Add a phone number', desc: 'WhatsApp is the strongest recovery channel — a phone number unlocks it.', cta: null };
+  }, [cart, busy]); // eslint-disable-line
 
   if (err) {
     return (
@@ -125,13 +184,6 @@ export default function AbandonedCartDetail() {
     );
   }
 
-  const items = cart.items || [];
-  const badge = cart.recoveredOrderId
-    ? { cls: 'recovered', label: 'Recovered' }
-    : cart.recoveryEmailSentAt
-      ? { cls: 'emailed', label: 'Emailed' }
-      : { cls: 'open', label: 'Open' };
-
   const timeline = [
     { label: 'Cart created', at: cart.createdAt, done: true, icon: Calendar },
     { label: 'Last seen at checkout', at: cart.lastSeenAt, done: true, icon: Clock },
@@ -139,40 +191,67 @@ export default function AbandonedCartDetail() {
     cart.recoveredOrderId ? { label: 'Order placed — recovered', at: cart.recoveredOrderId?.createdAt || null, done: true, icon: CheckCircle2 } : null,
   ].filter(Boolean);
 
+  const phoneHref = cart.phone ? cart.phone.replace(/[^\d+]/g, '') : '';
+
   return (
     <AdminLayout title="Cart detail">
       <div className={styles.acw}>
-        {/* ── Head ─────────────────────────────────────────────── */}
+        {/* ── Breadcrumb ───────────────────────────────────────── */}
         <button type="button" className={styles.back} onClick={() => navigate('/admin/abandoned-carts')}>
           <ArrowLeft size={14} /> Abandoned carts
         </button>
-        <div className={styles.head} style={{ marginTop: 8 }}>
-          <div className={styles['head-left']}>
-            <p className={styles.eyebrow}>Cart detail</p>
-            <h1 className={styles.title} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              {cart.name || 'Anonymous'}
-              <span className={cx('badge', badge.cls)}>{badge.label}</span>
-            </h1>
-            <p className={styles.sub}>
-              {cart.email || 'No email on file'}
-              {cart.phone ? ` · ${cart.phone}` : ''}
-            </p>
+
+        {/* ── Hero identity ────────────────────────────────────── */}
+        <div className={styles.hero}>
+          <div className={styles['hero-left']}>
+            <span className={cx('avatar', 'avatar-lg')}>{initials(cart.name, cart.email)}</span>
+            <div className={styles['hero-meta']}>
+              <div className={styles['hero-line']}>
+                <h1 className={styles['hero-name']}>{cart.name || 'Anonymous'}</h1>
+                <span className={cx('badge', badge.cls)}>{badge.label}</span>
+              </div>
+              <p className={styles['hero-sub']}>
+                {cart.email || 'No email on file'}
+                {cart.phone ? ` · ${cart.phone}` : ''}
+              </p>
+              <div className={styles.chips}>
+                {cart.email && (
+                  <>
+                    <a className={styles.chip} href={`mailto:${cart.email}`}><Mail size={11} strokeWidth={2} /> Email</a>
+                    <button type="button" className={styles.chip} onClick={() => copy('email', cart.email)}>
+                      {copied === 'email' ? '✓ Copied' : <><Copy size={11} strokeWidth={2} /> Copy</>}
+                    </button>
+                  </>
+                )}
+                {cart.phone && (
+                  <>
+                    <a className={styles.chip} href={`tel:${phoneHref}`}><Phone size={11} strokeWidth={2} /> Call</a>
+                    <button type="button" className={cx('chip', 'chip-wa')} onClick={sendWhatsApp}><MessageCircle size={11} strokeWidth={2} /> WhatsApp</button>
+                    <button type="button" className={styles.chip} onClick={() => copy('phone', cart.phone)}>
+                      {copied === 'phone' ? '✓ Copied' : <><Copy size={11} strokeWidth={2} /> Copy</>}
+                    </button>
+                  </>
+                )}
+                <button type="button" className={cx('chip', 'chip-mono')} onClick={() => copy('id', cart._id)}>
+                  {copied === 'id' ? '✓ Copied' : <><Link2 size={11} strokeWidth={2} /> {cart._id.slice(-6)}</>}
+                </button>
+              </div>
+            </div>
           </div>
-          <div className={styles['head-actions']}>
-            {!cart.recoveredOrderId && cart.email && (
-              <button type="button" className={styles['btn-dark']} onClick={sendEmail} disabled={busy === 'email'}>
-                <Send size={12} strokeWidth={2} />
-                {busy === 'email' ? 'Sending…' : 'Send recovery email'}
-              </button>
-            )}
-            {!cart.recoveredOrderId && cart.phone && (
-              <button type="button" className={styles.btn} onClick={sendWhatsApp}>
-                <MessageCircle size={11} strokeWidth={2} /> WhatsApp
-              </button>
-            )}
-            <button type="button" className={styles['icon-btn']} onClick={del} aria-label="Delete cart" title="Delete cart">
-              <Trash2 size={14} strokeWidth={1.8} />
-            </button>
+          <div className={styles['hero-right']}>
+            <p className={styles['hero-value']}>{pkr(cart.subtotal)}</p>
+            <p className={styles['hero-value-sub']}>{cart.itemCount} item{cart.itemCount === 1 ? '' : 's'} in cart</p>
+          </div>
+        </div>
+
+        {/* ── Urgency meter ────────────────────────────────────── */}
+        <div className={cx('urgency', `urgency-${urgency.tone}`)}>
+          <div className={styles['urgency-top']}>
+            <span className={styles['urgency-label']}><Flame size={12} strokeWidth={2} /> {urgency.label}</span>
+            <span className={styles['urgency-note']}>{urgency.note}</span>
+          </div>
+          <div className={styles['urgency-track']} role="progressbar" aria-valuenow={urgency.pct} aria-valuemin={0} aria-valuemax={100}>
+            <div className={styles['urgency-fill']} style={{ width: `${urgency.pct}%` }} />
           </div>
         </div>
 
@@ -195,6 +274,29 @@ export default function AbandonedCartDetail() {
           <Stat icon={CheckCircle2} label="Status" value={badge.label} sub={cart.discountCodeIssued ? `Code ${cart.discountCodeIssued}` : 'No code issued'}
             chip={badge.cls === 'recovered' ? 'Closed' : badge.cls === 'emailed' ? 'Follow up' : 'Warm lead'} chipTone={badge.cls === 'recovered' ? 'green' : badge.cls === 'emailed' ? 'amber' : 'red'} delay={0.19} />
         </div>
+
+        {/* ── Sticky action bar ────────────────────────────────── */}
+        {!cart.recoveredOrderId && (
+          <div className={styles['action-bar']}>
+            <p className={styles['action-hint']}><Sparkles size={12} strokeWidth={1.8} /> {nextAction?.desc}</p>
+            <div className={styles['action-btns']}>
+              {cart.email && (
+                <button type="button" className={styles['btn-dark']} onClick={sendEmail} disabled={busy === 'email'}>
+                  <Send size={12} strokeWidth={2} />
+                  {busy === 'email' ? 'Sending…' : 'Send recovery email'}
+                </button>
+              )}
+              {cart.phone && (
+                <button type="button" className={cx('btn', 'btn-wa')} onClick={sendWhatsApp}>
+                  <MessageCircle size={11} strokeWidth={2} /> WhatsApp
+                </button>
+              )}
+              <button type="button" className={styles['icon-btn']} onClick={del} aria-label="Delete cart" title="Delete cart">
+                <Trash2 size={14} strokeWidth={1.8} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Workspace ────────────────────────────────────────── */}
         <div className={styles['detail-grid']}>
@@ -230,7 +332,7 @@ export default function AbandonedCartDetail() {
                 <div className={styles.kv}>
                   <dt>Phone</dt>
                   <dd>
-                    {cart.phone ? <a href={`tel:${cart.phone.replace(/[^\d+]/g, '')}`}>{cart.phone}</a> : '—'}
+                    {cart.phone ? <a href={`tel:${phoneHref}`}>{cart.phone}</a> : '—'}
                     {cart.phone && (
                       <button type="button" className={styles['copy-btn']} onClick={() => copy('phone', cart.phone)} aria-label="Copy phone">
                         {copied === 'phone' ? '✓' : <Copy size={9} />}
@@ -263,7 +365,9 @@ export default function AbandonedCartDetail() {
               <div className={styles.timeline}>
                 {timeline.map((t, i) => (
                   <div key={i} className={styles['tl-item']}>
-                    <span className={cx('tl-dot', t.done && 'done')} />
+                    <span className={cx('tl-dot', 'tl-ico', t.done && 'done')}>
+                      <t.icon size={10} strokeWidth={2} />
+                    </span>
                     <div className={styles['tl-body']}>
                       <b>{t.label}</b>
                       <span>{t.at ? `${ago(t.at)} · ${fmtDateTime(t.at)}` : ''}</span>
@@ -272,7 +376,7 @@ export default function AbandonedCartDetail() {
                 ))}
                 {!cart.recoveredOrderId && (
                   <div className={styles['tl-item']}>
-                    <span className={cx('tl-dot', 'now')} />
+                    <span className={cx('tl-dot', 'tl-ico', 'now')}><Flame size={10} strokeWidth={2} /></span>
                     <div className={styles['tl-body']}>
                       <b>Awaiting recovery</b>
                       <span>Email or WhatsApp this customer to bring them back</span>
@@ -297,7 +401,7 @@ export default function AbandonedCartDetail() {
                   {items.map((it, i) => (
                     <div key={i} className={styles['item-row']}>
                       {it.image
-                        ? <img src={it.image} alt="" loading="lazy" />
+                        ? <img src={it.image} alt={it.name || ''} loading="lazy" />
                         : <span className={styles.ph} />}
                       <div className={styles['item-info']}>
                         <b>{it.name || 'Item'}</b>

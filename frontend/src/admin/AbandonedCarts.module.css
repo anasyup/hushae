@@ -242,3 +242,73 @@ html.dark-admin .acw .copy-btn{background:#131316;border-color:#26262c}
 /* shared mini-classes (parity with Reports/Overview) */
 .group-n{font-size:10.5px;color:var(--muted2);font-variant-numeric:tabular-nums}
 .ovw-empty{text-align:center;color:var(--muted2);font-size:11.5px;padding:26px 10px}
+
+/* ============================================================
+   EXTREME POLISH — detail page hero / urgency / actions
+   Same ATELIER family, richer composition.
+   ============================================================ */
+.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:14px 0 12px;padding:18px 20px;background:var(--card);border:1px solid var(--border-light);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.02);animation:cardIn .45s ease backwards}
+.hero-left{display:flex;align-items:center;gap:14px;min-width:0}
+.avatar-lg{width:52px;height:52px;border-radius:14px;font-size:16px;background:var(--black);color:var(--inverse);border:0}
+.hero-meta{min-width:0}
+.hero-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hero-name{font-size:22px;font-weight:700;letter-spacing:-.5px;color:var(--text)}
+.hero-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);background:var(--card);border-radius:8px;padding:4px 9px;font-size:10.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:.15s;text-decoration:none}
+.chip:hover{color:var(--text);border-color:#bbb;transform:translateY(-1px)}
+.chip-wa{color:var(--green-text);background:var(--green-bg);border-color:color-mix(in srgb, var(--green) 30%, transparent)}
+.chip-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px}
+.hero-right{text-align:right}
+.hero-value{font-size:24px;font-weight:700;letter-spacing:-.6px;font-variant-numeric:tabular-nums;color:var(--text)}
+.hero-value-sub{font-size:11px;color:var(--muted2);margin-top:2px}
+
+/* ---- urgency meter ------------------------------------------ */
+.urgency{border:1px solid var(--border-light);border-radius:12px;padding:11px 14px;margin-bottom:12px;background:var(--card);animation:cardIn .5s ease backwards;animation-delay:.05s}
+.urgency-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.urgency-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.urgency-note{font-size:10.5px;color:var(--muted2)}
+.urgency-track{height:5px;border-radius:20px;background:var(--hover);overflow:hidden}
+.urgency-fill{height:100%;border-radius:20px;transition:width .9s cubic-bezier(.22,.61,.36,1)}
+.urgency-green .urgency-label{color:var(--green-text)}
+.urgency-green .urgency-fill{background:var(--green)}
+.urgency-amber .urgency-label{color:var(--amber)}
+.urgency-amber .urgency-fill{background:#f59e0b}
+.urgency-red .urgency-label{color:var(--red)}
+.urgency-red .urgency-fill{background:var(--red)}
+.urgency-neutral .urgency-label{color:var(--muted)}
+.urgency-neutral .urgency-fill{background:var(--muted2)}
+
+/* ---- sticky action bar --------------------------------------- */
+.action-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:sticky;top:64px;z-index:20;background:var(--bg);border:1px solid var(--border-light);border-radius:12px;padding:10px 14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.02);animation:cardIn .5s ease backwards;animation-delay:.07s}
+.action-hint{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);min-width:0}
+.action-hint svg{stroke:var(--amber);flex-shrink:0}
+.action-btns{display:flex;align-items:center;gap:8px}
+
+/* ---- timeline icons ------------------------------------------ */
+.tl-item::before{left:8.5px}
+.tl-dot.tl-ico{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--card);margin-top:1px}
+.tl-dot.tl-ico svg{stroke:var(--muted2)}
+.tl-dot.tl-ico.done{background:var(--green)}
+.tl-dot.tl-ico.done svg{stroke:#fff}
+.tl-dot.tl-ico.now{background:var(--black)}
+.tl-dot.tl-ico.now svg{stroke:var(--inverse);animation:tlPulse 2s infinite}
+.done,.now{}
+
+/* ---- item image hover zoom ----------------------------------- */
+.item-row img{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.item-row:hover img{transform:scale(1.07)}
+.item-info b{transition:color .15s}
+.item-row:hover .item-info b{color:var(--black)}
+
+/* ---- dark parity for the polish layer ------------------------- */
+html.dark-admin .acw .chip{background:#131316;border-color:#26262c}
+html.dark-admin .acw .chip:hover{background:#1a1a1e;border-color:#4b4b52}
+html.dark-admin .acw .avatar-lg{background:#f4f4f5;color:#111}
+html.dark-admin .acw .urgency-track{background:#1d1d21}
+html.dark-admin .acw .action-bar{background:#0e0e11}
+html.dark-admin .acw .tl-dot.tl-ico{background:#131316}
+html.dark-admin .acw .tl-dot.tl-ico.done{background:#10b981}
+html.dark-admin .acw .tl-dot.tl-ico.now{background:#f4f4f5}
+html.dark-admin .acw .tl-dot.tl-ico.now svg{stroke:#111}
+html.dark-admin .acw .item-row:hover .item-info b{color:#f4f4f5}

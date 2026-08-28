@@ -13,7 +13,7 @@ import styles from './AbandonedCarts.module.css';
  * recovery email, WhatsApp, bulk send, delete, expandable detail.
  * ========================================================================== */
 
-const cx = (...names) => names.map((n) => styles[n]).join(' ');
+const cx = (...names) => names.map((n) => styles[n]).filter(Boolean).join(' ');
 
 /* Count-up for stat values — same feel as the Overview dashboard. */
 function useCountUp(target) {
