@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown, Mail, MessageCircle, RefreshCcw, Search, Send, ShoppingBag, Trash2, XCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronDown, Eye, Mail, MessageCircle, RefreshCcw, Search, Send, ShoppingBag, Trash2, XCircle } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDateTime, pkr, ago } from '../lib/format';
@@ -53,6 +53,7 @@ function StatCard({ icon: Icon, label, value, sub, chip, chipTone, delay }) {
 
 export default function AbandonedCarts() {
   const { auth, toast } = useApp();
+  const navigate = useNavigate();
   const [status, setStatus] = useState('open');          // open | recovered | all
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState('');
@@ -268,7 +269,14 @@ export default function AbandonedCarts() {
 
                     <div className={styles['row-body']}>
                       <p className={styles['row-name']}>
-                        {c.name || 'Anonymous'}
+                        <button
+                          type="button"
+                          className={styles['row-link']}
+                          onClick={() => navigate(`/admin/abandoned-carts/${c._id}`)}
+                          title="Open cart detail"
+                        >
+                          {c.name || 'Anonymous'}
+                        </button>
                         <span className={cx('badge', badge.cls)}>{badge.label}</span>
                       </p>
                       <p className={styles['row-contact']}>
@@ -295,6 +303,15 @@ export default function AbandonedCarts() {
                     </div>
 
                     <div className={styles.actions}>
+                      <button
+                        type="button"
+                        className={styles['icon-btn-sm']}
+                        onClick={() => navigate(`/admin/abandoned-carts/${c._id}`)}
+                        aria-label="Open cart detail"
+                        title="Open cart detail"
+                      >
+                        <Eye size={13} strokeWidth={1.8} />
+                      </button>
                       {!c.recoveredOrderId && c.email && (
                         <button type="button" className={styles.btn} onClick={() => sendEmail(c._id)} disabled={busy === `email-${c._id}`}>
                           <Mail size={11} strokeWidth={2} />

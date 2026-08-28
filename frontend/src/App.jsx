@@ -78,6 +78,7 @@ const Content = lazy(() => import('./admin/Content'));
 const Markets = lazy(() => import('./admin/Markets'));
 const Apps = lazy(() => import('./admin/Apps'));
 const AbandonedCarts = lazy(() => import('./admin/AbandonedCarts'));
+const AbandonedCartDetail = lazy(() => import('./admin/AbandonedCartDetail'));
 const Backup = lazy(() => import('./admin/Backup'));
 const Collections = lazy(() => import('./admin/Collections'));
 const Reviews = lazy(() => import('./admin/Reviews'));
@@ -435,6 +436,7 @@ export default function App() {
           <Route path="/admin/insights" element={<Suspense fallback={<EditorFallback />}><Insights /></Suspense>} />
           <Route path="/admin/finance" element={<Suspense fallback={<EditorFallback />}><Finance /></Suspense>} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
+          <Route path="/admin/abandoned-carts/:id" element={<Suspense fallback={<EditorFallback />}><AbandonedCartDetail /></Suspense>} />
           <Route path="/admin/reviews" element={<Reviews />} />
           <Route path="/admin/questions" element={<Suspense fallback={<EditorFallback />}><AdminQuestions /></Suspense>} />
 

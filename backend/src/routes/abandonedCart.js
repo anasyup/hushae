@@ -120,6 +120,17 @@ router.get('/admin', protect, adminOnly, asyncHandler(async (req, res) => {
   });
 }));
 
+/* Admin: single cart detail (detail page) — populated with the recovered
+   order (number/total/status) and the linked customer profile. */
+router.get('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
+  const cart = await AbandonedCart.findById(req.params.id)
+    .populate('recoveredOrderId', 'orderNumber total status paymentMethod createdAt')
+    .populate('customer', 'name email phone')
+    .lean();
+  if (!cart) return res.status(404).json({ message: 'Cart not found' });
+  res.json({ cart });
+}));
+
 /* Admin: send one recovery email */
 router.post('/admin/:id/send', protect, adminOnly, asyncHandler(async (req, res) => {
   const cart = await AbandonedCart.findById(req.params.id);
