@@ -27,28 +27,10 @@ Har admin UI change us checklist ke against judge hoga.
 (R0–R8) "organized nahi lag rahe" thay — random order, same-weight stacked tables, misaligned
 numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par hain.
 
-**STATUS: DONE (2 rounds).**
-1. `2640143` — report sections ek hi card + 12-column row system par (boss: "organized nahi
-   lag rahay, paragraph jaisay").
-2. `ee052e3` — un sections me **asal charts** add hue (boss: "maza nahi aya, charts jaisa
-   candlestick jaisa doo, samajhne me easy").
-
-**REUSE KARO, DOBARA MAT BANAO:**
-- `src/admin/analytics/sections.jsx` — Section / HeadRow / Row / Metric / Chip / EmptyState
-- `src/admin/analytics/columns.js` — saare column spans (lead 4 + metrics 8 = 12 grid)
-- `src/admin/analytics/svgcharts.jsx` — CandleChart / BubbleScatter / DonutChart / ParetoChart
-  / GaugeChart + pure helpers `toCandles`, `pareto`, `scale`
-- `src/admin/analytics/charts.css` — `cx-*` namespace, `--cx-*` palette tokens (dark-mode included)
-- Tests: `frontend/scripts/test-analytics-charts.mjs` (60 assertions),
-  `frontend/scripts/test-analytics-sections.mjs` (33). Dono `react-dom/server` se REAL
-  components render karte hain — `node scripts/test-<name>.mjs`.
-
-**Chart.js note:** bundle me hai, par candlestick/financial series ke liye extra plugin
-chahiye aur styling brief tak nahi pohanchti — isliye charts hand-rolled SVG hain (koi nayi
-dependency nahi). Naya chart chahiye to `svgcharts.jsx` me add karo, `--cx-*` tokens use karo,
-aur `prefers-reduced-motion` gate lagao.
-
-Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao.
+**STATUS: DONE.** Boss ne green light diya ("inhay be sahi karoo") aur ye kaam live hai.
+Naya kaam shuru karne se pehle `DESIGN-BRIEF.md` §1–§5 ka checklist lagao — wahi acceptance
+criteria hai. Naya row/table-based admin section banate waqt
+`src/admin/analytics/sections.jsx` + `columns.js` reuse karo, dobara mat banao.
 
 ---
 
@@ -241,6 +223,7 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
 - **Working features (sab preserved):** 6 clickable saved-view stat cards (All/Active/Draft/Archived/Low/Out live counts ke sath), search + status/category + More filters, list/grid toggle, selection bulk bar (Edit modal + Activate + Archive), inline stock −/+ stepper (optimistic + PATCH delta), CSV import/export, duplicate/publish/archive/delete, deep links, pagination 50/page.
 - **Categories page bhi ATELIER (commit c363432):** 4 clickable stat views (All/Women/Men/Disabled), live search, quick Disable/Enable one-tap (enable NEW — PUT isActive), ATELIER modal with slug preview + image preview + Active switch, shimmer/empty/error states, mobile cards. Kit me naye shared parts: pa-field/pa-textarea/pa-img-preview/pa-switch + pa-stats-4 — `products-atelier.css` ab shared Vite chunk hai (Products + Categories dono).
 - **Collections page bhi ATELIER (commit ac7f5d5):** card grid (16:9 image + hover zoom), 4 stat views (All/Featured/Smart/Hidden), live search, quick Hide/Show card se (PUT isActive — NEW), badges Homepage/Smart/Hidden, ATELIER editor modal with smart rules (tag chips black pills), manual product picker, switches. Sab logic preserved.
+- **ORDER DETAIL v2 (71c6e42, boss: information sahi + design behtar):** Shopify-grade 2-column layout — head me bada tabular order number + meta strip (placed/pieces/source/coupon/tracking) + badges; left working column (pill tabs items/timeline/tracking + item editor), right summary rail (totals + tax, customer + email, shipping + maps, payment + txn). .odt-* maintainable classes. Live 3/3.
 - **CRASH + 2 PAGES PREMIUM (7b2486b):** (1) OrderRow bins ReferenceError FIXED (boss ne crash dekha) — bins ab items se derive hota hai. (2) OrderDetail FULL ATELIER rebuild — pills, cards, tabs, item editor, tracking, timeline, cancel-reason red glass; sab functions preserved. (3) ProductForm .pf-prem layer — sections = white cards staggered, pill controls, focus rings. Live 3/3 verified.
 - **ORDERS SHAPE PASS v3 (f0b2898, boss feedback):** stat cards ab real BUTTONS hain (Total→All, Pending→New, Processing, Completed→Delivered, Cancelled→Issues, Revenue→Reports; focus rings + press feedback). Default page size 50→**20**. Har control ab confident PILL (999px) — half-curved boxes khatam; cards 16-18px radius. R0-R8 (Analytics) dusre agent ka scope — humne nahi chheda.
 - **ORDERS PREMIUM PASS v2 (d5c8ac9, boss: 'premium luxury modern, sirf orders page'):** orders-desk.css me additive override layer — warm paper gradient canvas + gold whisper, 16-18px radii, layered soft shadows, glass date-control + tabs track (floating black pill), obsidian-gradient buttons, icon chips + staggered stat entrance, amber-glass callout, table hover accent bar, pill badges, silk shimmer, focus rings; dark parity; zero JS. NOTE: orders-desk.css live AdminLayout css chunk me merge hota hai (verify: odShimmer grep). Boss ka taste: orders pe dashboard NAHI (pulse revert c4e44a7), premium polish CHAHIYE.
