@@ -28,7 +28,7 @@ const RANGES = [
 ];
 
 const th = { textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--adm-label)', padding: '8px 10px', borderBottom: '1px solid var(--admin-border)' };
-const td = { fontSize: 12, padding: '9px 10px', borderBottom: '1px solid var(--admin-border-subtle)', color: 'var(--admin-text)' };
+const td = { fontSize: 12.5, padding: '11px 12px', borderBottom: '1px solid var(--admin-border-subtle)', color: 'var(--admin-text)' };
 const num = { ...td, fontVariantNumeric: 'tabular-nums' };
 
 /* Count-up number animation (reduced-motion safe). */
@@ -68,9 +68,9 @@ function Funnel({ k }) {
           <g key={label}>
             <polygon
               points={`${150 - wTop / 2},${y + 2} ${150 + wTop / 2},${y + 2} ${150 + wBot / 2},${y + 50} ${150 - wBot / 2},${y + 50}`}
-              fill="currentColor" opacity={0.75 - i * 0.16}
+              fill={['#0f766e', '#0d9488', '#14b8a6', '#2dd4bf'][i]}
             />
-            <text x={150} y={y + 30} textAnchor="middle" fontSize="10" fill="var(--admin-bg)" fontWeight="700">{pct}%</text>
+            <text x={150} y={y + 30} textAnchor="middle" fontSize="10" fill="#ffffff" fontWeight="700">{pct}%</text>
             <text x={292} y={y + 30} textAnchor="end" fontSize="9" fill="var(--adm-label)">{label} · {Number(v).toLocaleString()}</text>
           </g>
         );
@@ -236,9 +236,9 @@ export default function Analytics() {
           {/* KPI cards — accent tints, count-up, staggered reveal */}
           <div className="od-stats">
             {[
-              { label: 'Revenue', raw: bench.kpis.revenue, fmt: (v) => `Rs ${Math.round(v).toLocaleString()}`, bars: bench.series.map((d) => d.revenue), key: 'revenue', acc: 'acc-blue' },
-              { label: 'Orders', raw: bench.kpis.orders, fmt: (v) => Math.round(v).toLocaleString(), bars: bench.series.map((d) => d.orders), key: 'orders', acc: 'acc-green' },
-              { label: 'Sessions', raw: bench.kpis.sessions, fmt: (v) => Math.round(v).toLocaleString(), bars: bench.series.map((d) => d.sessions), key: 'sessions', acc: 'acc-teal' },
+              { label: 'Revenue', raw: bench.kpis.revenue, fmt: (v) => `Rs ${Math.round(v).toLocaleString()}`, bars: bench.series.map((d) => d.revenue), key: 'revenue', acc: 'acc-blue', color: '#2563eb' },
+              { label: 'Orders', raw: bench.kpis.orders, fmt: (v) => Math.round(v).toLocaleString(), bars: bench.series.map((d) => d.orders), key: 'orders', acc: 'acc-green', color: '#0e9f6e' },
+              { label: 'Sessions', raw: bench.kpis.sessions, fmt: (v) => Math.round(v).toLocaleString(), bars: bench.series.map((d) => d.sessions), key: 'sessions', acc: 'acc-teal', color: '#0d9488' },
               { label: 'Conversion', raw: bench.kpis.conversion, fmt: (v) => `${v.toFixed(1)}%`, bars: null, key: null, acc: 'acc-amber' },
               { label: 'Avg order', raw: bench.kpis.aov, fmt: (v) => `Rs ${Math.round(v).toLocaleString()}`, bars: null, key: null, acc: 'acc-pink' },
               { label: 'Cart → checkout', raw: bench.kpis.carts ? (bench.kpis.checkouts / bench.kpis.carts) * 100 : 0, fmt: (v) => `${Math.round(v)}%`, bars: null, key: null, acc: 'acc-gray' },
@@ -255,7 +255,7 @@ export default function Analytics() {
                       {dlt == null ? 'this period' : `${dlt >= 0 ? '↑' : '↓'} ${Math.abs(dlt)}% vs prev day`}
                     </span>
                     {m2.bars && (
-                      <svg width="70" height="24" aria-hidden="true" style={{ color: 'inherit' }}>
+                      <svg width="70" height="24" aria-hidden="true" style={{ color: m2.color || 'inherit' }}>
                         {m2.bars.slice(-14).map((v, i, arr) => {
                           const max = Math.max(...arr, 1);
                           const h = Math.max(2, (v / max) * 22);
