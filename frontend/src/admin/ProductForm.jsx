@@ -8,6 +8,7 @@ import AdminLayout from './AdminLayout';
 import PageHeader from './components/PageHeader';
 import ImageTiles from '../components/ImageTiles';
 import { btnGhost, btnSolid, ctl } from './orders/orderUi';
+import './products-atelier.css';
 
 /* ===========================================================================
  * PRODUCT FORM — Phase 05 editorial editor. Save payload unchanged.
@@ -137,6 +138,7 @@ export default function ProductForm() {
 
   return (
     <AdminLayout title={isNew ? 'Add Product' : 'Edit Product'}>
+      <div className="pa-outer"><div className="pa-wrap pf-prem">
       <PageHeader
         title={isNew ? 'New product' : (f.name || 'Edit product')}
         description={isNew ? 'Create a catalog item.' : 'Edit media, commerce and publishing.'}
@@ -456,6 +458,7 @@ export default function ProductForm() {
           </button>
         </div>
       </form>
+      </div></div>
     </AdminLayout>
   );
 }

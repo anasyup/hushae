@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, Copy, ExternalLink, Minus, Plus, RefreshCw, Save, Trash2, X,
+  ArrowLeft, Copy, ExternalLink, MapPin, MessageCircle, Minus, Plus, Printer,
+  RefreshCw, Save, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDateTime, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
 import Img from '../components/Img';
 import ReliabilityBadge from './ReliabilityBadge';
 import { CANCEL_REASONS } from './orders/orderConstants';
-import { btnGhost, btnIcon, btnSolid, ctl, ctlInline, MonoStatus } from './orders/orderUi';
+import './products-atelier.css';
 
-/* ===========================================================================
- * ORDER DETAIL — Phase 03-R editorial presentation.
- * Functionality unchanged: status, payment, items edit, delete, tracking.
+/* ============================================================================
+ * ORDER DETAIL — premium ATELIER rebuild (boss: same luxury family as the
+ * orders desk). Every function preserved: status + payment controls, cancel
+ * with reason, items edit (sizes/colors/qty/picker), totals, timeline,
+ * tracking, WhatsApp, print, delete, reliability badge, maps link.
  * ========================================================================== */
 
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
@@ -60,7 +62,7 @@ export default function OrderDetail() {
     const ids = o.items.map((i) => i.product).filter(Boolean);
     let map = {};
     if (ids.length) {
-      try { const d = await api(`/products/admin/list?ids=${ids.join(',')}`, { token: auth.token }); map = Object.fromEntries(d.products.map((p) => [String(p._id), p])); } catch {}
+      try { const d = await api(`/products/admin/list?ids=${ids.join(',')}`, { token: auth.token }); map = Object.fromEntries(d.products.map((p) => [String(p._id), p])); } catch { /* picker falls back to item snapshot */ }
     }
     setEditItems(o.items.map((i) => {
       const p = map[String(i.product)] || {};
@@ -68,10 +70,14 @@ export default function OrderDetail() {
     }));
     setPq(''); setPRes([]); setEditing(true);
   };
-  const updLine = (i, k, v) => setEditItems((a) => a.map((it, j) => j === i ? { ...it, [k]: v } : it));
-  const stepQty = (i, d) => setEditItems((a) => a.map((it, j) => j === i ? { ...it, quantity: Math.min(10, Math.max(1, it.quantity + d)) } : it));
+  const updLine = (i, k, v) => setEditItems((a) => a.map((it, j) => (j === i ? { ...it, [k]: v } : it)));
+  const stepQty = (i, d) => setEditItems((a) => a.map((it, j) => (j === i ? { ...it, quantity: Math.min(10, Math.max(1, it.quantity + d)) } : it)));
   const delLine = (i) => setEditItems((a) => a.filter((_, j) => j !== i));
-  const searchPicker = async (q) => { setPq(q); if (q.trim().length < 2) { setPRes([]); return; } try { const d = await api(`/products/admin/list?q=${encodeURIComponent(q.trim())}`, { token: auth.token }); setPRes((d.products || []).filter((p) => p.isActive && p.status !== 'draft').slice(0, 6)); } catch { setPRes([]); } };
+  const searchPicker = async (q) => {
+    setPq(q);
+    if (q.trim().length < 2) { setPRes([]); return; }
+    try { const d = await api(`/products/admin/list?q=${encodeURIComponent(q.trim())}`, { token: auth.token }); setPRes((d.products || []).filter((p) => p.isActive && p.status !== 'draft').slice(0, 6)); } catch { setPRes([]); }
+  };
   const addPicked = (p) => { setEditItems((a) => [...a, { product: String(p._id), name: p.name, image: p.images?.[0]?.url || '', price: p.price, quantity: 1, size: p.sizes?.[0] || '', color: p.colors?.[0]?.name || '', sizes: p.sizes || [], colors: p.colors || [] }]); setPq(''); setPRes([]); };
   const saveItems = async () => {
     if (!editItems.length) { toast('Order must have at least one item'); return; }
@@ -84,11 +90,14 @@ export default function OrderDetail() {
   if (err) {
     return (
       <AdminLayout title="Order">
-        <div className="border-y border-white/10 py-16 text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/80">Unable to load order</p>
-          <p className="mt-3 text-[13px] text-white/35">{err}</p>
-          <button onClick={() => { setErr(''); load(); }} className={`${btnGhost} mt-6`}>Try again</button>
-        </div>
+        <div className="pa-outer"><div className="pa-wrap">
+          <div className="pa-card pa-state">
+            <div className="pa-state-icon"><X size={18} strokeWidth={1.8} /></div>
+            <h3>Unable to load order</h3>
+            <p>{err}</p>
+            <button type="button" onClick={() => { setErr(''); load(); }} className="pa-btn-black">Try again</button>
+          </div>
+        </div></div>
       </AdminLayout>
     );
   }
@@ -96,13 +105,13 @@ export default function OrderDetail() {
   if (!o) {
     return (
       <AdminLayout title="Order">
-        <div className="space-y-6" aria-hidden>
-          <div className="h-16 animate-pulse bg-white/5" />
-          <div className="grid grid-cols-2 gap-px border-y border-white/10 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 animate-pulse bg-white/[0.04]" />)}
+        <div className="pa-outer"><div className="pa-wrap">
+          <div className="pa-card pa-skeleton">
+            <div className="pa-sk-row" style={{ height: 40 }} />
+            <div className="pa-sk-row" style={{ height: 90 }} />
+            <div className="pa-sk-row" style={{ height: 220 }} />
           </div>
-          <div className="h-64 animate-pulse bg-white/[0.04]" />
-        </div>
+        </div></div>
       </AdminLayout>
     );
   }
@@ -124,292 +133,317 @@ export default function OrderDetail() {
 
   return (
     <AdminLayout title={`Order ${o.orderNumber}`}>
-      <PageHeader
-        title={o.orderNumber}
-        description="Customer, payment, fulfillment and items."
-        actions={(
-          <>
-            <Link to="/admin/orders" className={btnGhost}><ArrowLeft size={12} /> Back</Link>
-            {c.phone && (
-              <a href={waConfirm} target="_blank" rel="noreferrer" className={btnGhost}>WhatsApp</a>
-            )}
-            {nextMove && (
-              <button type="button" disabled={busy} onClick={() => patch('/status', { status: nextMove.status }, nextMove.label)} className={btnSolid}>
-                {nextMove.label}
+      <div className="pa-outer">
+        <div className="pa-wrap">
+
+          {/* ── head ── */}
+          <div className="pa-head">
+            <div>
+              <h1 style={{ fontFamily: 'inherit' }}>{o.orderNumber}</h1>
+              <p>Customer, payment, fulfillment and items.</p>
+            </div>
+            <div className="pa-head-actions">
+              <Link to="/admin/orders" className="pa-btn-sm"><ArrowLeft size={12} strokeWidth={2} /> Back</Link>
+              {c.phone && (
+                <a href={waConfirm} target="_blank" rel="noreferrer" className="pa-btn-sm" title="WhatsApp confirmation">
+                  <MessageCircle size={12} strokeWidth={2} /> WhatsApp
+                </a>
+              )}
+              <button type="button" onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className="pa-btn-sm">
+                <Printer size={12} strokeWidth={2} /> Print
               </button>
-            )}
-            <button type="button" onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className={btnGhost}>Print</button>
-            <button onClick={load} disabled={busy} className={btnIcon} title="Refresh"><RefreshCw size={13} className={busy ? 'animate-spin' : ''} /></button>
-            <button onClick={remove} className={btnGhost}><Trash2 size={11} /> Delete</button>
-          </>
-        )}
-      />
+              <button type="button" onClick={load} disabled={busy} className="pa-action-btn" style={{ width: 32, height: 32 }} aria-label="Refresh" title="Refresh">
+                <RefreshCw size={13} strokeWidth={2} className={busy ? 'pa-spin' : ''} />
+              </button>
+              <button type="button" onClick={remove} className="pa-action-btn danger" style={{ width: 32, height: 32 }} aria-label="Delete order" title="Delete">
+                <Trash2 size={13} strokeWidth={2} />
+              </button>
+              {nextMove && (
+                <button type="button" disabled={busy} onClick={() => patch('/status', { status: nextMove.status }, nextMove.label)} className="pa-btn-black">
+                  {nextMove.label}
+                </button>
+              )}
+            </div>
+          </div>
 
-      {/* Status / payment controls */}
-      <div className="mb-10 flex flex-wrap items-center gap-3 border-b border-white/10 pb-5">
-        <MonoStatus label={String(o.status || '').toUpperCase()} />
-        <MonoStatus label={payLabel} />
-        {o.discreetPackaging && <span className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">Discreet pack</span>}
+          {/* ── status / payment controls ── */}
+          <div className="pa-card" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: '12px 16px', marginBottom: 12 }}>
+            <span className="pa-badge pa-b-blue"><span className="pa-dot" aria-hidden />{String(o.status || '').toUpperCase()}</span>
+            <span className={`pa-badge ${payLabel === 'PAID' ? 'pa-b-green' : 'pa-b-yellow'}`}><span className="pa-dot" aria-hidden />{payLabel}</span>
+            {o.discreetPackaging && <span className="pa-badge pa-b-gray"><span className="pa-dot" aria-hidden />Discreet pack</span>}
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <select
+                value={o.status}
+                onChange={(e) => {
+                  if (e.target.value === 'Cancelled') { setCancelOpen(true); setCancelReason(''); return; }
+                  patch('/status', { status: e.target.value }, 'Status updated');
+                }}
+                disabled={busy}
+                aria-label="Order status"
+                className="pa-select"
+              >
+                {STATUSES.map((s) => <option key={s}>{s}</option>)}
+              </select>
+              <select
+                value={o.paymentStatus}
+                onChange={(e) => patch('/payment', { paymentStatus: e.target.value }, 'Payment updated')}
+                disabled={busy}
+                aria-label="Payment status"
+                className="pa-select"
+              >
+                {PAY.map((s) => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
 
-        <select
-          value={o.status}
-          onChange={(e) => {
-            if (e.target.value === 'Cancelled') { setCancelOpen(true); setCancelReason(''); return; }
-            patch('/status', { status: e.target.value }, 'Status updated');
-          }}
-          disabled={busy}
-          aria-label="Order status"
-          className={`${ctlInline} ml-auto`}
-        >
-          {STATUSES.map((s) => <option key={s}>{s}</option>)}
-        </select>
-        <select
-          value={o.paymentStatus}
-          onChange={(e) => patch('/payment', { paymentStatus: e.target.value }, 'Payment updated')}
-          disabled={busy}
-          aria-label="Payment status"
-          className={ctlInline}
-        >
-          {PAY.map((s) => <option key={s}>{s}</option>)}
-        </select>
-      </div>
-
-      {cancelOpen && (
-        <div className="mb-8 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
-          <span className="adm-label">Cancel reason</span>
-          <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className={ctlInline}>
-            <option value="">Select reason…</option>
-            {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
-          {cancelReason === 'Other' && (
-            <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className={ctlInline} />
+          {cancelOpen && (
+            <div className="pa-card" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, padding: '12px 16px', marginBottom: 12, borderColor: 'var(--pa-red-border)', background: 'var(--pa-red-bg)' }}>
+              <span className="pa-field-label" style={{ margin: 0 }}>Cancel reason</span>
+              <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="pa-select">
+                <option value="">Select reason…</option>
+                {CANCEL_REASONS.map((r) => <option key={r}>{r}</option>)}
+              </select>
+              {cancelReason === 'Other' && (
+                <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className="pa-modal-input" style={{ height: 34 }} />
+              )}
+              <button
+                type="button"
+                disabled={!cancelReason || busy}
+                onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
+                className="pa-btn-black"
+              >
+                Confirm cancel
+              </button>
+              <button type="button" onClick={() => setCancelOpen(false)} className="pa-btn-sm">Dismiss</button>
+            </div>
           )}
-          <button
-            disabled={!cancelReason || busy}
-            onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
-            className={btnSolid}
-          >
-            Confirm
-          </button>
-          <button onClick={() => setCancelOpen(false)} className={btnGhost}>Dismiss</button>
-        </div>
-      )}
 
-      {/* Order information */}
-      <section className="mb-10">
-        <p className="adm-index">Order information</p>
-        <div className="grid gap-8 border-y border-white/10 py-6 md:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">Customer</p>
-            <div className="flex items-start gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center bg-white text-[11px] font-medium text-black">
-                {(c.name || '?').slice(0, 1).toUpperCase()}
-              </span>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[14px] font-medium text-white">{c.name}</p>
-                  <ReliabilityBadge reliability={reliability} />
-                </div>
-                <p className="mt-0.5 text-[12px] text-white/40">{c.city}{c.province ? `, ${c.province}` : ''}</p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {c.phone && <a href={`tel:${c.phone}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Call</a>}
-                  {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">WhatsApp</a>}
-                  {c.email && <a href={`mailto:${c.email}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Email</a>}
-                  {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Customer 360</Link>}
+          {/* ── customer + payment ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.2fr) minmax(0,1fr)', gap: 12, marginBottom: 12 }} className="od-detail-grid">
+            <div className="pa-card" style={{ padding: '16px 18px' }}>
+              <p className="pa-section-title" style={{ marginBottom: 12 }}>Customer</p>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'linear-gradient(180deg,#2c2b28,#121110)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                  {(c.name || '?').slice(0, 1).toUpperCase()}
+                </span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+                    <b style={{ fontSize: 14, letterSpacing: '-0.2px' }}>{c.name}</b>
+                    <ReliabilityBadge reliability={reliability} />
+                  </div>
+                  <p className="pa-field-hint" style={{ marginTop: 2 }}>{c.city}{c.province ? `, ${c.province}` : ''}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                    {c.phone && <a href={`tel:${c.phone}`} className="pa-btn-sm">Call</a>}
+                    {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="pa-btn-sm">WhatsApp</a>}
+                    {c.email && <a href={`mailto:${c.email}`} className="pa-btn-sm">Email</a>}
+                    {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="pa-btn-sm">Customer 360</Link>}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div>
-            <p className="adm-label mb-3">Payment</p>
-            <dl className="space-y-2 text-[13px]">
-              <div className="flex justify-between gap-4"><dt className="text-white/35">Method</dt><dd className="text-white">{o.paymentMethod}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-white/35">Status</dt><dd className="text-white">{o.paymentStatus}</dd></div>
-              {o.transactionId && <div className="flex justify-between gap-4"><dt className="text-white/35">Txn ID</dt><dd className="font-mono text-[12px] text-white/70">{o.transactionId}</dd></div>}
-              <div className="flex justify-between gap-4"><dt className="text-white/35">Packaging</dt><dd className="text-white">{o.discreetPackaging ? 'Discreet' : 'Standard'}</dd></div>
-            </dl>
-          </div>
-        </div>
-      </section>
-
-      {/* Shipping */}
-      <section className="mb-10">
-        <p className="adm-index">Shipping</p>
-        <div className="border-y border-white/10 py-6">
-          <p className="text-[13px] leading-relaxed text-white/85">{c.address}</p>
-          <p className="mt-1 text-[12px] text-white/40">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
-          {c.location?.lat != null && (
-            <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-white/50 hover:text-white">
-              Open in Maps <ExternalLink size={10} />
-            </a>
-          )}
-        </div>
-      </section>
-
-      {/* Items / timeline / tracking */}
-      <section className="mb-10">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <p className="adm-index mb-0 flex-1">Items</p>
-          {editable && !editing && (
-            <button onClick={startEdit} className={btnGhost}>Edit</button>
-          )}
-        </div>
-
-        <div className="flex gap-5 border-b border-white/10">
-          {[
-            { k: 'items', l: 'Items' },
-            { k: 'timeline', l: 'Timeline' },
-            { k: 'tracking', l: 'Tracking' },
-          ].map((t) => (
-            <button key={t.k} onClick={() => setTab(t.k)}
-              className={`pb-2.5 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
-                tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'
-              }`}>
-              {t.l}
-            </button>
-          ))}
-        </div>
-
-        {tab === 'items' && (
-          <div>
-            {!editing && o.items.map((it, i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-white/5 py-3.5">
-                {it.slug
-                  ? <Link to={`/product/${it.slug}`} target="_blank"><Img src={it.image} alt="" className="h-14 w-10 object-cover" /></Link>
-                  : <Img src={it.image} alt="" className="h-14 w-10 object-cover" />}
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium leading-snug text-white">{it.name}</p>
-                  <p className="mt-0.5 text-[11px] text-white/35">
-                    {[it.size, it.color].filter(Boolean).join(' · ')}
-                    {(it.size || it.color) ? ' · ' : ''}
-                    {pkr(it.price)} × {it.quantity}
-                  </p>
-                </div>
-                <p className="adm-metric text-[13px] text-white">{pkr(it.lineTotal)}</p>
+            <div className="pa-card" style={{ padding: '16px 18px' }}>
+              <p className="pa-section-title" style={{ marginBottom: 12 }}>Payment</p>
+              <div style={{ display: 'grid', gap: 8, fontSize: 12.5 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}><span className="pa-field-hint" style={{ margin: 0 }}>Method</span><b>{o.paymentMethod}</b></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}><span className="pa-field-hint" style={{ margin: 0 }}>Status</span><b>{o.paymentStatus}</b></div>
+                {o.transactionId && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}><span className="pa-field-hint" style={{ margin: 0 }}>Txn ID</span><code style={{ fontSize: 11 }}>{o.transactionId}</code></div>}
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}><span className="pa-field-hint" style={{ margin: 0 }}>Packaging</span><b>{o.discreetPackaging ? 'Discreet' : 'Standard'}</b></div>
               </div>
-            ))}
+            </div>
+          </div>
 
-            {editing && editItems.map((it, i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-white/5 py-3.5">
-                <Img src={it.image} alt="" className="h-14 w-10 shrink-0 object-cover" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium leading-snug text-white">{it.name}</p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    {it.sizes.length > 0 && (
-                      <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className={ctlInline}>
-                        {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    )}
-                    {it.colors.length > 0 && (
-                      <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className={ctlInline}>
-                        {it.colors.map((col) => <option key={col.name} value={col.name}>{col.name}</option>)}
-                      </select>
-                    )}
-                    <div className="ml-1 flex items-center gap-1">
-                      <button type="button" onClick={() => stepQty(i, -1)} className="grid h-6 w-6 place-items-center border border-white/20 text-white/60 hover:text-white"><Minus size={10} /></button>
-                      <span className="w-5 text-center text-[12px] tabular-nums text-white">{it.quantity}</span>
-                      <button type="button" onClick={() => stepQty(i, 1)} className="grid h-6 w-6 place-items-center border border-white/20 text-white/60 hover:text-white"><Plus size={10} /></button>
+          {/* ── shipping ── */}
+          <div className="pa-card" style={{ padding: '16px 18px', marginBottom: 12 }}>
+            <p className="pa-section-title" style={{ marginBottom: 10 }}>Shipping</p>
+            <p style={{ fontSize: 13, lineHeight: 1.7 }}>{c.address}</p>
+            <p className="pa-field-hint" style={{ marginTop: 2 }}>{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
+            {c.location?.lat != null && (
+              <a
+                href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`}
+                target="_blank" rel="noreferrer" className="pa-btn-sm" style={{ marginTop: 10 }}
+              >
+                <MapPin size={12} strokeWidth={2} /> Open in Maps
+              </a>
+            )}
+          </div>
+
+          {/* ── items / timeline / tracking ── */}
+          <div className="pa-card" style={{ padding: '16px 18px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div className="pa-tabs" role="tablist" aria-label="Order sections" style={{ display: 'inline-flex', gap: 2, background: 'rgba(17,17,17,0.05)', borderRadius: 999, padding: 3 }}>
+                {[{ k: 'items', l: 'Items' }, { k: 'timeline', l: 'Timeline' }, { k: 'tracking', l: 'Tracking' }].map((t) => (
+                  <button
+                    key={t.k}
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === t.k}
+                    onClick={() => setTab(t.k)}
+                    style={{
+                      height: 30, padding: '0 14px', borderRadius: 999, border: 0, cursor: 'pointer',
+                      fontSize: 11, fontWeight: 600, fontFamily: 'inherit',
+                      background: tab === t.k ? 'linear-gradient(180deg,#2c2b28,#121110)' : 'transparent',
+                      color: tab === t.k ? '#fff' : 'var(--pa-muted)',
+                      boxShadow: tab === t.k ? '0 3px 10px -2px rgba(16,15,13,.35)' : 'none',
+                      transition: 'all .2s cubic-bezier(.16,1,.3,1)',
+                    }}
+                  >
+                    {t.l}
+                  </button>
+                ))}
+              </div>
+              {editable && !editing && tab === 'items' && (
+                <button type="button" onClick={startEdit} className="pa-btn-sm" style={{ marginLeft: 'auto' }}>Edit items</button>
+              )}
+            </div>
+
+            {tab === 'items' && (
+              <div>
+                {!editing && o.items.map((it, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--pa-border-light)' }}>
+                    {it.slug
+                      ? <Link to={`/product/${it.slug}`} target="_blank" rel="noreferrer"><Img src={it.image} alt="" style={{ width: 40, height: 52, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--pa-border-light)' }} /></Link>
+                      : <Img src={it.image} alt="" style={{ width: 40, height: 52, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--pa-border-light)' }} />}
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.1px' }}>{it.name}</p>
+                      <p className="pa-field-hint" style={{ marginTop: 2 }}>
+                        {[it.size, it.color].filter(Boolean).join(' · ')}
+                        {(it.size || it.color) ? ' · ' : ''}
+                        {pkr(it.price)} × {it.quantity}
+                      </p>
+                    </div>
+                    <b style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(it.lineTotal)}</b>
+                  </div>
+                ))}
+
+                {editing && editItems.map((it, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--pa-border-light)' }}>
+                    <Img src={it.image} alt="" style={{ width: 40, height: 52, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--pa-border-light)', flexShrink: 0 }} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 600 }}>{it.name}</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                        {it.sizes.length > 0 && (
+                          <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className="pa-select" style={{ height: 30 }}>
+                            {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        )}
+                        {it.colors.length > 0 && (
+                          <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className="pa-select" style={{ height: 30 }}>
+                            {it.colors.map((col) => <option key={col.name} value={col.name}>{col.name}</option>)}
+                          </select>
+                        )}
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <button type="button" onClick={() => stepQty(i, -1)} className="pa-action-btn" style={{ width: 24, height: 24 }} aria-label="Less"><Minus size={10} /></button>
+                          <span style={{ width: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums', fontSize: 12 }}>{it.quantity}</span>
+                          <button type="button" onClick={() => stepQty(i, 1)} className="pa-action-btn" style={{ width: 24, height: 24 }} aria-label="More"><Plus size={10} /></button>
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                      <b style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(it.price * it.quantity)}</b>
+                      <button type="button" onClick={() => delLine(i)} className="pa-action-btn danger" style={{ width: 24, height: 24 }} aria-label="Remove line"><X size={11} /></button>
                     </div>
                   </div>
-                </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <p className="adm-metric text-[13px] text-white">{pkr(it.price * it.quantity)}</p>
-                  <button type="button" onClick={() => delLine(i)} className="text-white/30 hover:text-white"><X size={12} /></button>
+                ))}
+
+                {editing && (
+                  <div style={{ position: 'relative', padding: '12px 0' }}>
+                    <div className="pa-search" style={{ maxWidth: 'none', position: 'relative' }}>
+                      <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className="pa-modal-input" style={{ height: 38 }} aria-label="Search products to add" />
+                    </div>
+                    {pRes.length > 0 && (
+                      <div className="pa-picker" style={{ position: 'absolute', inset: '56px 0 auto 0', zIndex: 20, maxHeight: 220 }}>
+                        {pRes.map((p) => (
+                          <button type="button" key={p._id} onClick={() => addPicked(p)} className="pa-picker-row">
+                            <Img src={p.images?.[0]?.url} alt="" style={{ width: 24, height: 32, objectFit: 'cover', borderRadius: 6 }} />
+                            <span style={{ minWidth: 0, flex: 1 }}>
+                              <span className="pa-picker-name">{p.name}</span>
+                              <span className="pa-picker-sub">{p.sku}</span>
+                            </span>
+                            <span className="pa-picker-price">{pkr(p.price)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div style={{ borderTop: '1px solid var(--pa-border)', marginTop: 8, paddingTop: 14, fontSize: 13, display: 'grid', gap: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="pa-field-hint" style={{ margin: 0 }}>Subtotal</span><b>{pkr(editing ? editSub : o.subtotal)}</b></div>
+                  {!!o.discount && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="pa-field-hint" style={{ margin: 0 }}>Discount {o.couponCode && `(${o.couponCode})`}</span><b>− {pkr(o.discount)}</b></div>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="pa-field-hint" style={{ margin: 0 }}>Shipping</span><b>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</b></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--pa-border-light)', paddingTop: 10 }}>
+                    <span className="pa-field-label" style={{ margin: 0 }}>Grand total</span>
+                    <b style={{ fontSize: 18, letterSpacing: '-0.4px', fontVariantNumeric: 'tabular-nums' }}>{pkr(editing ? editTotal : o.total)}</b>
+                  </div>
+                  <p className="pa-field-hint">{o.items.length} products · {pcs} pieces · {fmtDateTime(o.createdAt)}</p>
+                  {editing && (
+                    <div style={{ display: 'flex', gap: 8, paddingTop: 6 }}>
+                      <button type="button" onClick={saveItems} disabled={busy} className="pa-btn-black"><Save size={12} strokeWidth={2.2} /> {busy ? 'Saving…' : 'Update order'}</button>
+                      <button type="button" onClick={() => setEditing(false)} className="pa-btn-sm">Cancel</button>
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
+            )}
 
-            {editing && (
-              <div className="relative py-3">
-                <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className={ctl} />
-                {pRes.length > 0 && (
-                  <div className="absolute inset-x-0 top-12 z-20 overflow-hidden border border-white/15 bg-[#0D0D0D]">
-                    {pRes.map((p) => (
-                      <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left hover:bg-white/5">
-                        <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 object-cover" />
-                        <span className="flex-1 truncate text-[12px] text-white">{p.name}</span>
-                        <span className="text-[11px] text-white/30">{p.sku}</span>
-                        <span className="text-[12px] text-white">{pkr(p.price)}</span>
-                      </button>
+            {tab === 'timeline' && (
+              <div style={{ padding: '14px 0' }}>
+                {(o.statusHistory || []).length === 0 ? (
+                  <p className="pa-picker-empty">No status history recorded.</p>
+                ) : (
+                  <div style={{ display: 'grid', gap: 14 }}>
+                    {(o.statusHistory || []).slice().reverse().map((h, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                        <span style={{ marginTop: 5, width: 7, height: 7, borderRadius: 999, flexShrink: 0, background: i === 0 ? '#111' : '#d8d4cd', boxShadow: i === 0 ? '0 0 0 3px rgba(17,17,17,.12)' : 'none' }} />
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 600 }}>{h.status}</p>
+                          <p className="pa-field-hint" style={{ marginTop: 1 }}>{fmtDateTime(h.at)}</p>
+                          {h.note && <p style={{ marginTop: 3, fontSize: 12, fontStyle: 'italic', color: 'var(--pa-muted)' }}>“{h.note}”</p>}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
 
-            <div className="space-y-2 border-t border-white/10 py-5 text-[13px]">
-              <div className="flex justify-between"><span className="text-white/35">Subtotal</span><span className="text-white">{pkr(editing ? editSub : o.subtotal)}</span></div>
-              {!!o.discount && <div className="flex justify-between text-white/80"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
-              <div className="flex justify-between"><span className="text-white/35">Shipping</span><span className="text-white">{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
-              <div className="flex justify-between border-t border-white/10 pt-3">
-                <span className="adm-label">Grand total</span>
-                <span className="adm-metric text-[18px] text-white">{pkr(editing ? editTotal : o.total)}</span>
-              </div>
-              <p className="text-[11px] text-white/30">{o.items.length} products · {pcs} pieces · {fmtDateTime(o.createdAt)}</p>
-              {editing && (
-                <div className="flex items-center gap-2 pt-3">
-                  <button onClick={saveItems} disabled={busy} className={btnSolid}><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
-                  <button onClick={() => setEditing(false)} className={btnGhost}>Cancel</button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {tab === 'timeline' && (
-          <div className="py-6">
-            {(o.statusHistory || []).length === 0 ? (
-              <p className="py-10 text-center text-[12px] text-white/35">No status history recorded.</p>
-            ) : (
-              <div className="space-y-4">
-                {(o.statusHistory || []).slice().reverse().map((h, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/25'}`} />
-                    <div>
-                      <p className="text-[13px] text-white">{h.status}</p>
-                      <p className="text-[11px] text-white/35">{fmtDateTime(h.at)}</p>
-                      {h.note && <p className="mt-0.5 text-[12px] italic text-white/50">“{h.note}”</p>}
+            {tab === 'tracking' && (
+              <div style={{ padding: '14px 0' }}>
+                {o.trackingNumber ? (
+                  <div style={{ display: 'grid', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--pa-border-light)', paddingBottom: 12 }}>
+                      <div>
+                        <p className="pa-field-label" style={{ marginBottom: 3 }}>Tracking number</p>
+                        <code style={{ fontSize: 14 }}>{o.trackingNumber}</code>
+                      </div>
+                      <button type="button" onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className="pa-action-btn" style={{ width: 32, height: 32 }} aria-label="Copy tracking">
+                        <Copy size={13} strokeWidth={2} />
+                      </button>
                     </div>
+                    {o.courierName && (
+                      <div>
+                        <p className="pa-field-label" style={{ marginBottom: 3 }}>Courier</p>
+                        <p style={{ fontSize: 13, fontWeight: 600 }}>{o.courierName}</p>
+                      </div>
+                    )}
+                    {o.trackingUrl && (
+                      <a href={o.trackingUrl} target="_blank" rel="noreferrer" className="pa-btn-black" style={{ justifySelf: 'start' }}>
+                        Track online <ExternalLink size={11} strokeWidth={2.2} />
+                      </a>
+                    )}
                   </div>
-                ))}
+                ) : (
+                  <div className="pa-state" style={{ padding: '36px 0' }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--pa-muted)' }}>No tracking info yet</p>
+                    <p className="pa-field-hint" style={{ marginTop: 6 }}>Add a tracking number when the order ships.</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
 
-        {tab === 'tracking' && (
-          <div className="py-6">
-            {o.trackingNumber ? (
-              <div className="space-y-5">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div>
-                    <p className="adm-label">Tracking number</p>
-                    <p className="mt-1 font-mono text-[14px] text-white">{o.trackingNumber}</p>
-                  </div>
-                  <button onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className={btnIcon} aria-label="Copy tracking"><Copy size={13} /></button>
-                </div>
-                {o.courierName && (
-                  <div>
-                    <p className="adm-label">Courier</p>
-                    <p className="mt-1 text-[13px] text-white">{o.courierName}</p>
-                  </div>
-                )}
-                {o.trackingUrl && (
-                  <a href={o.trackingUrl} target="_blank" rel="noreferrer" className={btnSolid}>
-                    Track online <ExternalLink size={10} />
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="py-10 text-center">
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">No tracking info yet</p>
-                <p className="mt-2 text-[12px] text-white/35">Add a tracking number when the order ships.</p>
-              </div>
-            )}
-          </div>
-        )}
-      </section>
+        </div>
+      </div>
     </AdminLayout>
   );
 }

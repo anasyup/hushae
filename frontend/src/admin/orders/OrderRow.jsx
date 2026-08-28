@@ -178,6 +178,10 @@ export default function OrderRow({
     </tr>
   );
 
+  /* Warehouse bins were referenced but never derived — the crash the boss
+     hit. Derive defensively: show only when item data actually carries bins. */
+  const bins = (o.items || []).map((it) => it.bin || it.warehouseBin).filter(Boolean);
+
   return (
     <>
       {row}
