@@ -951,3 +951,60 @@
   animation: odCardIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .dark-admin .od-menu, .dark-admin .od-pop { box-shadow: 0 20px 44px -20px rgba(0, 0, 0, 0.7); }
+
+/* ════ SHAPE PASS v3 — boss: "curved edges buray lag rahay, naye shapes" ════
+ * Confident PILL geometry for every control (no more half-curved boxes),
+ * stat cards become real buttons. Cards keep their soft large radius. */
+.od-btn-black,
+.od-btn-sm,
+.od-fbtn,
+.od-date,
+.od-tab,
+.od-fctl,
+.od-search-input,
+.od-chip-input,
+.od-callout-btn,
+.od-act,
+.od-advance,
+.od-icon-btn { border-radius: 999px; }
+
+.od-tabs { border-radius: 999px; padding: 3px 5px; }
+.od-dates { border-radius: 999px; }
+.od-btn-black { padding: 0 16px; letter-spacing: 0.02em; }
+.od-btn-sm, .od-fbtn { padding-inline: 14px; }
+.od-icon-btn { width: 36px; height: 36px; }
+
+/* stat cards are buttons now — reset + affordance */
+.od-stat {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.od-stat:active { transform: translateY(-1px) scale(0.99); }
+.od-stat:focus-visible,
+.od-btn-black:focus-visible,
+.od-btn-sm:focus-visible,
+.od-fbtn:focus-visible,
+.od-tab:focus-visible,
+.od-date:focus-visible,
+.od-icon-btn:focus-visible,
+.od-act:focus-visible,
+.od-advance:focus-visible {
+  outline: 2px solid rgba(17, 17, 17, 0.4);
+  outline-offset: 2px;
+}
+.dark-admin .od-stat:focus-visible,
+.dark-admin .od-btn-black:focus-visible,
+.dark-admin .od-btn-sm:focus-visible,
+.dark-admin .od-fbtn:focus-visible,
+.dark-admin .od-tab:focus-visible,
+.dark-admin .od-date:focus-visible,
+.dark-admin .od-icon-btn:focus-visible { outline-color: rgba(255, 255, 255, 0.5); }
+
+/* pills read better slightly taller */
+.od-btn-black, .od-btn-sm, .od-fbtn, .od-fctl, .od-search-input { height: 36px; }
+.od-search { height: 36px; }

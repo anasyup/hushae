@@ -171,12 +171,12 @@ export default function OrdersDesk() {
   const prev = counts?.prev;
   const cur = counts?.cur;
   const stats = [
-    { label: 'Total Orders', icon: CalendarDays, val: counts?.total, series: trend?.total, c: cur?.total, p: prev?.total, color: 'var(--od-text)' },
-    { label: 'Pending', icon: Clock, val: counts?.byGroup?.new, series: trend?.pending, c: cur?.pending, p: prev?.pending, color: '#f59e0b' },
-    { label: 'Processing', icon: Package, val: (counts?.byGroup?.processing || 0) + (counts?.byGroup?.['to-ship'] || 0), series: trend?.processing, c: cur?.processing, p: prev?.processing, color: '#8b5cf6' },
-    { label: 'Completed', icon: CheckCircle2, val: counts?.byGroup?.delivered, series: trend?.completed, c: cur?.completed, p: prev?.completed, color: '#0e9f6e' },
-    { label: 'Cancelled', icon: XCircle, val: counts?.byGroup?.issues, series: trend?.cancelled, c: cur?.cancelled, p: prev?.cancelled, color: '#ef4444' },
-    { label: 'Revenue', icon: Banknote, val: counts?.revenue != null ? pkr(counts.revenue) : null, series: trend?.revenue, c: cur?.revenue, p: prev?.revenue, color: '#1e40af' },
+    { label: 'Total Orders', icon: CalendarDays, go: 'all', val: counts?.total, series: trend?.total, c: cur?.total, p: prev?.total, color: 'var(--od-text)' },
+    { label: 'Pending', icon: Clock, go: 'new', val: counts?.byGroup?.new, series: trend?.pending, c: cur?.pending, p: prev?.pending, color: '#f59e0b' },
+    { label: 'Processing', icon: Package, go: 'processing', val: (counts?.byGroup?.processing || 0) + (counts?.byGroup?.['to-ship'] || 0), series: trend?.processing, c: cur?.processing, p: prev?.processing, color: '#8b5cf6' },
+    { label: 'Completed', icon: CheckCircle2, go: 'delivered', val: counts?.byGroup?.delivered, series: trend?.completed, c: cur?.completed, p: prev?.completed, color: '#0e9f6e' },
+    { label: 'Cancelled', icon: XCircle, go: 'issues', val: counts?.byGroup?.issues, series: trend?.cancelled, c: cur?.cancelled, p: prev?.cancelled, color: '#ef4444' },
+    { label: 'Revenue', icon: Banknote, go: '@reports', val: counts?.revenue != null ? pkr(counts.revenue) : null, series: trend?.revenue, c: cur?.revenue, p: prev?.revenue, color: '#1e40af' },
   ];
 
   return (
@@ -221,7 +221,13 @@ export default function OrdersDesk() {
             const Icon = m.icon;
             const ch = m.c != null && m.p != null ? pct(m.c, m.p) : null;
             return (
-              <div key={m.label} className="od-stat">
+              <button
+                key={m.label}
+                type="button"
+                className="od-stat"
+                title={m.go === '@reports' ? 'Open sales reports' : `Filter: ${m.label}`}
+                onClick={() => (m.go === '@reports' ? nav('/admin/reports') : setFilter({ group: m.go, stage: '' }))}
+              >
                 <div className="od-stat-head"><Icon /> {m.label}</div>
                 <div className="od-stat-val">{typeof m.val === 'number' ? m.val.toLocaleString() : m.val ?? '—'}</div>
                 <div className="od-stat-foot">
@@ -231,7 +237,7 @@ export default function OrdersDesk() {
                   </div>
                   {m.series && <Spark data={m.series} color={m.color} />}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
