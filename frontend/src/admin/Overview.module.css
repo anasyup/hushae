@@ -355,3 +355,13 @@ html.dark-admin .ovw .skeleton{background:linear-gradient(90deg,#17171a 25%,#1d1
 .icon-btn svg,.stat-head svg{stroke:#6b7280;transition:stroke .15s}
 .icon-btn:hover svg,.stat:hover .stat-head svg{stroke:#111}
 @media (prefers-reduced-motion: reduce){.ovw *{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* drilldown panel — reference interaction: stat click → slide-down sheet */
+.drill{border:2px solid var(--black);border-radius:14px;background:var(--card);box-shadow:0 10px 30px rgba(0,0,0,0.12);padding:16px 18px;margin:0 0 12px;animation:slideDown .4s cubic-bezier(.16,1,.3,1)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.drill-chart{height:190px;position:relative;margin-top:12px}
+.drill-chart canvas{position:absolute;inset:0}
+.drill-nums{display:flex;gap:22px;margin-top:10px}
+.drill-nums b{display:block;font-size:16px;letter-spacing:-0.3px;font-variant-numeric:tabular-nums}
+.drill-nums span{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
+.stat.on{border-color:var(--black);box-shadow:0 0 0 2px var(--black);transform:scale(1.02)}

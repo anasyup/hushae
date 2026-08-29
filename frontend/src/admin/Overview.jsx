@@ -192,6 +192,33 @@ const QUICK_ACTIONS = [
   { label: 'Support Ticket', to: '/admin/questions', icon: <><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></> },
 ];
 
+/* Drilldown chart — This Period (black 2.2, points) vs Previous (gray dashed). */
+function DrillChart({ cur, prev }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return undefined;
+    const ch = new Chart(ref.current, {
+      type: 'line',
+      data: {
+        labels: cur.map((_, i) => i + 1),
+        datasets: [
+          { label: 'This Period', data: cur, borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.05)', fill: true, borderWidth: 2.2, tension: 0.35, pointRadius: 3, pointBackgroundColor: '#111' },
+          ...(prev.length ? [{ label: 'Previous', data: prev, borderColor: '#c8c8c8', borderDash: [4, 4], borderWidth: 2, tension: 0.35, pointRadius: 0, fill: false }] : []),
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        animation: { duration: 700, easing: 'easeOutQuart' },
+        plugins: { legend: { labels: { boxWidth: 14, boxHeight: 2, font: { size: 10 } } } },
+        scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { grid: { color: '#f1f1f1' }, ticks: { font: { size: 9 } } } },
+      },
+    });
+    return () => ch.destroy();
+  }, [cur, prev]);
+  return <canvas ref={ref} />;
+}
+
 export default function Overview() {
   const dark = useAdminDark();
   const { auth } = useApp();
@@ -238,6 +265,15 @@ export default function Overview() {
   const [live, setLive] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [insights, setInsights] = useState([]);
+  const [drill, setDrill] = useState(null);
+  const [drillPrev, setDrillPrev] = useState(null);
+  useEffect(() => {
+    if (!drill || !token || compare !== 'off') return;
+    const w = prevWindow(range);
+    api(`/admin/dashboard?from=${w.from}&to=${w.to}`, { token })
+      .then((d) => setDrillPrev(d?.chart || []))
+      .catch(() => setDrillPrev([]));
+  }, [drill, compare, range, token]);
   const [segments, setSegments] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -619,7 +655,7 @@ export default function Overview() {
             {loading
               ? Array.from({ length: 6 }).map((_, i) => <div key={i} className={styles.stat}><div className={cx('skeleton', 'sk-block')} /></div>)
               : kpiCards.map((card) => (
-                <div className={styles.stat} key={card.key} onClick={() => nav(card.to)} title={card.tip}>
+                <div className={cx('stat', drill === card.key && 'on')} key={card.key} onClick={() => setDrill(drill === card.key ? null : card.key)} title={`${card.tip} — click for drilldown`}>
                   <div className={styles['stat-head']}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">{card.icon}</svg>
                     {card.label}
@@ -638,6 +674,35 @@ export default function Overview() {
                 </div>
               ))}
           </div>
+
+          {/* --------------------------- drilldown ---------------------------- */}
+          {drill && !loading && (() => {
+            const card = kpiCards.find((c) => c.key === drill);
+            if (!card) return null;
+            const acc = { revenue: (x) => x.revenue, orders: (x) => x.orders, customers: (x) => x.customers, aov: (x) => (x.orders ? x.revenue / x.orders : 0), conv: (x) => x.orders, profit: (x) => x.revenue }[card.key] || ((x) => x.revenue);
+            const cur = chartCur.map(acc);
+            const prevSrc = (compare !== 'off' && cmp?.chart) ? cmp.chart : drillPrev;
+            const prev = prevSrc ? prevSrc.map(acc) : [];
+            return (
+              <div className={styles.drill} key={drill}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <div className={styles['card-t']}>{card.label} — daily trajectory</div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button type="button" className={styles['btn-sm']} onClick={() => nav(card.to)}>{card.tip} →</button>
+                    <button type="button" className={styles['icon-btn']} onClick={() => setDrill(null)} aria-label="Close drilldown">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="14" height="14"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div className={styles['drill-chart']}><DrillChart cur={cur} prev={prev} /></div>
+                <div className={styles['drill-nums']}>
+                  <div><b>{card.text}</b><span>current period</span></div>
+                  <div><b className={cx('stat-change', (card.change ?? 0) < 0 && 'neg')}>{changeLabel(card.change)}</b><span>{vsLabel}</span></div>
+                </div>
+                <DrillChart cur={cur} prev={prev} />
+              </div>
+            );
+          })()}
 
           {/* --------------------------- charts row 1 --------------------------- */}
           <div className={cx('grid3', 'reveal')}>
