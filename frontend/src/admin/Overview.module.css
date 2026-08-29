@@ -334,34 +334,3 @@ html.dark-admin .ovw .skeleton{background:linear-gradient(90deg,#17171a 25%,#1d1
   .ovw *,.ovw *::before,.ovw *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
   .reveal{opacity:1;transform:none}
 }
-
-/* ═══ SPEC ALIGN (overview_perfect_final tokens, balanced) ═══
- * Base file is the reference design 1:1; this layer only aligns the few
- * interaction values to the boss token sheet. No gradients, no over-polish. */
-.stat{transition:all .2s cubic-bezier(.16,1,.3,1)}
-.stat:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06);border-color:var(--border)}
-.stat:active{border-color:var(--black);box-shadow:0 0 0 2px var(--black);transform:scale(1.02)}
-.card{transition:all .2s cubic-bezier(.16,1,.3,1)}
-.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06);border-color:var(--border)}
-.btn-black{height:36px;background:var(--black);border:0;border-radius:10px;color:var(--inverse);font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;padding:0 14px;cursor:pointer;transition:all .2s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 2px rgba(0,0,0,0.03)}
-.btn-black:hover{background:#222;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.12)}
-.btn-black:active{transform:translateY(0) scale(.98)}
-.btn-sm{height:30px;border:1px solid var(--border);background:var(--card);border-radius:8px;font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:5px;padding:0 10px;cursor:pointer;transition:all .2s cubic-bezier(.16,1,.3,1)}
-.btn-sm:hover{background:#f9f9f9;border-color:#bbb;transform:translateY(-1px)}
-.pill{height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.02);transition:all .2s cubic-bezier(.16,1,.3,1)}
-.pill:hover{border-color:#d1d1d1;transform:translateY(-1px)}
-.icon-btn{width:36px;height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:all .2s cubic-bezier(.16,1,.3,1)}
-.icon-btn:hover{border-color:var(--black);color:var(--text);transform:translateY(-1px)}
-.icon-btn svg,.stat-head svg{stroke:#6b7280;transition:stroke .15s}
-.icon-btn:hover svg,.stat:hover .stat-head svg{stroke:#111}
-@media (prefers-reduced-motion: reduce){.ovw *{animation-duration:.01ms !important;transition-duration:.01ms !important}}
-
-/* drilldown panel — reference interaction: stat click → slide-down sheet */
-.drill{border:2px solid var(--black);border-radius:14px;background:var(--card);box-shadow:0 10px 30px rgba(0,0,0,0.12);padding:16px 18px;margin:0 0 12px;animation:slideDown .4s cubic-bezier(.16,1,.3,1)}
-@keyframes slideDown{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-.drill-chart{height:190px;position:relative;margin-top:12px}
-.drill-chart canvas{position:absolute;inset:0}
-.drill-nums{display:flex;gap:22px;margin-top:10px}
-.drill-nums b{display:block;font-size:16px;letter-spacing:-0.3px;font-variant-numeric:tabular-nums}
-.drill-nums span{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
-.stat.on{border-color:var(--black);box-shadow:0 0 0 2px var(--black);transform:scale(1.02)}
