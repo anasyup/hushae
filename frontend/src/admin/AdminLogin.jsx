@@ -14,6 +14,127 @@ import './admin-login.css';
  * honoured globally via MotionConfig reducedMotion="user".
  * ========================================================================== */
 
+
+/* ── VFX: gold particle constellation (canvas, rAF, reduced-motion safe) ── */
+function Particles() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const c = ref.current;
+    if (!c || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const ctx = c.getContext('2d');
+    let w = 0, h = 0, raf = 0;
+    const mouse = { x: 0.5, y: 0.5 };
+    const resize = () => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = c.clientWidth; h = c.clientHeight;
+      c.width = w * dpr; c.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    const N = 64;
+    const parts = Array.from({ length: N }, () => ({
+      x: Math.random(), y: Math.random(), z: Math.random() * 0.7 + 0.3,
+      vx: (Math.random() - 0.5) * 0.0007, vy: (Math.random() - 0.5) * 0.0006,
+      r: Math.random() * 1.5 + 0.4, tw: Math.random() * Math.PI * 2,
+    }));
+    const step = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of parts) {
+        p.x += p.vx * p.z; p.y += p.vy * p.z; p.tw += 0.016;
+        if (p.x < 0) p.x = 1; if (p.x > 1) p.x = 0;
+        if (p.y < 0) p.y = 1; if (p.y > 1) p.y = 0;
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 0.16 && d > 0.001) { p.x += (dx / d) * 0.0012; p.y += (dy / d) * 0.0012; }
+        const a = (0.28 + Math.sin(p.tw) * 0.22) * p.z;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * p.z, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(201,169,110,${a.toFixed(3)})`;
+        ctx.fill();
+      }
+      // constellation lines between near particles (sparse, cheap)
+      ctx.strokeStyle = 'rgba(201,169,110,0.10)';
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < N; i += 4) {
+        for (let j = i + 4; j < N; j += 4) {
+          const dx = (parts[i].x - parts[j].x) * w;
+          const dy = (parts[i].y - parts[j].y) * h;
+          if (dx * dx + dy * dy < 4200) {
+            ctx.beginPath();
+            ctx.moveTo(parts[i].x * w, parts[i].y * h);
+            ctx.lineTo(parts[j].x * w, parts[j].y * h);
+            ctx.stroke();
+          }
+        }
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    const onMove = (e) => {
+      const r = c.getBoundingClientRect();
+      mouse.x = (e.clientX - r.left) / r.width;
+      mouse.y = (e.clientY - r.top) / r.height;
+    };
+    const onVis = () => {
+      cancelAnimationFrame(raf);
+      if (!document.hidden) raf = requestAnimationFrame(step);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
+  return <canvas ref={ref} className="al-particles" aria-hidden />;
+}
+
+/* ── VFX: scramble-decode wordmark ── */
+function Scramble({ text }) {
+  const [out, setOut] = useState(text);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const glyphs = 'HUSHAE◆·—HAESUH';
+    let frame = 0, raf = 0;
+    const total = 46;
+    const tick = () => {
+      frame += 1;
+      const reveal = Math.floor((frame / total) * text.length);
+      let next = '';
+      for (let i = 0; i < text.length; i += 1) {
+        next += i < reveal ? text[i] : glyphs[Math.floor(Math.random() * glyphs.length)];
+      }
+      setOut(next);
+      if (frame < total) raf = requestAnimationFrame(tick);
+      else setOut(text);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [text]);
+  return <>{out}</>;
+}
+
+/* ── VFX: magnetic pull wrapper ── */
+function Magnetic({ strength = 0.25, children }) {
+  const ref = useRef(null);
+  const onMove = (e) => {
+    const el = ref.current; if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - (r.left + r.width / 2)) * strength;
+    const y = (e.clientY - (r.top + r.height / 2)) * strength;
+    el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+  };
+  const onLeave = () => { const el = ref.current; if (el) el.style.transform = ''; };
+  return (
+    <span ref={ref} onMouseMove={onMove} onMouseLeave={onLeave} className="al-magnetic">
+      {children}
+    </span>
+  );
+}
+
 const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
 
 const EASE = [0.16, 1, 0.3, 1];
@@ -104,7 +225,9 @@ export default function AdminLogin() {
           initial="hidden"
           animate="show"
         >
-          <motion.p className="al-mark al-rise-none" variants={item}>HUSHAE</motion.p>
+          <motion.p className="al-mark al-rise-none" variants={item}><Scramble text="HUSHAE" /></motion.p>
+          <Particles />
+          <span className="al-comet" aria-hidden />
           <div>
             <motion.h1 variants={item}>The quiet room behind the store.</motion.h1>
             <motion.p className="lead" variants={item}>
@@ -158,6 +281,8 @@ function TiltCard(props) {
     const r = e.currentTarget.getBoundingClientRect();
     mx.set((e.clientX - r.left) / r.width);
     my.set((e.clientY - r.top) / r.height);
+    e.currentTarget.style.setProperty('--sx', `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty('--sy', `${e.clientY - r.top}px`);
   };
   const onLeave = () => { mx.set(0.5); my.set(0.5); };
 
@@ -245,17 +370,19 @@ function TiltCard(props) {
                     </motion.p>
                   )}
                 </AnimatePresence>
-                <motion.button
-                  type="submit"
-                  disabled={busy}
-                  className={`al-btn${busy ? ' is-busy' : ''}`}
-                  aria-busy={busy}
-                  variants={item}
-                  whileHover={{ y: -1.5 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Sign in
-                </motion.button>
+                <Magnetic>
+                  <motion.button
+                    type="submit"
+                    disabled={busy}
+                    className={`al-btn${busy ? ' is-busy' : ''}`}
+                    aria-busy={busy}
+                    variants={item}
+                    whileHover={{ y: -1.5 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Sign in
+                  </motion.button>
+                </Magnetic>
               </motion.form>
             ) : (
               <motion.form
