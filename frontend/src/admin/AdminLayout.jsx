@@ -9,6 +9,7 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   // Top Bar Icons
   Menu, PanelLeftClose, PanelRightOpen, Sun, Moon, Globe, Plus, Search, ChevronDown, X, Eye,
@@ -873,14 +874,24 @@ export default function AdminLayout({ children, title }) {
 
         <main className="min-w-0 flex-1 p-4 md:p-6 md:pt-4">
           <div className="admin-main w-full min-w-0">
-            {loc.pathname.startsWith('/admin/settings') ? (
-              <div className="set-wrap">
-                {!railHidden && <SettingsRail />}
-                <div className="set-pane min-w-0 flex-1">{children}</div>
-              </div>
-            ) : (
-              children
-            )}
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={loc.pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {loc.pathname.startsWith('/admin/settings') ? (
+                  <div className="set-wrap">
+                    {!railHidden && <SettingsRail />}
+                    <div className="set-pane min-w-0 flex-1">{children}</div>
+                  </div>
+                ) : (
+                  children
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>
