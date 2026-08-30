@@ -577,6 +577,10 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
   if (!order) return res.status(404).json({ message: 'Order not found' });
   const prevStatus = order.status;
   order.status = status;
+  if (status === 'On Hold') {
+    order.holdFrom = order.stage && order.stage !== 'On Hold' ? order.stage : (order.holdFrom || 'Processing');
+    order.stage = 'On Hold';
+  }
   if (status === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
   order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();

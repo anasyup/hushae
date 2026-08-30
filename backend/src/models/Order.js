@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
+const ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded', 'On Hold'];
 const PAYMENT_STATUSES = ['Pending', 'Paid', 'Failed', 'Refunded'];
 const PAYMENT_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'];
 
@@ -232,5 +232,7 @@ orderSchema.index({ 'customerInfo.city': 1 });
 orderSchema.index({ total: 1 });
 
 orderSchema.statics.STATUSES = ORDER_STATUSES;
+// Pause point (boss diagram): kisi bhi stage pe hold, phir resume.
+orderSchema.add({ holdFrom: { type: String, default: '' } });
 
 module.exports = mongoose.model('Order', orderSchema);

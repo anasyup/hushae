@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft, Copy, ExternalLink, Mail, MapPin, MessageCircle, Minus, Pencil, Phone, Plus, Printer,
-  RefreshCw, Save, Trash2, X,
+  Pause, Play, RefreshCw, Save, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -86,6 +86,23 @@ export default function OrderDetail() {
     setBusy(true);
     try { await api(`/orders/admin/${id}${path}`, { method: 'PATCH', token: auth.token, body }); await load(); toast(msg); }
     catch (ex) { toast(ex.message); }
+    setBusy(false);
+  };
+
+  const holdOrder = async () => {
+    setBusy(true);
+    try {
+      await api(`/orders/manage/${id}/stage`, { method: 'PATCH', token: auth.token, body: { stage: 'On Hold', note: 'Put on hold' } });
+      toast('Order on hold'); await load();
+    } catch (ex) { toast(ex.message); }
+    setBusy(false);
+  };
+  const resumeOrder = async () => {
+    setBusy(true);
+    try {
+      await api(`/orders/manage/${id}/stage`, { method: 'PATCH', token: auth.token, body: { stage: o.holdFrom || 'Processing', note: 'Resumed from hold' } });
+      toast('Order resumed'); await load();
+    } catch (ex) { toast(ex.message); }
     setBusy(false);
   };
 
@@ -214,6 +231,15 @@ export default function OrderDetail() {
               {nextMove && (
                 <button type="button" disabled={busy} onClick={() => patch('/status', { status: nextMove.status }, nextMove.label)} className="pa-btn-black">
                   {nextMove.label}
+                </button>
+              )}
+              {o.stage === 'On Hold' ? (
+                <button type="button" disabled={busy} onClick={resumeOrder} className="pa-btn-sm" title="Resume from hold">
+                  <Play size={11} strokeWidth={2.2} /> Resume ({o.holdFrom || 'Processing'})
+                </button>
+              ) : (
+                <button type="button" disabled={busy} onClick={holdOrder} className="pa-btn-sm" title="Pause this order">
+                  <Pause size={11} strokeWidth={2.2} /> Put on hold
                 </button>
               )}
             </div>

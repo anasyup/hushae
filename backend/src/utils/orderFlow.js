@@ -29,6 +29,7 @@ const STAGES = [
   { key: 'Refunded',         label: 'Refunded',            legacy: 'Refunded',         group: 'issues', terminal: true },
   { key: 'Returned',         label: 'Returned',            legacy: 'Refunded',         group: 'issues', terminal: true },
   { key: 'Failed Delivery',  label: 'Failed Delivery',     legacy: 'Out for Delivery', group: 'issues' },
+  { key: 'On Hold',          label: 'On Hold',             legacy: 'On Hold',          group: 'issues' },
 ];
 
 const STAGE_KEYS = STAGES.map((s) => s.key);
@@ -36,7 +37,7 @@ const STAGE_MAP = new Map(STAGES.map((s) => [s.key, s]));
 const FORWARD = STAGES.filter((s) => !s.terminal && s.group !== 'issues').map((s) => s.key);
 
 /** Terminal / exceptional stages an order may jump to from any live stage. */
-const EXITS = ['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'];
+const EXITS = ['Cancelled', 'Refunded', 'Returned', 'Failed Delivery', 'On Hold'];
 
 /**
  * Which stages may follow `from`.
@@ -116,6 +117,7 @@ function applyStage(order, to, { note = '', actor = null, meta = {} } = {}) {
   if (!check.ok) return check;
 
   order.stage = to;
+  if (to === 'On Hold') order.holdFrom = from && from !== 'On Hold' ? from : (order.holdFrom || 'Processing');
   order.status = legacyFor(to);
   order.stageUpdatedAt = new Date();
   order.stageTimestamps = { ...(order.stageTimestamps || {}), [to]: new Date() };

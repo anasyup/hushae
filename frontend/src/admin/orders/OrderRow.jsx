@@ -20,6 +20,7 @@ const stageBadge = (stage) => {
   if (['Shipped', 'In Transit', 'Out for Delivery'].includes(stage)) return 'od-b-blue';
   if (['Packed', 'Manifested', 'To Handover'].includes(stage)) return 'od-b-purple';
   if (['To Pack', 'To Arrange Shipment', 'Picked'].includes(stage)) return 'od-b-yellow';
+  if (stage === 'On Hold') return 'od-b-yellow';
   return 'od-b-blue'; // New
 };
 
