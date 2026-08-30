@@ -299,3 +299,61 @@
     animation: none !important;
   }
 }
+
+/* ═══ MODERN PASS (boss: "or modern look") — visible refinement layer ═══ */
+
+/* brand panel: cinematic sheen + gold hairline under wordmark */
+.al-brand::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.05) 45%,transparent 60%);background-size:220% 100%;animation:alSheen 9s linear infinite;pointer-events:none;}
+@keyframes alSheen{from{background-position:120% 0}to{background-position:-120% 0}}
+.al-mark{position:relative;display:inline-block;}
+.al-mark::after{content:"";display:block;width:52px;height:2px;margin-top:14px;background:linear-gradient(90deg,#c9a96e,rgba(201,169,110,0));border-radius:2px;animation:alRule 1.2s .5s cubic-bezier(.16,1,.3,1) both;}
+@keyframes alRule{from{width:0;opacity:0}to{width:52px;opacity:1}}
+.al-brand h1{letter-spacing:-0.02em;}
+
+/* right panel: dot-grid alabaster */
+.al-panel{background:
+  radial-gradient(rgba(17,17,17,0.045) 1px, transparent 1px) 0 0/22px 22px,
+  radial-gradient(900px 420px at 85% -10%, rgba(201,169,110,0.07), transparent 70%),
+  var(--al-bg);}
+
+/* card: floatier, 20px radius, layered light */
+.al-card{border-radius:20px;border-color:var(--al-border);box-shadow:0 1px 2px rgba(16,15,13,0.04),0 24px 60px -30px rgba(16,15,13,0.25),inset 0 1px 0 #fff;padding:36px 34px 26px;animation:alCard .8s .15s cubic-bezier(.16,1,.3,1) both;}
+@keyframes alCard{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+.al-kicker{display:inline-flex;align-items:center;gap:6px;background:rgba(17,17,17,0.05);border:1px solid rgba(17,17,17,0.07);border-radius:999px;padding:4px 10px;letter-spacing:.14em;}
+
+/* inputs: taller, calmer, modern focus ring */
+.al-input{height:46px;border-radius:12px;border-color:#e5e4e0;background:#fbfbfa;transition:border-color .18s,box-shadow .18s,background .18s;font-size:13.5px;}
+.al-input:hover{border-color:#d6d4cf;}
+.al-input:focus{background:#fff;border-color:#111;box-shadow:0 0 0 4px rgba(17,17,17,0.07);}
+.al-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--al-muted);}
+.al-input-wrap .al-eye{border-radius:10px;transition:background .15s,color .15s;}
+.al-input-wrap .al-eye:hover{background:rgba(17,17,17,0.06);color:#111;}
+
+/* OTP: big tracked digits */
+.al-input.otp{height:58px;font-size:24px;letter-spacing:.45em;text-align:center;font-weight:700;border-radius:14px;font-variant-numeric:tabular-nums;}
+
+/* primary button: obsidian gradient, tactile */
+.al-btn{height:48px;border-radius:12px;background:linear-gradient(180deg,#232220 0%,#111 100%);font-size:13px;font-weight:600;letter-spacing:.02em;box-shadow:0 1px 2px rgba(16,15,13,0.2),inset 0 1px 0 rgba(255,255,255,0.12);transition:all .22s cubic-bezier(.16,1,.3,1);}
+.al-btn:hover:not(:disabled){transform:translateY(-1.5px);box-shadow:0 12px 28px -12px rgba(16,15,13,0.5),inset 0 1px 0 rgba(255,255,255,0.14);}
+.al-btn:active:not(:disabled){transform:translateY(0) scale(.985);}
+.al-btn.is-busy{opacity:.75;}
+.al-btn.is-busy::after{content:"";width:14px;height:14px;margin-left:8px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:alSpin .7s linear infinite;}
+@keyframes alSpin{to{transform:rotate(360deg)}}
+
+/* error: soft pill + shake */
+.al-err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:9px 12px;animation:alShake .3s cubic-bezier(.36,.07,.19,.97);}
+@keyframes alShake{20%{transform:translateX(-4px)}45%{transform:translateX(4px)}70%{transform:translateX(-2px)}100%{transform:none}}
+
+/* store-online dot: pulse ring */
+.al-dot i{position:relative;}
+.al-dot i::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(14,159,110,.5);animation:alPing 2s cubic-bezier(0,0,.2,1) infinite;}
+@keyframes alPing{0%{transform:scale(.6);opacity:1}80%,100%{transform:scale(1.6);opacity:0}}
+
+/* meta row hairline + link hover */
+.al-meta{border-top:1px solid var(--al-border);padding-top:14px;}
+.al-meta a{transition:color .15s;}
+.al-meta a:hover{color:#111;text-decoration:underline;text-underline-offset:3px;}
+
+@media (prefers-reduced-motion: reduce){
+  .al-page *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+}
