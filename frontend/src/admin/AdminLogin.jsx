@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import { api } from '../api/client';
@@ -29,6 +29,23 @@ export default function AdminLogin() {
   const [pendingEmail, setPendingEmail] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [caps, setCaps] = useState(false);
+  const cardRef = useRef(null);
+
+  /* Subtle 3D tilt — modern aesthetic, reduced-motion safe */
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const move = (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.transform = `perspective(1100px) rotateY(${(x * 2.4).toFixed(2)}deg) rotateX(${(-y * 2.4).toFixed(2)}deg)`;
+    };
+    const leave = () => { el.style.transform = ''; };
+    el.addEventListener('mousemove', move);
+    el.addEventListener('mouseleave', leave);
+    return () => { el.removeEventListener('mousemove', move); el.removeEventListener('mouseleave', leave); };
+  }, []);
 
   useEffect(() => {
     if (!step2) emailRef.current?.focus();
@@ -88,7 +105,7 @@ export default function AdminLogin() {
       </aside>
 
       <main className="al-panel">
-        <div className="al-card">
+        <div className="al-card" ref={cardRef}>
           <p className="al-kicker">{step2 ? 'Verification' : 'Admin console'}</p>
           <h2 className="al-title">{step2 ? 'Check your email' : 'Sign in'}</h2>
           <p className="al-sub">
@@ -101,23 +118,27 @@ export default function AdminLogin() {
             <form onSubmit={submit} className="al-form" autoComplete="username">
               <div>
                 <label htmlFor="admin-email" className="al-label">Email</label>
-                <input
-                  ref={emailRef}
-                  id="admin-email"
-                  className="al-input"
-                  type="email"
-                  required
-                  autoComplete="username"
-                  value={f.email}
-                  onChange={(e) => setF({ ...f, email: e.target.value })}
-                />
+                <div className="al-input-wrap">
+                  <span className="al-ico" aria-hidden><Mail size={15} /></span>
+                  <input
+                    ref={emailRef}
+                    id="admin-email"
+                    className="al-input has-ico"
+                    type="email"
+                    required
+                    autoComplete="username"
+                    value={f.email}
+                    onChange={(e) => setF({ ...f, email: e.target.value })}
+                  />
+                </div>
               </div>
               <div>
                 <label htmlFor="admin-password" className="al-label">Password</label>
                 <div className="al-input-wrap">
+                  <span className="al-ico" aria-hidden><Lock size={15} /></span>
                   <input
                     id="admin-password"
-                    className="al-input"
+                    className="al-input has-ico"
                     type={showPw ? 'text' : 'password'}
                     required
                     autoComplete="current-password"
@@ -175,6 +196,7 @@ export default function AdminLogin() {
 
           <div className="al-meta">
             <span className="al-dot"><i aria-hidden /> Store online</span>
+            <span className="al-trust"><ShieldCheck size={12} /> TLS secured</span>
             <Link to="/">View storefront</Link>
           </div>
         </div>
