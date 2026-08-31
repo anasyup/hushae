@@ -124,7 +124,8 @@ const cur = {
 };
 const st = H.buildStatement(cur);
 eq(st.length, 5, 'five statement groups');
-eq(st.map((g) => g.title), ['Income', 'Cost of goods', 'Fulfilment & fees', 'Lost orders', 'Operating costs'], 'group order');
+eq(st.map((g) => g.title), ['Income', 'Cost of goods', 'Fulfilment & fees', 'Lost orders', 'Operating cost estimates'],
+  'group order (no recorded expenses in this fixture, so no extra group)');
 eq(st[0].subtotal.label, 'Net sales', 'income group subtotals to net sales');
 eq(st[0].subtotal.value, 42900, 'net sales subtotal value');
 eq(st[1].subtotal.label, 'Gross profit', 'cost of goods subtotals to gross profit');
@@ -143,6 +144,27 @@ eq(st[3].subtotal.value, st[2].subtotal.value + st[3].rows.reduce((s, r) => s + 
 ok(st.every((g) => g.rows.every((r) => typeof r.value === 'number' && Number.isFinite(r.value))),
   'every statement row is a finite number');
 eq(H.buildStatement(null), [], 'null current period yields no statement');
+
+console.log('\nfinance helpers — recorded expenses join the ladder');
+const withExp = { ...cur, recorded: [{ category: 'marketing', amount: 10000 }, { category: 'rent', amount: 5000 }], recordedTotal: 15000, netProfit: cur.netProfit - 15000 };
+const stExp = H.buildStatement(withExp);
+eq(stExp.length, 6, 'recorded expenses add a sixth group');
+eq(stExp.map((g) => g.title)[4], 'Recorded expenses', 'the new group sits before operating estimates');
+eq(stExp[4].rows.length, 2, 'one row per recorded category');
+eq(stExp[4].rows[0].value, -10000, 'recorded amounts are shown as deductions');
+eq(stExp[4].subtotal.label, 'Profit after expenses', 'recorded group subtotals correctly');
+eq(stExp[4].subtotal.value, withExp.contribution - withExp.sunkCost - withExp.recordedTotal,
+  'profit after expenses = contribution - sunk - recorded');
+/* every group must still add up internally */
+for (const g of stExp) {
+  const prior = stExp[stExp.indexOf(g) - 1];
+  const base = prior ? prior.subtotal.value : 0;
+  eq(g.subtotal.value, base + g.rows.reduce((n, r) => n + r.value, 0),
+    `group "${g.title}" adds up from the previous subtotal`);
+}
+eq(stExp[5].subtotal.label, 'Net profit', 'net profit is still the final group');
+eq(stExp[5].subtotal.emphasis, true, 'net profit stays the emphasised total');
+eq(stExp[5].subtotal.value, withExp.netProfit, 'final subtotal equals the reported net profit');
 
 console.log('\nfinance helpers — memos never counted as revenue');
 const memos = H.buildMemos(cur);

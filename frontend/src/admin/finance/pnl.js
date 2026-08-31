@@ -82,12 +82,24 @@ export function buildStatement(c) {
       ],
       subtotal: { label: 'Profit after losses', value: c.contribution - (c.sunkCost ?? 0) },
     },
+    /* Recorded expenses sit between the order-level losses and the settings
+     * estimates. They get their own group so the merchant can see which of the
+     * two is driving the number, and so double counting would be visible
+     * rather than silent. */
+    ...(c.recorded?.length ? [{
+      title: 'Recorded expenses',
+      rows: c.recorded.map((r) => ({ label: r.category, value: -r.amount })),
+      subtotal: {
+        label: 'Profit after expenses',
+        value: (Number(c.contribution) || 0) - (Number(c.sunkCost) || 0) - (Number(c.recordedTotal) || 0),
+      },
+    }] : []),
     {
-      title: 'Operating costs',
+      title: 'Operating cost estimates',
       rows: [
-        { label: 'Marketing', value: -opex.marketing },
-        { label: 'SEO', value: -opex.seo },
-        { label: 'Other', value: -opex.other },
+        { label: 'Marketing (settings)', value: -opex.marketing },
+        { label: 'SEO (settings)', value: -opex.seo },
+        { label: 'Other (settings)', value: -opex.other },
       ],
       subtotal: { label: 'Net profit', value: c.netProfit, rate: c.netMargin, emphasis: true },
     },

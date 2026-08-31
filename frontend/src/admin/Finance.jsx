@@ -9,6 +9,7 @@ import { buildKpis, buildStatement, delta, runwayDays } from './finance/pnl';
 import { exportPnlReport } from './finance/exportPnl';
 import OrderProfitability from './finance/OrderProfitability';
 import { BreakEven, CodExposure, ProfitByCustomer, ProfitByProduct } from './finance/ProfitTables';
+import FinanceOps from './finance/FinanceOps';
 /* Same stylesheet the Overview page uses, imported rather than copied so the
  * two pages cannot drift apart. Finance is an ATELIER page now, not its own
  * design. */
@@ -510,6 +511,16 @@ export default function Finance() {
               </div>
             </div>
           </div>
+
+          {/* ---------------------- money operations ----------------------
+              Record and match money: expenses, payouts, reconciliation,
+              ledger. This is the half of Finance that DOES things rather than
+              reporting them. */}
+          {c && (
+            <div className={cx('grid3', 'reveal')} style={{ gridTemplateColumns: '1fr' }}>
+              <FinanceOps days={days} onChanged={load} />
+            </div>
+          )}
 
           {/* --------------------- detailed tables ---------------------
               Real, order-level detail. Kept as tables rather than charts

@@ -82,12 +82,23 @@ export function buildPnlHtml({ data, rangeLabel, storeName = 'HUSHAE', generated
       ],
       total: ['Profit after losses', money((Number(c.contribution) || 0) - (Number(c.sunkCost) || 0))],
     },
+    /* Recorded expenses — the actual rent, salaries, photoshoot entries.
+     * Printed as their own block so the statement shows what was really spent
+     * versus what was merely estimated in settings. */
+    ...(c.recorded?.length ? [{
+      title: 'Recorded expenses',
+      rows: c.recorded.map((r) => [
+        `${String(r.category).charAt(0).toUpperCase()}${String(r.category).slice(1)}`,
+        signed(-r.amount),
+      ]),
+      total: ['Profit after expenses', money((Number(c.contribution) || 0) - (Number(c.sunkCost) || 0) - (Number(c.recordedTotal) || 0))],
+    }] : []),
     {
-      title: 'Operating costs',
+      title: 'Operating cost estimates',
       rows: [
-        ['Marketing', signed(-opex.marketing)],
-        ['SEO', signed(-opex.seo)],
-        ['Other', signed(-opex.other)],
+        ['Marketing (settings)', signed(-opex.marketing)],
+        ['SEO (settings)', signed(-opex.seo)],
+        ['Other (settings)', signed(-opex.other)],
       ],
       total: ['Net profit', `${money(c.netProfit)}  ·  ${pct(c.netMargin)}`, true],
     },
