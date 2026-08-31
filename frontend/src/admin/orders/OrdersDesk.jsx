@@ -260,8 +260,8 @@ export default function OrdersDesk() {
           </div>
         )}
 
-        {/* ── main card ── */}
-        <div className="od-card">
+        {/* ── main card: tabs + filters = one organized unit ── */}
+        <div className="od-card od-tabs-card">
           <div className="od-card-h">
             <div className="od-tabs">
               {GROUPS.map((g) => {
