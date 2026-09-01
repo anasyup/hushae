@@ -142,6 +142,11 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
     'businessAddress', 'currency', 'timezone', 'digestLastSent',
     'metafields',
     'search', 'discovery',
+    /* Added with the units / notifications / retention editors. Each is
+     * additive: the schema defaults preserve today's behaviour, so a store
+     * whose document predates them is unaffected. `adminShare` stays out of
+     * this list on purpose — see the note above. */
+    'units', 'notifications', 'retention',
     'marketing'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
@@ -160,6 +165,102 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
 }));
 
 /** Focused endpoint for the goal / threshold widgets — avoids a full settings PUT. */
+/* ============================================================================
+ * CACHE — the search engine keeps the settings document in-process for up to
+ * 60s so a config read is not a database round-trip on every query.
+ *
+ * The honest caveat, which the UI repeats: Vercel rotates across several
+ * instances, so clearing reaches the instance that handled this request. Other
+ * instances age out on their own within 60s. This is a nudge, not a guarantee.
+ * ========================================================================= */
+router.get('/cache', protect, adminOnly, asyncHandler(async (_req, res) => {
+  const { searchConfig, discoveryConfig } = require('../utils/searchEngine');
+  const [search, discovery] = await Promise.all([
+    searchConfig().catch(() => null),
+    discoveryConfig().catch(() => null),
+  ]);
+  res.json({
+    ttlSeconds: 60,
+    /* Only what is safe to show. Raw settings can hold SMTP credentials, so
+     * this reports shape, never values. */
+    search: search ? {
+      loaded: true,
+      groups: Object.keys(search).filter((k) => search[k] && typeof search[k] === 'object' && !Array.isArray(search[k])),
+      synonyms: Array.isArray(search.synonyms) ? search.synonyms.length : 0,
+    } : { loaded: false },
+    discovery: discovery ? { loaded: true, keys: Object.keys(discovery).length } : { loaded: false },
+    scope: 'per-instance — other Vercel instances age out within 60s',
+  });
+}));
+
+router.post('/cache/clear', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { invalidateSettingsCache } = require('../utils/searchEngine');
+  invalidateSettingsCache();
+  try {
+    const { logAction } = require('../utils/auditLogger');
+    await logAction(req.user?.email, 'update', 'settings-cache', null, null, { cleared: true });
+  } catch { /* audit is best-effort */ }
+  res.json({
+    ok: true,
+    cleared: true,
+    note: 'Cleared on this instance. Other Vercel instances age out within 60s.',
+  });
+}));
+
+/* ============================================================================
+ * CONFIG — a read-only, REDACTED view of the effective settings document.
+ *
+ * This deliberately does not reuse GET /settings/admin. That endpoint returns
+ * the raw document because SettingsEmail needs to edit the SMTP password in
+ * place; dumping the same payload into a general "view my config" screen would
+ * spread plaintext credentials across another surface for no benefit.
+ *
+ * Redaction is by key-name match on anything credential-shaped, applied at
+ * every depth, plus an explicit deny list. Unknown keys are shown — hiding
+ * them would defeat the point of a config viewer — but anything whose name
+ * suggests a secret is replaced with a marker that still says whether a value
+ * is present, which is what an operator actually needs to know.
+ * ========================================================================= */
+const SECRET_KEY = /(pass|passwd|password|secret|token|apikey|api_key|key$|credential|private|auth)/i;
+const SECRET_DENY = new Set(['pass', 'password', 'secret', 'token', 'apiKey', 'privateKey', 'adminShare']);
+
+function redactValue(k, v) {
+  if (v === null || v === undefined) return v;
+  if (SECRET_DENY.has(k) || SECRET_KEY.test(k)) {
+    if (typeof v === 'object') return '[redacted object]';
+    return v === '' || v === false ? '(not set)' : '[redacted]';
+  }
+  if (Array.isArray(v)) return v.map((x, i) => redactValue(String(i), x));
+  if (typeof v === 'object') {
+    const out = {};
+    for (const [kk, vv] of Object.entries(v)) out[kk] = redactValue(kk, vv);
+    return out;
+  }
+  return v;
+}
+
+router.get('/config', protect, adminOnly, asyncHandler(async (_req, res) => {
+  const s = await getSettings();
+  const doc = s.toObject ? s.toObject() : s;
+  const redacted = redactValue('root', doc);
+  /* Mongoose bookkeeping is noise in a config view. */
+  for (const k of ['_id', '__v', 'createdAt', 'updatedAt']) delete redacted[k];
+
+  const groups = Object.entries(redacted)
+    .map(([key, value]) => ({
+      key,
+      kind: Array.isArray(value) ? `array (${value.length})` : value === null ? 'null' : typeof value,
+      fields: value && typeof value === 'object' && !Array.isArray(value) ? Object.keys(value).length : null,
+    }))
+    .sort((a, b) => a.key.localeCompare(b.key));
+
+  res.json({
+    redacted,
+    groups,
+    note: 'Read-only. Credential-shaped values are redacted; edit them on their own settings page.',
+  });
+}));
+
 router.post('/goals', protect, adminOnly, asyncHandler(async (req, res) => {
   const s = await getSettings();
   const { monthlyRevenueGoal, marginThresholdPercent } = req.body || {};

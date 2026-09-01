@@ -55,6 +55,29 @@ async function getTransporter() {
   return { transporter: cachedTransporter, from };
 }
 
+/* ============================================================================
+ * NOTIFICATION GATE
+ *
+ * Settings → Notifications lets the merchant switch individual transactional
+ * emails off. The `?? true` fallback matters: a store whose settings document
+ * predates the notifications block has no value here at all, and the mailer
+ * used to send unconditionally — so "missing" must mean "send", or adding the
+ * editor would have silently switched off live emails.
+ *
+ * A lookup failure also means "send". Losing a customer's order confirmation
+ * because a settings read threw is worse than sending one they did not want.
+ * ========================================================================== */
+async function notifyEnabled(kind, channel = 'email') {
+  try {
+    const Settings = require('../models/Settings');
+    const s = await Settings.findOne({ key: 'store' }).lean();
+    const v = s?.notifications?.[kind]?.[channel];
+    return v === undefined || v === null ? true : !!v;
+  } catch {
+    return true;
+  }
+}
+
 async function sendMail({ to, subject, html, text, bcc, replyTo }) {
   if (!to || !subject) return { skipped: true, reason: 'missing to/subject' };
   try {
@@ -331,6 +354,7 @@ function replaceVariables(html, vars) {
 
 /* Customer — order confirmation */
 async function sendOrderConfirmation(order, storeInfo = {}) {
+  if (!(await notifyEnabled('newOrder'))) return { skipped: true, reason: 'order confirmation disabled in Settings \u2192 Notifications' };
   if (!order?.customerInfo?.email) return { skipped: true, reason: 'no customer email' };
   
   const t = await getTemplate('order_confirmation');
@@ -361,6 +385,7 @@ async function sendOrderConfirmation(order, storeInfo = {}) {
 
 /* Admin — new order alert */
 async function sendNewOrderAlert(order, storeInfo = {}) {
+  if (!(await notifyEnabled('adminAlerts'))) return { skipped: true, reason: 'admin new-order alert disabled in Settings \u2192 Notifications' };
   const adminEmail = storeInfo.adminEmail || process.env.ADMIN_ALERT_EMAIL || process.env.SMTP_USER;
   if (!adminEmail) return { skipped: true, reason: 'no admin email' };
 
@@ -395,6 +420,7 @@ async function sendNewOrderAlert(order, storeInfo = {}) {
 
 /* Customer — status change (Shipped / Delivered) */
 async function sendStatusUpdate(order, storeInfo = {}) {
+  if (!(await notifyEnabled('orderStatus'))) return { skipped: true, reason: 'status update disabled in Settings \u2192 Notifications' };
   if (!order?.customerInfo?.email) return { skipped: true, reason: 'no customer email' };
   
   const t = await getTemplate('status_update');
@@ -434,6 +460,7 @@ async function sendStatusUpdate(order, storeInfo = {}) {
 
 /* Abandoned cart recovery email */
 async function sendAbandonedCartRecovery(cart) {
+  if (!(await notifyEnabled('abandonedCart'))) return { skipped: true, reason: 'abandoned cart recovery disabled in Settings \u2192 Notifications' };
   if (!cart?.email) return { skipped: true, reason: 'no email' };
   
   const t = await getTemplate('abandoned_cart');
@@ -467,6 +494,7 @@ async function sendAbandonedCartRecovery(cart) {
 }
 
 async function sendLoyaltyReward(order, discount) {
+  if (!(await notifyEnabled('loyaltyReward'))) return { skipped: true, reason: 'loyalty reward disabled in Settings \u2192 Notifications' };
   const c = order.customerInfo || {};
   if (!c.email) return { ok: false, reason: 'no-email' };
   
@@ -492,6 +520,7 @@ async function sendLoyaltyReward(order, discount) {
 }
 
 async function sendReviewRequest(order, storeInfo = {}) {
+  if (!(await notifyEnabled('reviewRequest'))) return { skipped: true, reason: 'review request disabled in Settings \u2192 Notifications' };
   const c = order.customerInfo || {};
   if (!c.email) return { skipped: true, reason: 'no-email' };
 
@@ -526,6 +555,7 @@ async function sendReviewRequest(order, storeInfo = {}) {
 }
 
 async function sendWeeklyDigest(stats, storeInfo = {}) {
+  if (!(await notifyEnabled('weeklyDigest'))) return { skipped: true, reason: 'weekly digest disabled in Settings \u2192 Notifications' };
   const name = storeInfo.storeName || 'HUSHAE';
   const to = storeInfo.contactEmail;
   if (!to) return { ok: false, reason: 'no contact email' };

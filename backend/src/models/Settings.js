@@ -1222,6 +1222,52 @@ const settingsSchema = new mongoose.Schema({
   monthlyRevenueGoal: { type: Number, default: 0 },
   /** Orders below this net margin are flagged amber on the profitability table. */
   marginThresholdPercent: { type: Number, default: 15 },
+  /* ========================================================================
+   * UNITS — how weights and dimensions are displayed and entered.
+   *
+   * Storage never changes: Product.weightGrams stays grams regardless of what
+   * the merchant picks here, so switching units can never corrupt existing
+   * data or silently rescale a product. This is display/input only.
+   * ====================================================================== */
+  units: {
+    weight:    { type: String, default: 'g',  enum: ['g', 'kg', 'oz', 'lb'] },
+    dimension: { type: String, default: 'cm', enum: ['cm', 'in'] },
+  },
+
+  /* ========================================================================
+   * NOTIFICATIONS — which transactional emails actually fire.
+   *
+   * Every default is TRUE on purpose: before this block existed the mailer
+   * sent unconditionally, so a default of false would have silently switched
+   * off emails that are running today. utils/mailer.js reads these with a
+   * `?? true` fallback, which means a store whose document predates this
+   * block behaves exactly as it did before.
+   * ====================================================================== */
+  notifications: {
+    newOrder:        { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: true } },
+    orderStatus:     { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: false } },
+    abandonedCart:   { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: false } },
+    reviewRequest:   { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: false } },
+    loyaltyReward:   { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: false } },
+    weeklyDigest:    { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: false } },
+    adminAlerts:     { email: { type: Boolean, default: true }, whatsapp: { type: Boolean, default: false } },
+  },
+
+  /* ========================================================================
+   * RETENTION — how long operational data is kept.
+   *
+   * Nothing is deleted by adding this block; `enabled` defaults to false, so
+   * a store keeps everything exactly as it does today until the merchant
+   * explicitly turns pruning on.
+   * ====================================================================== */
+  retention: {
+    enabled:          { type: Boolean, default: false },
+    auditLogDays:     { type: Number, default: 180, min: 7 },
+    abandonedCartDays:{ type: Number, default: 90,  min: 7 },
+    pageViewDays:     { type: Number, default: 60,  min: 7 },
+    lastRunAt:        { type: Date, default: null },
+  },
+
   // --- Marketing Automation settings ---
   automation: {
     abandonedCart: {
