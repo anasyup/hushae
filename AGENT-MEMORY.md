@@ -373,3 +373,10 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
 - NAV cleanup done: 135 -> 90 links (Channels group removed as clutter,
   SMS/Social removed, Apps trimmed); ~85 legacy paths redirect via
   ADMIN_REDIRECTS in App.jsx (Route /admin/* after all real admin routes).
+
+## 2026-09-02 — HONESTY AUDIT + cmd-hl fix (7f50983)
+- Boss bola kuch cheezein "wasa he" (unchanged). Full live audit kiya — markers se:
+  - LIVE (verified by content): On Hold (OrdersDesk JS), od-tabs-card/od-fbar-row (AdminLayout CSS), Finance ops "Safepay" (bc3862e), SettingsConfig editor "Could not load configuration" (f597760). Sab commits upto f597760 live the.
+  - BUG FOUND: `.cmd-hl` (palette gold highlight, commit 2c8b5ef) kabhi ship nahi hui — `frontend/src/admin/admin-shell.css` orphaned tha (kahin import nahi tha; main.jsx sirf root `src/admin-shell.css` import karta ha). Fix: CommandPalette.jsx me `import './admin-shell.css'` add kiya → 7f50983, live verified: `cmd-hl{background:#c9a96e47;...}` in AdminLayout-CDz0jetd.css.
+- Lesson: "live-verified" claim sirf tab jab khud grep kiya ho us specific class/string ke liye.
+- Agar boss ko page purana lage: hard refresh Ctrl+Shift+R / incognito (browser cache).
