@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
+import './admin-shell.css'; /* .cmd-hl gold match-highlight — was orphaned (never imported), so the style never shipped */
 
 /* ============================================================================
  * COMMAND PALETTE — advanced JS pass: Framer entrance + stagger, fuzzy
